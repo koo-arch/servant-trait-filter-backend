@@ -15,6 +15,7 @@ type Servant struct {
 
 func (Servant) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("name").NotEmpty(),
 		field.String("face"),
 	}
 }
@@ -33,6 +34,5 @@ func (Servant) Edges() []ent.Edge {
 func (Servant) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.TimeMixin{},
-		mixin.NameMixin{},
 	}
 }

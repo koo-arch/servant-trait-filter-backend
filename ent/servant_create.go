@@ -53,15 +53,9 @@ func (sc *ServantCreate) SetNillableUpdatedAt(t *time.Time) *ServantCreate {
 	return sc
 }
 
-// SetNameEn sets the "name_en" field.
-func (sc *ServantCreate) SetNameEn(s string) *ServantCreate {
-	sc.mutation.SetNameEn(s)
-	return sc
-}
-
-// SetNameJa sets the "name_ja" field.
-func (sc *ServantCreate) SetNameJa(s string) *ServantCreate {
-	sc.mutation.SetNameJa(s)
+// SetName sets the "name" field.
+func (sc *ServantCreate) SetName(s string) *ServantCreate {
+	sc.mutation.SetName(s)
 	return sc
 }
 
@@ -215,16 +209,13 @@ func (sc *ServantCreate) check() error {
 	if _, ok := sc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Servant.updated_at"`)}
 	}
-	if _, ok := sc.mutation.NameEn(); !ok {
-		return &ValidationError{Name: "name_en", err: errors.New(`ent: missing required field "Servant.name_en"`)}
+	if _, ok := sc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Servant.name"`)}
 	}
-	if v, ok := sc.mutation.NameEn(); ok {
-		if err := servant.NameEnValidator(v); err != nil {
-			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "Servant.name_en": %w`, err)}
+	if v, ok := sc.mutation.Name(); ok {
+		if err := servant.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
 		}
-	}
-	if _, ok := sc.mutation.NameJa(); !ok {
-		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "Servant.name_ja"`)}
 	}
 	if _, ok := sc.mutation.Face(); !ok {
 		return &ValidationError{Name: "face", err: errors.New(`ent: missing required field "Servant.face"`)}
@@ -263,13 +254,9 @@ func (sc *ServantCreate) createSpec() (*Servant, *sqlgraph.CreateSpec) {
 		_spec.SetField(servant.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := sc.mutation.NameEn(); ok {
-		_spec.SetField(servant.FieldNameEn, field.TypeString, value)
-		_node.NameEn = value
-	}
-	if value, ok := sc.mutation.NameJa(); ok {
-		_spec.SetField(servant.FieldNameJa, field.TypeString, value)
-		_node.NameJa = value
+	if value, ok := sc.mutation.Name(); ok {
+		_spec.SetField(servant.FieldName, field.TypeString, value)
+		_node.Name = value
 	}
 	if value, ok := sc.mutation.Face(); ok {
 		_spec.SetField(servant.FieldFace, field.TypeString, value)

@@ -18,10 +18,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldNameEn holds the string denoting the name_en field in the database.
-	FieldNameEn = "name_en"
-	// FieldNameJa holds the string denoting the name_ja field in the database.
-	FieldNameJa = "name_ja"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
 	// FieldFace holds the string denoting the face field in the database.
 	FieldFace = "face"
 	// EdgeClass holds the string denoting the class edge name in mutations.
@@ -76,8 +74,7 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldNameEn,
-	FieldNameJa,
+	FieldName,
 	FieldFace,
 }
 
@@ -118,8 +115,8 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
-	NameEnValidator func(string) error
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the Servant queries.
@@ -140,14 +137,9 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
-// ByNameEn orders the results by the name_en field.
-func ByNameEn(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldNameEn, opts...).ToFunc()
-}
-
-// ByNameJa orders the results by the name_ja field.
-func ByNameJa(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldNameJa, opts...).ToFunc()
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
 // ByFace orders the results by the face field.

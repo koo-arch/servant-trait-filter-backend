@@ -25,10 +25,8 @@ type Servant struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// NameEn holds the value of the "name_en" field.
-	NameEn string `json:"name_en,omitempty"`
-	// NameJa holds the value of the "name_ja" field.
-	NameJa string `json:"name_ja,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
 	// Face holds the value of the "face" field.
 	Face string `json:"face,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -118,7 +116,7 @@ func (*Servant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case servant.FieldID:
 			values[i] = new(sql.NullInt64)
-		case servant.FieldNameEn, servant.FieldNameJa, servant.FieldFace:
+		case servant.FieldName, servant.FieldFace:
 			values[i] = new(sql.NullString)
 		case servant.FieldCreatedAt, servant.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -163,17 +161,11 @@ func (s *Servant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.UpdatedAt = value.Time
 			}
-		case servant.FieldNameEn:
+		case servant.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name_en", values[i])
+				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				s.NameEn = value.String
-			}
-		case servant.FieldNameJa:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name_ja", values[i])
-			} else if value.Valid {
-				s.NameJa = value.String
+				s.Name = value.String
 			}
 		case servant.FieldFace:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -276,11 +268,8 @@ func (s *Servant) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(s.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("name_en=")
-	builder.WriteString(s.NameEn)
-	builder.WriteString(", ")
-	builder.WriteString("name_ja=")
-	builder.WriteString(s.NameJa)
+	builder.WriteString("name=")
+	builder.WriteString(s.Name)
 	builder.WriteString(", ")
 	builder.WriteString("face=")
 	builder.WriteString(s.Face)
