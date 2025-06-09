@@ -105,8 +105,6 @@ func init() {
 	servantMixin := schema.Servant{}.Mixin()
 	servantMixinFields0 := servantMixin[0].Fields()
 	_ = servantMixinFields0
-	servantMixinFields1 := servantMixin[1].Fields()
-	_ = servantMixinFields1
 	servantFields := schema.Servant{}.Fields()
 	_ = servantFields
 	// servantDescCreatedAt is the schema descriptor for created_at field.
@@ -119,10 +117,10 @@ func init() {
 	servant.DefaultUpdatedAt = servantDescUpdatedAt.Default.(func() time.Time)
 	// servant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	servant.UpdateDefaultUpdatedAt = servantDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// servantDescNameEn is the schema descriptor for name_en field.
-	servantDescNameEn := servantMixinFields1[0].Descriptor()
-	// servant.NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
-	servant.NameEnValidator = servantDescNameEn.Validators[0].(func(string) error)
+	// servantDescName is the schema descriptor for name field.
+	servantDescName := servantFields[0].Descriptor()
+	// servant.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	servant.NameValidator = servantDescName.Validators[0].(func(string) error)
 	traitMixin := schema.Trait{}.Mixin()
 	traitMixinFields0 := traitMixin[0].Fields()
 	_ = traitMixinFields0

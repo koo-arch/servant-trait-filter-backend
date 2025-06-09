@@ -2369,8 +2369,7 @@ type ServantMutation struct {
 	id                     *int
 	created_at             *time.Time
 	updated_at             *time.Time
-	name_en                *string
-	name_ja                *string
+	name                   *string
 	face                   *string
 	clearedFields          map[string]struct{}
 	class                  *int
@@ -2559,76 +2558,40 @@ func (m *ServantMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
-// SetNameEn sets the "name_en" field.
-func (m *ServantMutation) SetNameEn(s string) {
-	m.name_en = &s
+// SetName sets the "name" field.
+func (m *ServantMutation) SetName(s string) {
+	m.name = &s
 }
 
-// NameEn returns the value of the "name_en" field in the mutation.
-func (m *ServantMutation) NameEn() (r string, exists bool) {
-	v := m.name_en
+// Name returns the value of the "name" field in the mutation.
+func (m *ServantMutation) Name() (r string, exists bool) {
+	v := m.name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldNameEn returns the old "name_en" field's value of the Servant entity.
+// OldName returns the old "name" field's value of the Servant entity.
 // If the Servant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServantMutation) OldNameEn(ctx context.Context) (v string, err error) {
+func (m *ServantMutation) OldName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldNameEn is only allowed on UpdateOne operations")
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldNameEn requires an ID field in the mutation")
+		return v, errors.New("OldName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldNameEn: %w", err)
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
 	}
-	return oldValue.NameEn, nil
+	return oldValue.Name, nil
 }
 
-// ResetNameEn resets all changes to the "name_en" field.
-func (m *ServantMutation) ResetNameEn() {
-	m.name_en = nil
-}
-
-// SetNameJa sets the "name_ja" field.
-func (m *ServantMutation) SetNameJa(s string) {
-	m.name_ja = &s
-}
-
-// NameJa returns the value of the "name_ja" field in the mutation.
-func (m *ServantMutation) NameJa() (r string, exists bool) {
-	v := m.name_ja
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldNameJa returns the old "name_ja" field's value of the Servant entity.
-// If the Servant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServantMutation) OldNameJa(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldNameJa is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldNameJa requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldNameJa: %w", err)
-	}
-	return oldValue.NameJa, nil
-}
-
-// ResetNameJa resets all changes to the "name_ja" field.
-func (m *ServantMutation) ResetNameJa() {
-	m.name_ja = nil
+// ResetName resets all changes to the "name" field.
+func (m *ServantMutation) ResetName() {
+	m.name = nil
 }
 
 // SetFace sets the "face" field.
@@ -2911,18 +2874,15 @@ func (m *ServantMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServantMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 4)
 	if m.created_at != nil {
 		fields = append(fields, servant.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, servant.FieldUpdatedAt)
 	}
-	if m.name_en != nil {
-		fields = append(fields, servant.FieldNameEn)
-	}
-	if m.name_ja != nil {
-		fields = append(fields, servant.FieldNameJa)
+	if m.name != nil {
+		fields = append(fields, servant.FieldName)
 	}
 	if m.face != nil {
 		fields = append(fields, servant.FieldFace)
@@ -2939,10 +2899,8 @@ func (m *ServantMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case servant.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case servant.FieldNameEn:
-		return m.NameEn()
-	case servant.FieldNameJa:
-		return m.NameJa()
+	case servant.FieldName:
+		return m.Name()
 	case servant.FieldFace:
 		return m.Face()
 	}
@@ -2958,10 +2916,8 @@ func (m *ServantMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCreatedAt(ctx)
 	case servant.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case servant.FieldNameEn:
-		return m.OldNameEn(ctx)
-	case servant.FieldNameJa:
-		return m.OldNameJa(ctx)
+	case servant.FieldName:
+		return m.OldName(ctx)
 	case servant.FieldFace:
 		return m.OldFace(ctx)
 	}
@@ -2987,19 +2943,12 @@ func (m *ServantMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
-	case servant.FieldNameEn:
+	case servant.FieldName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetNameEn(v)
-		return nil
-	case servant.FieldNameJa:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetNameJa(v)
+		m.SetName(v)
 		return nil
 	case servant.FieldFace:
 		v, ok := value.(string)
@@ -3063,11 +3012,8 @@ func (m *ServantMutation) ResetField(name string) error {
 	case servant.FieldUpdatedAt:
 		m.ResetUpdatedAt()
 		return nil
-	case servant.FieldNameEn:
-		m.ResetNameEn()
-		return nil
-	case servant.FieldNameJa:
-		m.ResetNameJa()
+	case servant.FieldName:
+		m.ResetName()
 		return nil
 	case servant.FieldFace:
 		m.ResetFace()

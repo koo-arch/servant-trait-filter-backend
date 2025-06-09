@@ -65,14 +65,9 @@ func UpdatedAt(v time.Time) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// NameEn applies equality check predicate on the "name_en" field. It's identical to NameEnEQ.
-func NameEn(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldNameEn, v))
-}
-
-// NameJa applies equality check predicate on the "name_ja" field. It's identical to NameJaEQ.
-func NameJa(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldNameJa, v))
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldName, v))
 }
 
 // Face applies equality check predicate on the "face" field. It's identical to FaceEQ.
@@ -160,134 +155,69 @@ func UpdatedAtLTE(v time.Time) predicate.Servant {
 	return predicate.Servant(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
-// NameEnEQ applies the EQ predicate on the "name_en" field.
-func NameEnEQ(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldNameEn, v))
+// NameEQ applies the EQ predicate on the "name" field.
+func NameEQ(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldName, v))
 }
 
-// NameEnNEQ applies the NEQ predicate on the "name_en" field.
-func NameEnNEQ(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldNEQ(FieldNameEn, v))
+// NameNEQ applies the NEQ predicate on the "name" field.
+func NameNEQ(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldNEQ(FieldName, v))
 }
 
-// NameEnIn applies the In predicate on the "name_en" field.
-func NameEnIn(vs ...string) predicate.Servant {
-	return predicate.Servant(sql.FieldIn(FieldNameEn, vs...))
+// NameIn applies the In predicate on the "name" field.
+func NameIn(vs ...string) predicate.Servant {
+	return predicate.Servant(sql.FieldIn(FieldName, vs...))
 }
 
-// NameEnNotIn applies the NotIn predicate on the "name_en" field.
-func NameEnNotIn(vs ...string) predicate.Servant {
-	return predicate.Servant(sql.FieldNotIn(FieldNameEn, vs...))
+// NameNotIn applies the NotIn predicate on the "name" field.
+func NameNotIn(vs ...string) predicate.Servant {
+	return predicate.Servant(sql.FieldNotIn(FieldName, vs...))
 }
 
-// NameEnGT applies the GT predicate on the "name_en" field.
-func NameEnGT(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldGT(FieldNameEn, v))
+// NameGT applies the GT predicate on the "name" field.
+func NameGT(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldGT(FieldName, v))
 }
 
-// NameEnGTE applies the GTE predicate on the "name_en" field.
-func NameEnGTE(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldGTE(FieldNameEn, v))
+// NameGTE applies the GTE predicate on the "name" field.
+func NameGTE(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldGTE(FieldName, v))
 }
 
-// NameEnLT applies the LT predicate on the "name_en" field.
-func NameEnLT(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldLT(FieldNameEn, v))
+// NameLT applies the LT predicate on the "name" field.
+func NameLT(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldLT(FieldName, v))
 }
 
-// NameEnLTE applies the LTE predicate on the "name_en" field.
-func NameEnLTE(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldLTE(FieldNameEn, v))
+// NameLTE applies the LTE predicate on the "name" field.
+func NameLTE(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldLTE(FieldName, v))
 }
 
-// NameEnContains applies the Contains predicate on the "name_en" field.
-func NameEnContains(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldContains(FieldNameEn, v))
+// NameContains applies the Contains predicate on the "name" field.
+func NameContains(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldContains(FieldName, v))
 }
 
-// NameEnHasPrefix applies the HasPrefix predicate on the "name_en" field.
-func NameEnHasPrefix(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldHasPrefix(FieldNameEn, v))
+// NameHasPrefix applies the HasPrefix predicate on the "name" field.
+func NameHasPrefix(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldHasPrefix(FieldName, v))
 }
 
-// NameEnHasSuffix applies the HasSuffix predicate on the "name_en" field.
-func NameEnHasSuffix(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldHasSuffix(FieldNameEn, v))
+// NameHasSuffix applies the HasSuffix predicate on the "name" field.
+func NameHasSuffix(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldHasSuffix(FieldName, v))
 }
 
-// NameEnEqualFold applies the EqualFold predicate on the "name_en" field.
-func NameEnEqualFold(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldEqualFold(FieldNameEn, v))
+// NameEqualFold applies the EqualFold predicate on the "name" field.
+func NameEqualFold(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldEqualFold(FieldName, v))
 }
 
-// NameEnContainsFold applies the ContainsFold predicate on the "name_en" field.
-func NameEnContainsFold(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldContainsFold(FieldNameEn, v))
-}
-
-// NameJaEQ applies the EQ predicate on the "name_ja" field.
-func NameJaEQ(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldNameJa, v))
-}
-
-// NameJaNEQ applies the NEQ predicate on the "name_ja" field.
-func NameJaNEQ(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldNEQ(FieldNameJa, v))
-}
-
-// NameJaIn applies the In predicate on the "name_ja" field.
-func NameJaIn(vs ...string) predicate.Servant {
-	return predicate.Servant(sql.FieldIn(FieldNameJa, vs...))
-}
-
-// NameJaNotIn applies the NotIn predicate on the "name_ja" field.
-func NameJaNotIn(vs ...string) predicate.Servant {
-	return predicate.Servant(sql.FieldNotIn(FieldNameJa, vs...))
-}
-
-// NameJaGT applies the GT predicate on the "name_ja" field.
-func NameJaGT(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldGT(FieldNameJa, v))
-}
-
-// NameJaGTE applies the GTE predicate on the "name_ja" field.
-func NameJaGTE(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldGTE(FieldNameJa, v))
-}
-
-// NameJaLT applies the LT predicate on the "name_ja" field.
-func NameJaLT(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldLT(FieldNameJa, v))
-}
-
-// NameJaLTE applies the LTE predicate on the "name_ja" field.
-func NameJaLTE(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldLTE(FieldNameJa, v))
-}
-
-// NameJaContains applies the Contains predicate on the "name_ja" field.
-func NameJaContains(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldContains(FieldNameJa, v))
-}
-
-// NameJaHasPrefix applies the HasPrefix predicate on the "name_ja" field.
-func NameJaHasPrefix(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldHasPrefix(FieldNameJa, v))
-}
-
-// NameJaHasSuffix applies the HasSuffix predicate on the "name_ja" field.
-func NameJaHasSuffix(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldHasSuffix(FieldNameJa, v))
-}
-
-// NameJaEqualFold applies the EqualFold predicate on the "name_ja" field.
-func NameJaEqualFold(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldEqualFold(FieldNameJa, v))
-}
-
-// NameJaContainsFold applies the ContainsFold predicate on the "name_ja" field.
-func NameJaContainsFold(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldContainsFold(FieldNameJa, v))
+// NameContainsFold applies the ContainsFold predicate on the "name" field.
+func NameContainsFold(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldContainsFold(FieldName, v))
 }
 
 // FaceEQ applies the EQ predicate on the "face" field.

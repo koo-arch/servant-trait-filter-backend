@@ -39,30 +39,16 @@ func (su *ServantUpdate) SetUpdatedAt(t time.Time) *ServantUpdate {
 	return su
 }
 
-// SetNameEn sets the "name_en" field.
-func (su *ServantUpdate) SetNameEn(s string) *ServantUpdate {
-	su.mutation.SetNameEn(s)
+// SetName sets the "name" field.
+func (su *ServantUpdate) SetName(s string) *ServantUpdate {
+	su.mutation.SetName(s)
 	return su
 }
 
-// SetNillableNameEn sets the "name_en" field if the given value is not nil.
-func (su *ServantUpdate) SetNillableNameEn(s *string) *ServantUpdate {
+// SetNillableName sets the "name" field if the given value is not nil.
+func (su *ServantUpdate) SetNillableName(s *string) *ServantUpdate {
 	if s != nil {
-		su.SetNameEn(*s)
-	}
-	return su
-}
-
-// SetNameJa sets the "name_ja" field.
-func (su *ServantUpdate) SetNameJa(s string) *ServantUpdate {
-	su.mutation.SetNameJa(s)
-	return su
-}
-
-// SetNillableNameJa sets the "name_ja" field if the given value is not nil.
-func (su *ServantUpdate) SetNillableNameJa(s *string) *ServantUpdate {
-	if s != nil {
-		su.SetNameJa(*s)
+		su.SetName(*s)
 	}
 	return su
 }
@@ -260,9 +246,9 @@ func (su *ServantUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (su *ServantUpdate) check() error {
-	if v, ok := su.mutation.NameEn(); ok {
-		if err := servant.NameEnValidator(v); err != nil {
-			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "Servant.name_en": %w`, err)}
+	if v, ok := su.mutation.Name(); ok {
+		if err := servant.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
 		}
 	}
 	return nil
@@ -283,11 +269,8 @@ func (su *ServantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.UpdatedAt(); ok {
 		_spec.SetField(servant.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := su.mutation.NameEn(); ok {
-		_spec.SetField(servant.FieldNameEn, field.TypeString, value)
-	}
-	if value, ok := su.mutation.NameJa(); ok {
-		_spec.SetField(servant.FieldNameJa, field.TypeString, value)
+	if value, ok := su.mutation.Name(); ok {
+		_spec.SetField(servant.FieldName, field.TypeString, value)
 	}
 	if value, ok := su.mutation.Face(); ok {
 		_spec.SetField(servant.FieldFace, field.TypeString, value)
@@ -479,30 +462,16 @@ func (suo *ServantUpdateOne) SetUpdatedAt(t time.Time) *ServantUpdateOne {
 	return suo
 }
 
-// SetNameEn sets the "name_en" field.
-func (suo *ServantUpdateOne) SetNameEn(s string) *ServantUpdateOne {
-	suo.mutation.SetNameEn(s)
+// SetName sets the "name" field.
+func (suo *ServantUpdateOne) SetName(s string) *ServantUpdateOne {
+	suo.mutation.SetName(s)
 	return suo
 }
 
-// SetNillableNameEn sets the "name_en" field if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableNameEn(s *string) *ServantUpdateOne {
+// SetNillableName sets the "name" field if the given value is not nil.
+func (suo *ServantUpdateOne) SetNillableName(s *string) *ServantUpdateOne {
 	if s != nil {
-		suo.SetNameEn(*s)
-	}
-	return suo
-}
-
-// SetNameJa sets the "name_ja" field.
-func (suo *ServantUpdateOne) SetNameJa(s string) *ServantUpdateOne {
-	suo.mutation.SetNameJa(s)
-	return suo
-}
-
-// SetNillableNameJa sets the "name_ja" field if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableNameJa(s *string) *ServantUpdateOne {
-	if s != nil {
-		suo.SetNameJa(*s)
+		suo.SetName(*s)
 	}
 	return suo
 }
@@ -713,9 +682,9 @@ func (suo *ServantUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (suo *ServantUpdateOne) check() error {
-	if v, ok := suo.mutation.NameEn(); ok {
-		if err := servant.NameEnValidator(v); err != nil {
-			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "Servant.name_en": %w`, err)}
+	if v, ok := suo.mutation.Name(); ok {
+		if err := servant.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
 		}
 	}
 	return nil
@@ -753,11 +722,8 @@ func (suo *ServantUpdateOne) sqlSave(ctx context.Context) (_node *Servant, err e
 	if value, ok := suo.mutation.UpdatedAt(); ok {
 		_spec.SetField(servant.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := suo.mutation.NameEn(); ok {
-		_spec.SetField(servant.FieldNameEn, field.TypeString, value)
-	}
-	if value, ok := suo.mutation.NameJa(); ok {
-		_spec.SetField(servant.FieldNameJa, field.TypeString, value)
+	if value, ok := suo.mutation.Name(); ok {
+		_spec.SetField(servant.FieldName, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.Face(); ok {
 		_spec.SetField(servant.FieldFace, field.TypeString, value)
