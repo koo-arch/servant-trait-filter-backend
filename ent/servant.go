@@ -29,6 +29,8 @@ type Servant struct {
 	NameEn string `json:"name_en,omitempty"`
 	// NameJa holds the value of the "name_ja" field.
 	NameJa string `json:"name_ja,omitempty"`
+	// Face holds the value of the "face" field.
+	Face string `json:"face,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ServantQuery when eager-loading is set.
 	Edges                    ServantEdges `json:"edges"`
@@ -116,7 +118,7 @@ func (*Servant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case servant.FieldID:
 			values[i] = new(sql.NullInt64)
-		case servant.FieldNameEn, servant.FieldNameJa:
+		case servant.FieldNameEn, servant.FieldNameJa, servant.FieldFace:
 			values[i] = new(sql.NullString)
 		case servant.FieldCreatedAt, servant.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -172,6 +174,12 @@ func (s *Servant) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name_ja", values[i])
 			} else if value.Valid {
 				s.NameJa = value.String
+			}
+		case servant.FieldFace:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field face", values[i])
+			} else if value.Valid {
+				s.Face = value.String
 			}
 		case servant.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -273,6 +281,9 @@ func (s *Servant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name_ja=")
 	builder.WriteString(s.NameJa)
+	builder.WriteString(", ")
+	builder.WriteString("face=")
+	builder.WriteString(s.Face)
 	builder.WriteByte(')')
 	return builder.String()
 }

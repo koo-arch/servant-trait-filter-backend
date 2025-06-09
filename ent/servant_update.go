@@ -67,6 +67,20 @@ func (su *ServantUpdate) SetNillableNameJa(s *string) *ServantUpdate {
 	return su
 }
 
+// SetFace sets the "face" field.
+func (su *ServantUpdate) SetFace(s string) *ServantUpdate {
+	su.mutation.SetFace(s)
+	return su
+}
+
+// SetNillableFace sets the "face" field if the given value is not nil.
+func (su *ServantUpdate) SetNillableFace(s *string) *ServantUpdate {
+	if s != nil {
+		su.SetFace(*s)
+	}
+	return su
+}
+
 // SetClassID sets the "class" edge to the Class entity by ID.
 func (su *ServantUpdate) SetClassID(id int) *ServantUpdate {
 	su.mutation.SetClassID(id)
@@ -274,6 +288,9 @@ func (su *ServantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.NameJa(); ok {
 		_spec.SetField(servant.FieldNameJa, field.TypeString, value)
+	}
+	if value, ok := su.mutation.Face(); ok {
+		_spec.SetField(servant.FieldFace, field.TypeString, value)
 	}
 	if su.mutation.ClassCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -486,6 +503,20 @@ func (suo *ServantUpdateOne) SetNameJa(s string) *ServantUpdateOne {
 func (suo *ServantUpdateOne) SetNillableNameJa(s *string) *ServantUpdateOne {
 	if s != nil {
 		suo.SetNameJa(*s)
+	}
+	return suo
+}
+
+// SetFace sets the "face" field.
+func (suo *ServantUpdateOne) SetFace(s string) *ServantUpdateOne {
+	suo.mutation.SetFace(s)
+	return suo
+}
+
+// SetNillableFace sets the "face" field if the given value is not nil.
+func (suo *ServantUpdateOne) SetNillableFace(s *string) *ServantUpdateOne {
+	if s != nil {
+		suo.SetFace(*s)
 	}
 	return suo
 }
@@ -727,6 +758,9 @@ func (suo *ServantUpdateOne) sqlSave(ctx context.Context) (_node *Servant, err e
 	}
 	if value, ok := suo.mutation.NameJa(); ok {
 		_spec.SetField(servant.FieldNameJa, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.Face(); ok {
+		_spec.SetField(servant.FieldFace, field.TypeString, value)
 	}
 	if suo.mutation.ClassCleared() {
 		edge := &sqlgraph.EdgeSpec{

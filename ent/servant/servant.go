@@ -22,6 +22,8 @@ const (
 	FieldNameEn = "name_en"
 	// FieldNameJa holds the string denoting the name_ja field in the database.
 	FieldNameJa = "name_ja"
+	// FieldFace holds the string denoting the face field in the database.
+	FieldFace = "face"
 	// EdgeClass holds the string denoting the class edge name in mutations.
 	EdgeClass = "class"
 	// EdgeAttribute holds the string denoting the attribute edge name in mutations.
@@ -76,6 +78,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldNameEn,
 	FieldNameJa,
+	FieldFace,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "servants"
@@ -145,6 +148,11 @@ func ByNameEn(opts ...sql.OrderTermOption) OrderOption {
 // ByNameJa orders the results by the name_ja field.
 func ByNameJa(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNameJa, opts...).ToFunc()
+}
+
+// ByFace orders the results by the face field.
+func ByFace(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFace, opts...).ToFunc()
 }
 
 // ByClassField orders the results by class field.

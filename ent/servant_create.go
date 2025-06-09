@@ -65,6 +65,12 @@ func (sc *ServantCreate) SetNameJa(s string) *ServantCreate {
 	return sc
 }
 
+// SetFace sets the "face" field.
+func (sc *ServantCreate) SetFace(s string) *ServantCreate {
+	sc.mutation.SetFace(s)
+	return sc
+}
+
 // SetClassID sets the "class" edge to the Class entity by ID.
 func (sc *ServantCreate) SetClassID(id int) *ServantCreate {
 	sc.mutation.SetClassID(id)
@@ -220,6 +226,9 @@ func (sc *ServantCreate) check() error {
 	if _, ok := sc.mutation.NameJa(); !ok {
 		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "Servant.name_ja"`)}
 	}
+	if _, ok := sc.mutation.Face(); !ok {
+		return &ValidationError{Name: "face", err: errors.New(`ent: missing required field "Servant.face"`)}
+	}
 	return nil
 }
 
@@ -261,6 +270,10 @@ func (sc *ServantCreate) createSpec() (*Servant, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.NameJa(); ok {
 		_spec.SetField(servant.FieldNameJa, field.TypeString, value)
 		_node.NameJa = value
+	}
+	if value, ok := sc.mutation.Face(); ok {
+		_spec.SetField(servant.FieldFace, field.TypeString, value)
+		_node.Face = value
 	}
 	if nodes := sc.mutation.ClassIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
