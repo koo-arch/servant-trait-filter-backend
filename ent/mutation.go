@@ -2371,6 +2371,7 @@ type ServantMutation struct {
 	updated_at             *time.Time
 	name_en                *string
 	name_ja                *string
+	face                   *string
 	clearedFields          map[string]struct{}
 	class                  *int
 	clearedclass           bool
@@ -2630,6 +2631,42 @@ func (m *ServantMutation) ResetNameJa() {
 	m.name_ja = nil
 }
 
+// SetFace sets the "face" field.
+func (m *ServantMutation) SetFace(s string) {
+	m.face = &s
+}
+
+// Face returns the value of the "face" field in the mutation.
+func (m *ServantMutation) Face() (r string, exists bool) {
+	v := m.face
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFace returns the old "face" field's value of the Servant entity.
+// If the Servant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServantMutation) OldFace(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFace is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFace requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFace: %w", err)
+	}
+	return oldValue.Face, nil
+}
+
+// ResetFace resets all changes to the "face" field.
+func (m *ServantMutation) ResetFace() {
+	m.face = nil
+}
+
 // SetClassID sets the "class" edge to the Class entity by id.
 func (m *ServantMutation) SetClassID(id int) {
 	m.class = &id
@@ -2874,7 +2911,7 @@ func (m *ServantMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServantMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.created_at != nil {
 		fields = append(fields, servant.FieldCreatedAt)
 	}
@@ -2886,6 +2923,9 @@ func (m *ServantMutation) Fields() []string {
 	}
 	if m.name_ja != nil {
 		fields = append(fields, servant.FieldNameJa)
+	}
+	if m.face != nil {
+		fields = append(fields, servant.FieldFace)
 	}
 	return fields
 }
@@ -2903,6 +2943,8 @@ func (m *ServantMutation) Field(name string) (ent.Value, bool) {
 		return m.NameEn()
 	case servant.FieldNameJa:
 		return m.NameJa()
+	case servant.FieldFace:
+		return m.Face()
 	}
 	return nil, false
 }
@@ -2920,6 +2962,8 @@ func (m *ServantMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldNameEn(ctx)
 	case servant.FieldNameJa:
 		return m.OldNameJa(ctx)
+	case servant.FieldFace:
+		return m.OldFace(ctx)
 	}
 	return nil, fmt.Errorf("unknown Servant field %s", name)
 }
@@ -2956,6 +3000,13 @@ func (m *ServantMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetNameJa(v)
+		return nil
+	case servant.FieldFace:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFace(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Servant field %s", name)
@@ -3017,6 +3068,9 @@ func (m *ServantMutation) ResetField(name string) error {
 		return nil
 	case servant.FieldNameJa:
 		m.ResetNameJa()
+		return nil
+	case servant.FieldFace:
+		m.ResetFace()
 		return nil
 	}
 	return fmt.Errorf("unknown Servant field %s", name)

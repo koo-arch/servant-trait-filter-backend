@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/edge"
 
 	"github.com/koo-arch/servant-trait-filter-backend/ent/mixin"
@@ -10,6 +11,12 @@ import (
 // Servant holds the schema definition for the Servant entity.
 type Servant struct {
 	ent.Schema
+}
+
+func (Servant) Fields() []ent.Field {
+	return []ent.Field{
+		field.String("face"),
+	}
 }
 
 // Edges of the Servant.

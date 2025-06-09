@@ -71,6 +71,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
 		{Name: "name_ja", Type: field.TypeString},
+		{Name: "face", Type: field.TypeString},
 		{Name: "attribute_servants", Type: field.TypeInt, Nullable: true},
 		{Name: "class_servants", Type: field.TypeInt, Nullable: true},
 		{Name: "moral_alignment_servants", Type: field.TypeInt, Nullable: true},
@@ -84,25 +85,25 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "servants_attributes_servants",
-				Columns:    []*schema.Column{ServantsColumns[5]},
+				Columns:    []*schema.Column{ServantsColumns[6]},
 				RefColumns: []*schema.Column{AttributesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "servants_classes_servants",
-				Columns:    []*schema.Column{ServantsColumns[6]},
+				Columns:    []*schema.Column{ServantsColumns[7]},
 				RefColumns: []*schema.Column{ClassesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "servants_moral_alignments_servants",
-				Columns:    []*schema.Column{ServantsColumns[7]},
+				Columns:    []*schema.Column{ServantsColumns[8]},
 				RefColumns: []*schema.Column{MoralAlignmentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "servants_order_alignments_servants",
-				Columns:    []*schema.Column{ServantsColumns[8]},
+				Columns:    []*schema.Column{ServantsColumns[9]},
 				RefColumns: []*schema.Column{OrderAlignmentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

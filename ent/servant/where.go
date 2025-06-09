@@ -75,6 +75,11 @@ func NameJa(v string) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldNameJa, v))
 }
 
+// Face applies equality check predicate on the "face" field. It's identical to FaceEQ.
+func Face(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldFace, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldCreatedAt, v))
@@ -283,6 +288,71 @@ func NameJaEqualFold(v string) predicate.Servant {
 // NameJaContainsFold applies the ContainsFold predicate on the "name_ja" field.
 func NameJaContainsFold(v string) predicate.Servant {
 	return predicate.Servant(sql.FieldContainsFold(FieldNameJa, v))
+}
+
+// FaceEQ applies the EQ predicate on the "face" field.
+func FaceEQ(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldFace, v))
+}
+
+// FaceNEQ applies the NEQ predicate on the "face" field.
+func FaceNEQ(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldNEQ(FieldFace, v))
+}
+
+// FaceIn applies the In predicate on the "face" field.
+func FaceIn(vs ...string) predicate.Servant {
+	return predicate.Servant(sql.FieldIn(FieldFace, vs...))
+}
+
+// FaceNotIn applies the NotIn predicate on the "face" field.
+func FaceNotIn(vs ...string) predicate.Servant {
+	return predicate.Servant(sql.FieldNotIn(FieldFace, vs...))
+}
+
+// FaceGT applies the GT predicate on the "face" field.
+func FaceGT(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldGT(FieldFace, v))
+}
+
+// FaceGTE applies the GTE predicate on the "face" field.
+func FaceGTE(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldGTE(FieldFace, v))
+}
+
+// FaceLT applies the LT predicate on the "face" field.
+func FaceLT(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldLT(FieldFace, v))
+}
+
+// FaceLTE applies the LTE predicate on the "face" field.
+func FaceLTE(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldLTE(FieldFace, v))
+}
+
+// FaceContains applies the Contains predicate on the "face" field.
+func FaceContains(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldContains(FieldFace, v))
+}
+
+// FaceHasPrefix applies the HasPrefix predicate on the "face" field.
+func FaceHasPrefix(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldHasPrefix(FieldFace, v))
+}
+
+// FaceHasSuffix applies the HasSuffix predicate on the "face" field.
+func FaceHasSuffix(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldHasSuffix(FieldFace, v))
+}
+
+// FaceEqualFold applies the EqualFold predicate on the "face" field.
+func FaceEqualFold(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldEqualFold(FieldFace, v))
+}
+
+// FaceContainsFold applies the ContainsFold predicate on the "face" field.
+func FaceContainsFold(v string) predicate.Servant {
+	return predicate.Servant(sql.FieldContainsFold(FieldFace, v))
 }
 
 // HasClass applies the HasEdge predicate on the "class" edge.
