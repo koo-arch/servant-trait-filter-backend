@@ -121,6 +121,10 @@ func init() {
 	servantDescName := servantFields[0].Descriptor()
 	// servant.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	servant.NameValidator = servantDescName.Validators[0].(func(string) error)
+	// servantDescCollectionNo is the schema descriptor for collection_no field.
+	servantDescCollectionNo := servantFields[1].Descriptor()
+	// servant.CollectionNoValidator is a validator for the "collection_no" field. It is called by the builders before save.
+	servant.CollectionNoValidator = servantDescCollectionNo.Validators[0].(func(string) error)
 	traitMixin := schema.Trait{}.Mixin()
 	traitMixinFields0 := traitMixin[0].Fields()
 	_ = traitMixinFields0

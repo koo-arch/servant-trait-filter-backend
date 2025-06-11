@@ -27,6 +27,8 @@ type Servant struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// CollectionNo holds the value of the "collection_no" field.
+	CollectionNo string `json:"collection_no,omitempty"`
 	// Face holds the value of the "face" field.
 	Face string `json:"face,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -116,7 +118,7 @@ func (*Servant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case servant.FieldID:
 			values[i] = new(sql.NullInt64)
-		case servant.FieldName, servant.FieldFace:
+		case servant.FieldName, servant.FieldCollectionNo, servant.FieldFace:
 			values[i] = new(sql.NullString)
 		case servant.FieldCreatedAt, servant.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -166,6 +168,12 @@ func (s *Servant) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				s.Name = value.String
+			}
+		case servant.FieldCollectionNo:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field collection_no", values[i])
+			} else if value.Valid {
+				s.CollectionNo = value.String
 			}
 		case servant.FieldFace:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -270,6 +278,9 @@ func (s *Servant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(s.Name)
+	builder.WriteString(", ")
+	builder.WriteString("collection_no=")
+	builder.WriteString(s.CollectionNo)
 	builder.WriteString(", ")
 	builder.WriteString("face=")
 	builder.WriteString(s.Face)

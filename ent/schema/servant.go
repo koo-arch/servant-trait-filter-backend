@@ -16,6 +16,7 @@ type Servant struct {
 func (Servant) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").NotEmpty(),
+		field.String("collection_no").NotEmpty().Unique(),
 		field.String("face"),
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
@@ -19,6 +20,7 @@ type OrderAlignmentCreate struct {
 	config
 	mutation *OrderAlignmentMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -166,6 +168,7 @@ func (oac *OrderAlignmentCreate) createSpec() (*OrderAlignment, *sqlgraph.Create
 		_node = &OrderAlignment{config: oac.config}
 		_spec = sqlgraph.NewCreateSpec(orderalignment.Table, sqlgraph.NewFieldSpec(orderalignment.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = oac.conflict
 	if value, ok := oac.mutation.CreatedAt(); ok {
 		_spec.SetField(orderalignment.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -201,11 +204,217 @@ func (oac *OrderAlignmentCreate) createSpec() (*OrderAlignment, *sqlgraph.Create
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OrderAlignment.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OrderAlignmentUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (oac *OrderAlignmentCreate) OnConflict(opts ...sql.ConflictOption) *OrderAlignmentUpsertOne {
+	oac.conflict = opts
+	return &OrderAlignmentUpsertOne{
+		create: oac,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OrderAlignment.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (oac *OrderAlignmentCreate) OnConflictColumns(columns ...string) *OrderAlignmentUpsertOne {
+	oac.conflict = append(oac.conflict, sql.ConflictColumns(columns...))
+	return &OrderAlignmentUpsertOne{
+		create: oac,
+	}
+}
+
+type (
+	// OrderAlignmentUpsertOne is the builder for "upsert"-ing
+	//  one OrderAlignment node.
+	OrderAlignmentUpsertOne struct {
+		create *OrderAlignmentCreate
+	}
+
+	// OrderAlignmentUpsert is the "OnConflict" setter.
+	OrderAlignmentUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *OrderAlignmentUpsert) SetUpdatedAt(v time.Time) *OrderAlignmentUpsert {
+	u.Set(orderalignment.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *OrderAlignmentUpsert) UpdateUpdatedAt() *OrderAlignmentUpsert {
+	u.SetExcluded(orderalignment.FieldUpdatedAt)
+	return u
+}
+
+// SetNameEn sets the "name_en" field.
+func (u *OrderAlignmentUpsert) SetNameEn(v string) *OrderAlignmentUpsert {
+	u.Set(orderalignment.FieldNameEn, v)
+	return u
+}
+
+// UpdateNameEn sets the "name_en" field to the value that was provided on create.
+func (u *OrderAlignmentUpsert) UpdateNameEn() *OrderAlignmentUpsert {
+	u.SetExcluded(orderalignment.FieldNameEn)
+	return u
+}
+
+// SetNameJa sets the "name_ja" field.
+func (u *OrderAlignmentUpsert) SetNameJa(v string) *OrderAlignmentUpsert {
+	u.Set(orderalignment.FieldNameJa, v)
+	return u
+}
+
+// UpdateNameJa sets the "name_ja" field to the value that was provided on create.
+func (u *OrderAlignmentUpsert) UpdateNameJa() *OrderAlignmentUpsert {
+	u.SetExcluded(orderalignment.FieldNameJa)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.OrderAlignment.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *OrderAlignmentUpsertOne) UpdateNewValues() *OrderAlignmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(orderalignment.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OrderAlignment.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *OrderAlignmentUpsertOne) Ignore() *OrderAlignmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OrderAlignmentUpsertOne) DoNothing() *OrderAlignmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OrderAlignmentCreate.OnConflict
+// documentation for more info.
+func (u *OrderAlignmentUpsertOne) Update(set func(*OrderAlignmentUpsert)) *OrderAlignmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OrderAlignmentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *OrderAlignmentUpsertOne) SetUpdatedAt(v time.Time) *OrderAlignmentUpsertOne {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *OrderAlignmentUpsertOne) UpdateUpdatedAt() *OrderAlignmentUpsertOne {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetNameEn sets the "name_en" field.
+func (u *OrderAlignmentUpsertOne) SetNameEn(v string) *OrderAlignmentUpsertOne {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.SetNameEn(v)
+	})
+}
+
+// UpdateNameEn sets the "name_en" field to the value that was provided on create.
+func (u *OrderAlignmentUpsertOne) UpdateNameEn() *OrderAlignmentUpsertOne {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.UpdateNameEn()
+	})
+}
+
+// SetNameJa sets the "name_ja" field.
+func (u *OrderAlignmentUpsertOne) SetNameJa(v string) *OrderAlignmentUpsertOne {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.SetNameJa(v)
+	})
+}
+
+// UpdateNameJa sets the "name_ja" field to the value that was provided on create.
+func (u *OrderAlignmentUpsertOne) UpdateNameJa() *OrderAlignmentUpsertOne {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.UpdateNameJa()
+	})
+}
+
+// Exec executes the query.
+func (u *OrderAlignmentUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OrderAlignmentCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OrderAlignmentUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *OrderAlignmentUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *OrderAlignmentUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // OrderAlignmentCreateBulk is the builder for creating many OrderAlignment entities in bulk.
 type OrderAlignmentCreateBulk struct {
 	config
 	err      error
 	builders []*OrderAlignmentCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the OrderAlignment entities in the database.
@@ -235,6 +444,7 @@ func (oacb *OrderAlignmentCreateBulk) Save(ctx context.Context) ([]*OrderAlignme
 					_, err = mutators[i+1].Mutate(root, oacb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = oacb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, oacb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -285,6 +495,159 @@ func (oacb *OrderAlignmentCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (oacb *OrderAlignmentCreateBulk) ExecX(ctx context.Context) {
 	if err := oacb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OrderAlignment.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OrderAlignmentUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (oacb *OrderAlignmentCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrderAlignmentUpsertBulk {
+	oacb.conflict = opts
+	return &OrderAlignmentUpsertBulk{
+		create: oacb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OrderAlignment.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (oacb *OrderAlignmentCreateBulk) OnConflictColumns(columns ...string) *OrderAlignmentUpsertBulk {
+	oacb.conflict = append(oacb.conflict, sql.ConflictColumns(columns...))
+	return &OrderAlignmentUpsertBulk{
+		create: oacb,
+	}
+}
+
+// OrderAlignmentUpsertBulk is the builder for "upsert"-ing
+// a bulk of OrderAlignment nodes.
+type OrderAlignmentUpsertBulk struct {
+	create *OrderAlignmentCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.OrderAlignment.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *OrderAlignmentUpsertBulk) UpdateNewValues() *OrderAlignmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(orderalignment.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OrderAlignment.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *OrderAlignmentUpsertBulk) Ignore() *OrderAlignmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OrderAlignmentUpsertBulk) DoNothing() *OrderAlignmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OrderAlignmentCreateBulk.OnConflict
+// documentation for more info.
+func (u *OrderAlignmentUpsertBulk) Update(set func(*OrderAlignmentUpsert)) *OrderAlignmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OrderAlignmentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *OrderAlignmentUpsertBulk) SetUpdatedAt(v time.Time) *OrderAlignmentUpsertBulk {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *OrderAlignmentUpsertBulk) UpdateUpdatedAt() *OrderAlignmentUpsertBulk {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetNameEn sets the "name_en" field.
+func (u *OrderAlignmentUpsertBulk) SetNameEn(v string) *OrderAlignmentUpsertBulk {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.SetNameEn(v)
+	})
+}
+
+// UpdateNameEn sets the "name_en" field to the value that was provided on create.
+func (u *OrderAlignmentUpsertBulk) UpdateNameEn() *OrderAlignmentUpsertBulk {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.UpdateNameEn()
+	})
+}
+
+// SetNameJa sets the "name_ja" field.
+func (u *OrderAlignmentUpsertBulk) SetNameJa(v string) *OrderAlignmentUpsertBulk {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.SetNameJa(v)
+	})
+}
+
+// UpdateNameJa sets the "name_ja" field to the value that was provided on create.
+func (u *OrderAlignmentUpsertBulk) UpdateNameJa() *OrderAlignmentUpsertBulk {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.UpdateNameJa()
+	})
+}
+
+// Exec executes the query.
+func (u *OrderAlignmentUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the OrderAlignmentCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OrderAlignmentCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OrderAlignmentUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

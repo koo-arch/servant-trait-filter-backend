@@ -20,6 +20,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldCollectionNo holds the string denoting the collection_no field in the database.
+	FieldCollectionNo = "collection_no"
 	// FieldFace holds the string denoting the face field in the database.
 	FieldFace = "face"
 	// EdgeClass holds the string denoting the class edge name in mutations.
@@ -75,6 +77,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldName,
+	FieldCollectionNo,
 	FieldFace,
 }
 
@@ -117,6 +120,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// CollectionNoValidator is a validator for the "collection_no" field. It is called by the builders before save.
+	CollectionNoValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the Servant queries.
@@ -140,6 +145,11 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByCollectionNo orders the results by the collection_no field.
+func ByCollectionNo(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCollectionNo, opts...).ToFunc()
 }
 
 // ByFace orders the results by the face field.

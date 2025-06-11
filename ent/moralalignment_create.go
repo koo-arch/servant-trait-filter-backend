@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
@@ -19,6 +20,7 @@ type MoralAlignmentCreate struct {
 	config
 	mutation *MoralAlignmentMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -166,6 +168,7 @@ func (mac *MoralAlignmentCreate) createSpec() (*MoralAlignment, *sqlgraph.Create
 		_node = &MoralAlignment{config: mac.config}
 		_spec = sqlgraph.NewCreateSpec(moralalignment.Table, sqlgraph.NewFieldSpec(moralalignment.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = mac.conflict
 	if value, ok := mac.mutation.CreatedAt(); ok {
 		_spec.SetField(moralalignment.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -201,11 +204,217 @@ func (mac *MoralAlignmentCreate) createSpec() (*MoralAlignment, *sqlgraph.Create
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.MoralAlignment.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MoralAlignmentUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (mac *MoralAlignmentCreate) OnConflict(opts ...sql.ConflictOption) *MoralAlignmentUpsertOne {
+	mac.conflict = opts
+	return &MoralAlignmentUpsertOne{
+		create: mac,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.MoralAlignment.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (mac *MoralAlignmentCreate) OnConflictColumns(columns ...string) *MoralAlignmentUpsertOne {
+	mac.conflict = append(mac.conflict, sql.ConflictColumns(columns...))
+	return &MoralAlignmentUpsertOne{
+		create: mac,
+	}
+}
+
+type (
+	// MoralAlignmentUpsertOne is the builder for "upsert"-ing
+	//  one MoralAlignment node.
+	MoralAlignmentUpsertOne struct {
+		create *MoralAlignmentCreate
+	}
+
+	// MoralAlignmentUpsert is the "OnConflict" setter.
+	MoralAlignmentUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *MoralAlignmentUpsert) SetUpdatedAt(v time.Time) *MoralAlignmentUpsert {
+	u.Set(moralalignment.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *MoralAlignmentUpsert) UpdateUpdatedAt() *MoralAlignmentUpsert {
+	u.SetExcluded(moralalignment.FieldUpdatedAt)
+	return u
+}
+
+// SetNameEn sets the "name_en" field.
+func (u *MoralAlignmentUpsert) SetNameEn(v string) *MoralAlignmentUpsert {
+	u.Set(moralalignment.FieldNameEn, v)
+	return u
+}
+
+// UpdateNameEn sets the "name_en" field to the value that was provided on create.
+func (u *MoralAlignmentUpsert) UpdateNameEn() *MoralAlignmentUpsert {
+	u.SetExcluded(moralalignment.FieldNameEn)
+	return u
+}
+
+// SetNameJa sets the "name_ja" field.
+func (u *MoralAlignmentUpsert) SetNameJa(v string) *MoralAlignmentUpsert {
+	u.Set(moralalignment.FieldNameJa, v)
+	return u
+}
+
+// UpdateNameJa sets the "name_ja" field to the value that was provided on create.
+func (u *MoralAlignmentUpsert) UpdateNameJa() *MoralAlignmentUpsert {
+	u.SetExcluded(moralalignment.FieldNameJa)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.MoralAlignment.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *MoralAlignmentUpsertOne) UpdateNewValues() *MoralAlignmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(moralalignment.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.MoralAlignment.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *MoralAlignmentUpsertOne) Ignore() *MoralAlignmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MoralAlignmentUpsertOne) DoNothing() *MoralAlignmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MoralAlignmentCreate.OnConflict
+// documentation for more info.
+func (u *MoralAlignmentUpsertOne) Update(set func(*MoralAlignmentUpsert)) *MoralAlignmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MoralAlignmentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *MoralAlignmentUpsertOne) SetUpdatedAt(v time.Time) *MoralAlignmentUpsertOne {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *MoralAlignmentUpsertOne) UpdateUpdatedAt() *MoralAlignmentUpsertOne {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetNameEn sets the "name_en" field.
+func (u *MoralAlignmentUpsertOne) SetNameEn(v string) *MoralAlignmentUpsertOne {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.SetNameEn(v)
+	})
+}
+
+// UpdateNameEn sets the "name_en" field to the value that was provided on create.
+func (u *MoralAlignmentUpsertOne) UpdateNameEn() *MoralAlignmentUpsertOne {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.UpdateNameEn()
+	})
+}
+
+// SetNameJa sets the "name_ja" field.
+func (u *MoralAlignmentUpsertOne) SetNameJa(v string) *MoralAlignmentUpsertOne {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.SetNameJa(v)
+	})
+}
+
+// UpdateNameJa sets the "name_ja" field to the value that was provided on create.
+func (u *MoralAlignmentUpsertOne) UpdateNameJa() *MoralAlignmentUpsertOne {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.UpdateNameJa()
+	})
+}
+
+// Exec executes the query.
+func (u *MoralAlignmentUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MoralAlignmentCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MoralAlignmentUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *MoralAlignmentUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *MoralAlignmentUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // MoralAlignmentCreateBulk is the builder for creating many MoralAlignment entities in bulk.
 type MoralAlignmentCreateBulk struct {
 	config
 	err      error
 	builders []*MoralAlignmentCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the MoralAlignment entities in the database.
@@ -235,6 +444,7 @@ func (macb *MoralAlignmentCreateBulk) Save(ctx context.Context) ([]*MoralAlignme
 					_, err = mutators[i+1].Mutate(root, macb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = macb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, macb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -285,6 +495,159 @@ func (macb *MoralAlignmentCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (macb *MoralAlignmentCreateBulk) ExecX(ctx context.Context) {
 	if err := macb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.MoralAlignment.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MoralAlignmentUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (macb *MoralAlignmentCreateBulk) OnConflict(opts ...sql.ConflictOption) *MoralAlignmentUpsertBulk {
+	macb.conflict = opts
+	return &MoralAlignmentUpsertBulk{
+		create: macb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.MoralAlignment.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (macb *MoralAlignmentCreateBulk) OnConflictColumns(columns ...string) *MoralAlignmentUpsertBulk {
+	macb.conflict = append(macb.conflict, sql.ConflictColumns(columns...))
+	return &MoralAlignmentUpsertBulk{
+		create: macb,
+	}
+}
+
+// MoralAlignmentUpsertBulk is the builder for "upsert"-ing
+// a bulk of MoralAlignment nodes.
+type MoralAlignmentUpsertBulk struct {
+	create *MoralAlignmentCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.MoralAlignment.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *MoralAlignmentUpsertBulk) UpdateNewValues() *MoralAlignmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(moralalignment.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.MoralAlignment.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *MoralAlignmentUpsertBulk) Ignore() *MoralAlignmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MoralAlignmentUpsertBulk) DoNothing() *MoralAlignmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MoralAlignmentCreateBulk.OnConflict
+// documentation for more info.
+func (u *MoralAlignmentUpsertBulk) Update(set func(*MoralAlignmentUpsert)) *MoralAlignmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MoralAlignmentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *MoralAlignmentUpsertBulk) SetUpdatedAt(v time.Time) *MoralAlignmentUpsertBulk {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *MoralAlignmentUpsertBulk) UpdateUpdatedAt() *MoralAlignmentUpsertBulk {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetNameEn sets the "name_en" field.
+func (u *MoralAlignmentUpsertBulk) SetNameEn(v string) *MoralAlignmentUpsertBulk {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.SetNameEn(v)
+	})
+}
+
+// UpdateNameEn sets the "name_en" field to the value that was provided on create.
+func (u *MoralAlignmentUpsertBulk) UpdateNameEn() *MoralAlignmentUpsertBulk {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.UpdateNameEn()
+	})
+}
+
+// SetNameJa sets the "name_ja" field.
+func (u *MoralAlignmentUpsertBulk) SetNameJa(v string) *MoralAlignmentUpsertBulk {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.SetNameJa(v)
+	})
+}
+
+// UpdateNameJa sets the "name_ja" field to the value that was provided on create.
+func (u *MoralAlignmentUpsertBulk) UpdateNameJa() *MoralAlignmentUpsertBulk {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.UpdateNameJa()
+	})
+}
+
+// Exec executes the query.
+func (u *MoralAlignmentUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the MoralAlignmentCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MoralAlignmentCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MoralAlignmentUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

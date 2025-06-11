@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
@@ -19,6 +20,7 @@ type TraitCreate struct {
 	config
 	mutation *TraitMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -166,6 +168,7 @@ func (tc *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 		_node = &Trait{config: tc.config}
 		_spec = sqlgraph.NewCreateSpec(trait.Table, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = tc.conflict
 	if value, ok := tc.mutation.CreatedAt(); ok {
 		_spec.SetField(trait.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -201,11 +204,217 @@ func (tc *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Trait.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TraitUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (tc *TraitCreate) OnConflict(opts ...sql.ConflictOption) *TraitUpsertOne {
+	tc.conflict = opts
+	return &TraitUpsertOne{
+		create: tc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Trait.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (tc *TraitCreate) OnConflictColumns(columns ...string) *TraitUpsertOne {
+	tc.conflict = append(tc.conflict, sql.ConflictColumns(columns...))
+	return &TraitUpsertOne{
+		create: tc,
+	}
+}
+
+type (
+	// TraitUpsertOne is the builder for "upsert"-ing
+	//  one Trait node.
+	TraitUpsertOne struct {
+		create *TraitCreate
+	}
+
+	// TraitUpsert is the "OnConflict" setter.
+	TraitUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *TraitUpsert) SetUpdatedAt(v time.Time) *TraitUpsert {
+	u.Set(trait.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *TraitUpsert) UpdateUpdatedAt() *TraitUpsert {
+	u.SetExcluded(trait.FieldUpdatedAt)
+	return u
+}
+
+// SetNameEn sets the "name_en" field.
+func (u *TraitUpsert) SetNameEn(v string) *TraitUpsert {
+	u.Set(trait.FieldNameEn, v)
+	return u
+}
+
+// UpdateNameEn sets the "name_en" field to the value that was provided on create.
+func (u *TraitUpsert) UpdateNameEn() *TraitUpsert {
+	u.SetExcluded(trait.FieldNameEn)
+	return u
+}
+
+// SetNameJa sets the "name_ja" field.
+func (u *TraitUpsert) SetNameJa(v string) *TraitUpsert {
+	u.Set(trait.FieldNameJa, v)
+	return u
+}
+
+// UpdateNameJa sets the "name_ja" field to the value that was provided on create.
+func (u *TraitUpsert) UpdateNameJa() *TraitUpsert {
+	u.SetExcluded(trait.FieldNameJa)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.Trait.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *TraitUpsertOne) UpdateNewValues() *TraitUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(trait.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Trait.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *TraitUpsertOne) Ignore() *TraitUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TraitUpsertOne) DoNothing() *TraitUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TraitCreate.OnConflict
+// documentation for more info.
+func (u *TraitUpsertOne) Update(set func(*TraitUpsert)) *TraitUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TraitUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *TraitUpsertOne) SetUpdatedAt(v time.Time) *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *TraitUpsertOne) UpdateUpdatedAt() *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetNameEn sets the "name_en" field.
+func (u *TraitUpsertOne) SetNameEn(v string) *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetNameEn(v)
+	})
+}
+
+// UpdateNameEn sets the "name_en" field to the value that was provided on create.
+func (u *TraitUpsertOne) UpdateNameEn() *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateNameEn()
+	})
+}
+
+// SetNameJa sets the "name_ja" field.
+func (u *TraitUpsertOne) SetNameJa(v string) *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetNameJa(v)
+	})
+}
+
+// UpdateNameJa sets the "name_ja" field to the value that was provided on create.
+func (u *TraitUpsertOne) UpdateNameJa() *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateNameJa()
+	})
+}
+
+// Exec executes the query.
+func (u *TraitUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TraitCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TraitUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *TraitUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *TraitUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // TraitCreateBulk is the builder for creating many Trait entities in bulk.
 type TraitCreateBulk struct {
 	config
 	err      error
 	builders []*TraitCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Trait entities in the database.
@@ -235,6 +444,7 @@ func (tcb *TraitCreateBulk) Save(ctx context.Context) ([]*Trait, error) {
 					_, err = mutators[i+1].Mutate(root, tcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = tcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, tcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -285,6 +495,159 @@ func (tcb *TraitCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (tcb *TraitCreateBulk) ExecX(ctx context.Context) {
 	if err := tcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Trait.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TraitUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (tcb *TraitCreateBulk) OnConflict(opts ...sql.ConflictOption) *TraitUpsertBulk {
+	tcb.conflict = opts
+	return &TraitUpsertBulk{
+		create: tcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Trait.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (tcb *TraitCreateBulk) OnConflictColumns(columns ...string) *TraitUpsertBulk {
+	tcb.conflict = append(tcb.conflict, sql.ConflictColumns(columns...))
+	return &TraitUpsertBulk{
+		create: tcb,
+	}
+}
+
+// TraitUpsertBulk is the builder for "upsert"-ing
+// a bulk of Trait nodes.
+type TraitUpsertBulk struct {
+	create *TraitCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Trait.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *TraitUpsertBulk) UpdateNewValues() *TraitUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(trait.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Trait.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *TraitUpsertBulk) Ignore() *TraitUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TraitUpsertBulk) DoNothing() *TraitUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TraitCreateBulk.OnConflict
+// documentation for more info.
+func (u *TraitUpsertBulk) Update(set func(*TraitUpsert)) *TraitUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TraitUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *TraitUpsertBulk) SetUpdatedAt(v time.Time) *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *TraitUpsertBulk) UpdateUpdatedAt() *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetNameEn sets the "name_en" field.
+func (u *TraitUpsertBulk) SetNameEn(v string) *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetNameEn(v)
+	})
+}
+
+// UpdateNameEn sets the "name_en" field to the value that was provided on create.
+func (u *TraitUpsertBulk) UpdateNameEn() *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateNameEn()
+	})
+}
+
+// SetNameJa sets the "name_ja" field.
+func (u *TraitUpsertBulk) SetNameJa(v string) *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetNameJa(v)
+	})
+}
+
+// UpdateNameJa sets the "name_ja" field to the value that was provided on create.
+func (u *TraitUpsertBulk) UpdateNameJa() *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateNameJa()
+	})
+}
+
+// Exec executes the query.
+func (u *TraitUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the TraitCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TraitCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TraitUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
