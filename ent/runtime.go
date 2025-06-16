@@ -39,6 +39,10 @@ func init() {
 	attributeDescNameEn := attributeMixinFields1[0].Descriptor()
 	// attribute.NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
 	attribute.NameEnValidator = attributeDescNameEn.Validators[0].(func(string) error)
+	// attributeDescID is the schema descriptor for id field.
+	attributeDescID := attributeFields[0].Descriptor()
+	// attribute.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	attribute.IDValidator = attributeDescID.Validators[0].(func(int) error)
 	classMixin := schema.Class{}.Mixin()
 	classMixinFields0 := classMixin[0].Fields()
 	_ = classMixinFields0
@@ -60,6 +64,10 @@ func init() {
 	classDescNameEn := classMixinFields1[0].Descriptor()
 	// class.NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
 	class.NameEnValidator = classDescNameEn.Validators[0].(func(string) error)
+	// classDescID is the schema descriptor for id field.
+	classDescID := classFields[0].Descriptor()
+	// class.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	class.IDValidator = classDescID.Validators[0].(func(int) error)
 	moralalignmentMixin := schema.MoralAlignment{}.Mixin()
 	moralalignmentMixinFields0 := moralalignmentMixin[0].Fields()
 	_ = moralalignmentMixinFields0
@@ -81,6 +89,10 @@ func init() {
 	moralalignmentDescNameEn := moralalignmentMixinFields1[0].Descriptor()
 	// moralalignment.NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
 	moralalignment.NameEnValidator = moralalignmentDescNameEn.Validators[0].(func(string) error)
+	// moralalignmentDescID is the schema descriptor for id field.
+	moralalignmentDescID := moralalignmentFields[0].Descriptor()
+	// moralalignment.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	moralalignment.IDValidator = moralalignmentDescID.Validators[0].(func(int) error)
 	orderalignmentMixin := schema.OrderAlignment{}.Mixin()
 	orderalignmentMixinFields0 := orderalignmentMixin[0].Fields()
 	_ = orderalignmentMixinFields0
@@ -102,6 +114,10 @@ func init() {
 	orderalignmentDescNameEn := orderalignmentMixinFields1[0].Descriptor()
 	// orderalignment.NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
 	orderalignment.NameEnValidator = orderalignmentDescNameEn.Validators[0].(func(string) error)
+	// orderalignmentDescID is the schema descriptor for id field.
+	orderalignmentDescID := orderalignmentFields[0].Descriptor()
+	// orderalignment.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	orderalignment.IDValidator = orderalignmentDescID.Validators[0].(func(int) error)
 	servantMixin := schema.Servant{}.Mixin()
 	servantMixinFields0 := servantMixin[0].Fields()
 	_ = servantMixinFields0
@@ -118,9 +134,37 @@ func init() {
 	// servant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	servant.UpdateDefaultUpdatedAt = servantDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// servantDescName is the schema descriptor for name field.
-	servantDescName := servantFields[0].Descriptor()
+	servantDescName := servantFields[1].Descriptor()
 	// servant.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	servant.NameValidator = servantDescName.Validators[0].(func(string) error)
+	// servantDescCollectionNo is the schema descriptor for collection_no field.
+	servantDescCollectionNo := servantFields[2].Descriptor()
+	// servant.CollectionNoValidator is a validator for the "collection_no" field. It is called by the builders before save.
+	servant.CollectionNoValidator = servantDescCollectionNo.Validators[0].(func(string) error)
+	// servantDescFace is the schema descriptor for face field.
+	servantDescFace := servantFields[3].Descriptor()
+	// servant.FaceValidator is a validator for the "face" field. It is called by the builders before save.
+	servant.FaceValidator = servantDescFace.Validators[0].(func(string) error)
+	// servantDescClassID is the schema descriptor for class_id field.
+	servantDescClassID := servantFields[4].Descriptor()
+	// servant.ClassIDValidator is a validator for the "class_id" field. It is called by the builders before save.
+	servant.ClassIDValidator = servantDescClassID.Validators[0].(func(int) error)
+	// servantDescAttributeID is the schema descriptor for attribute_id field.
+	servantDescAttributeID := servantFields[5].Descriptor()
+	// servant.AttributeIDValidator is a validator for the "attribute_id" field. It is called by the builders before save.
+	servant.AttributeIDValidator = servantDescAttributeID.Validators[0].(func(int) error)
+	// servantDescOrderAlignmentID is the schema descriptor for order_alignment_id field.
+	servantDescOrderAlignmentID := servantFields[6].Descriptor()
+	// servant.OrderAlignmentIDValidator is a validator for the "order_alignment_id" field. It is called by the builders before save.
+	servant.OrderAlignmentIDValidator = servantDescOrderAlignmentID.Validators[0].(func(int) error)
+	// servantDescMoralAlignmentID is the schema descriptor for moral_alignment_id field.
+	servantDescMoralAlignmentID := servantFields[7].Descriptor()
+	// servant.MoralAlignmentIDValidator is a validator for the "moral_alignment_id" field. It is called by the builders before save.
+	servant.MoralAlignmentIDValidator = servantDescMoralAlignmentID.Validators[0].(func(int) error)
+	// servantDescID is the schema descriptor for id field.
+	servantDescID := servantFields[0].Descriptor()
+	// servant.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	servant.IDValidator = servantDescID.Validators[0].(func(int) error)
 	traitMixin := schema.Trait{}.Mixin()
 	traitMixinFields0 := traitMixin[0].Fields()
 	_ = traitMixinFields0
@@ -142,4 +186,8 @@ func init() {
 	traitDescNameEn := traitMixinFields1[0].Descriptor()
 	// trait.NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
 	trait.NameEnValidator = traitDescNameEn.Validators[0].(func(string) error)
+	// traitDescID is the schema descriptor for id field.
+	traitDescID := traitFields[0].Descriptor()
+	// trait.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	trait.IDValidator = traitDescID.Validators[0].(func(int) error)
 }

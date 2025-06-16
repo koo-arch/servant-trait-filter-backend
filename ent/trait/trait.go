@@ -67,6 +67,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
 	NameEnValidator func(string) error
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(int) error
 )
 
 // OrderOption defines the ordering options for the Trait queries.

@@ -126,6 +126,12 @@ func (m AttributeMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Attribute entities.
+func (m *AttributeMutation) SetID(id int) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
 func (m *AttributeMutation) ID() (id int, exists bool) {
@@ -705,6 +711,12 @@ func (m ClassMutation) Tx() (*Tx, error) {
 	tx := &Tx{config: m.config}
 	tx.init()
 	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Class entities.
+func (m *ClassMutation) SetID(id int) {
+	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
@@ -1288,6 +1300,12 @@ func (m MoralAlignmentMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of MoralAlignment entities.
+func (m *MoralAlignmentMutation) SetID(id int) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
 func (m *MoralAlignmentMutation) ID() (id int, exists bool) {
@@ -1869,6 +1887,12 @@ func (m OrderAlignmentMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of OrderAlignment entities.
+func (m *OrderAlignmentMutation) SetID(id int) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
 func (m *OrderAlignmentMutation) ID() (id int, exists bool) {
@@ -2370,6 +2394,7 @@ type ServantMutation struct {
 	created_at             *time.Time
 	updated_at             *time.Time
 	name                   *string
+	collection_no          *string
 	face                   *string
 	clearedFields          map[string]struct{}
 	class                  *int
@@ -2456,6 +2481,12 @@ func (m ServantMutation) Tx() (*Tx, error) {
 	tx := &Tx{config: m.config}
 	tx.init()
 	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Servant entities.
+func (m *ServantMutation) SetID(id int) {
+	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
@@ -2594,6 +2625,42 @@ func (m *ServantMutation) ResetName() {
 	m.name = nil
 }
 
+// SetCollectionNo sets the "collection_no" field.
+func (m *ServantMutation) SetCollectionNo(s string) {
+	m.collection_no = &s
+}
+
+// CollectionNo returns the value of the "collection_no" field in the mutation.
+func (m *ServantMutation) CollectionNo() (r string, exists bool) {
+	v := m.collection_no
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCollectionNo returns the old "collection_no" field's value of the Servant entity.
+// If the Servant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServantMutation) OldCollectionNo(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCollectionNo is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCollectionNo requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCollectionNo: %w", err)
+	}
+	return oldValue.CollectionNo, nil
+}
+
+// ResetCollectionNo resets all changes to the "collection_no" field.
+func (m *ServantMutation) ResetCollectionNo() {
+	m.collection_no = nil
+}
+
 // SetFace sets the "face" field.
 func (m *ServantMutation) SetFace(s string) {
 	m.face = &s
@@ -2630,27 +2697,185 @@ func (m *ServantMutation) ResetFace() {
 	m.face = nil
 }
 
-// SetClassID sets the "class" edge to the Class entity by id.
-func (m *ServantMutation) SetClassID(id int) {
-	m.class = &id
+// SetClassID sets the "class_id" field.
+func (m *ServantMutation) SetClassID(i int) {
+	m.class = &i
+}
+
+// ClassID returns the value of the "class_id" field in the mutation.
+func (m *ServantMutation) ClassID() (r int, exists bool) {
+	v := m.class
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClassID returns the old "class_id" field's value of the Servant entity.
+// If the Servant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServantMutation) OldClassID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClassID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClassID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClassID: %w", err)
+	}
+	return oldValue.ClassID, nil
+}
+
+// ResetClassID resets all changes to the "class_id" field.
+func (m *ServantMutation) ResetClassID() {
+	m.class = nil
+}
+
+// SetAttributeID sets the "attribute_id" field.
+func (m *ServantMutation) SetAttributeID(i int) {
+	m.attribute = &i
+}
+
+// AttributeID returns the value of the "attribute_id" field in the mutation.
+func (m *ServantMutation) AttributeID() (r int, exists bool) {
+	v := m.attribute
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAttributeID returns the old "attribute_id" field's value of the Servant entity.
+// If the Servant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServantMutation) OldAttributeID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAttributeID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAttributeID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAttributeID: %w", err)
+	}
+	return oldValue.AttributeID, nil
+}
+
+// ResetAttributeID resets all changes to the "attribute_id" field.
+func (m *ServantMutation) ResetAttributeID() {
+	m.attribute = nil
+}
+
+// SetOrderAlignmentID sets the "order_alignment_id" field.
+func (m *ServantMutation) SetOrderAlignmentID(i int) {
+	m.order_alignment = &i
+}
+
+// OrderAlignmentID returns the value of the "order_alignment_id" field in the mutation.
+func (m *ServantMutation) OrderAlignmentID() (r int, exists bool) {
+	v := m.order_alignment
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrderAlignmentID returns the old "order_alignment_id" field's value of the Servant entity.
+// If the Servant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServantMutation) OldOrderAlignmentID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrderAlignmentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrderAlignmentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrderAlignmentID: %w", err)
+	}
+	return oldValue.OrderAlignmentID, nil
+}
+
+// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
+func (m *ServantMutation) ClearOrderAlignmentID() {
+	m.order_alignment = nil
+	m.clearedFields[servant.FieldOrderAlignmentID] = struct{}{}
+}
+
+// OrderAlignmentIDCleared returns if the "order_alignment_id" field was cleared in this mutation.
+func (m *ServantMutation) OrderAlignmentIDCleared() bool {
+	_, ok := m.clearedFields[servant.FieldOrderAlignmentID]
+	return ok
+}
+
+// ResetOrderAlignmentID resets all changes to the "order_alignment_id" field.
+func (m *ServantMutation) ResetOrderAlignmentID() {
+	m.order_alignment = nil
+	delete(m.clearedFields, servant.FieldOrderAlignmentID)
+}
+
+// SetMoralAlignmentID sets the "moral_alignment_id" field.
+func (m *ServantMutation) SetMoralAlignmentID(i int) {
+	m.moral_alignment = &i
+}
+
+// MoralAlignmentID returns the value of the "moral_alignment_id" field in the mutation.
+func (m *ServantMutation) MoralAlignmentID() (r int, exists bool) {
+	v := m.moral_alignment
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMoralAlignmentID returns the old "moral_alignment_id" field's value of the Servant entity.
+// If the Servant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServantMutation) OldMoralAlignmentID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMoralAlignmentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMoralAlignmentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMoralAlignmentID: %w", err)
+	}
+	return oldValue.MoralAlignmentID, nil
+}
+
+// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
+func (m *ServantMutation) ClearMoralAlignmentID() {
+	m.moral_alignment = nil
+	m.clearedFields[servant.FieldMoralAlignmentID] = struct{}{}
+}
+
+// MoralAlignmentIDCleared returns if the "moral_alignment_id" field was cleared in this mutation.
+func (m *ServantMutation) MoralAlignmentIDCleared() bool {
+	_, ok := m.clearedFields[servant.FieldMoralAlignmentID]
+	return ok
+}
+
+// ResetMoralAlignmentID resets all changes to the "moral_alignment_id" field.
+func (m *ServantMutation) ResetMoralAlignmentID() {
+	m.moral_alignment = nil
+	delete(m.clearedFields, servant.FieldMoralAlignmentID)
 }
 
 // ClearClass clears the "class" edge to the Class entity.
 func (m *ServantMutation) ClearClass() {
 	m.clearedclass = true
+	m.clearedFields[servant.FieldClassID] = struct{}{}
 }
 
 // ClassCleared reports if the "class" edge to the Class entity was cleared.
 func (m *ServantMutation) ClassCleared() bool {
 	return m.clearedclass
-}
-
-// ClassID returns the "class" edge ID in the mutation.
-func (m *ServantMutation) ClassID() (id int, exists bool) {
-	if m.class != nil {
-		return *m.class, true
-	}
-	return
 }
 
 // ClassIDs returns the "class" edge IDs in the mutation.
@@ -2669,27 +2894,15 @@ func (m *ServantMutation) ResetClass() {
 	m.clearedclass = false
 }
 
-// SetAttributeID sets the "attribute" edge to the Attribute entity by id.
-func (m *ServantMutation) SetAttributeID(id int) {
-	m.attribute = &id
-}
-
 // ClearAttribute clears the "attribute" edge to the Attribute entity.
 func (m *ServantMutation) ClearAttribute() {
 	m.clearedattribute = true
+	m.clearedFields[servant.FieldAttributeID] = struct{}{}
 }
 
 // AttributeCleared reports if the "attribute" edge to the Attribute entity was cleared.
 func (m *ServantMutation) AttributeCleared() bool {
 	return m.clearedattribute
-}
-
-// AttributeID returns the "attribute" edge ID in the mutation.
-func (m *ServantMutation) AttributeID() (id int, exists bool) {
-	if m.attribute != nil {
-		return *m.attribute, true
-	}
-	return
 }
 
 // AttributeIDs returns the "attribute" edge IDs in the mutation.
@@ -2708,27 +2921,15 @@ func (m *ServantMutation) ResetAttribute() {
 	m.clearedattribute = false
 }
 
-// SetOrderAlignmentID sets the "order_alignment" edge to the OrderAlignment entity by id.
-func (m *ServantMutation) SetOrderAlignmentID(id int) {
-	m.order_alignment = &id
-}
-
 // ClearOrderAlignment clears the "order_alignment" edge to the OrderAlignment entity.
 func (m *ServantMutation) ClearOrderAlignment() {
 	m.clearedorder_alignment = true
+	m.clearedFields[servant.FieldOrderAlignmentID] = struct{}{}
 }
 
 // OrderAlignmentCleared reports if the "order_alignment" edge to the OrderAlignment entity was cleared.
 func (m *ServantMutation) OrderAlignmentCleared() bool {
-	return m.clearedorder_alignment
-}
-
-// OrderAlignmentID returns the "order_alignment" edge ID in the mutation.
-func (m *ServantMutation) OrderAlignmentID() (id int, exists bool) {
-	if m.order_alignment != nil {
-		return *m.order_alignment, true
-	}
-	return
+	return m.OrderAlignmentIDCleared() || m.clearedorder_alignment
 }
 
 // OrderAlignmentIDs returns the "order_alignment" edge IDs in the mutation.
@@ -2747,27 +2948,15 @@ func (m *ServantMutation) ResetOrderAlignment() {
 	m.clearedorder_alignment = false
 }
 
-// SetMoralAlignmentID sets the "moral_alignment" edge to the MoralAlignment entity by id.
-func (m *ServantMutation) SetMoralAlignmentID(id int) {
-	m.moral_alignment = &id
-}
-
 // ClearMoralAlignment clears the "moral_alignment" edge to the MoralAlignment entity.
 func (m *ServantMutation) ClearMoralAlignment() {
 	m.clearedmoral_alignment = true
+	m.clearedFields[servant.FieldMoralAlignmentID] = struct{}{}
 }
 
 // MoralAlignmentCleared reports if the "moral_alignment" edge to the MoralAlignment entity was cleared.
 func (m *ServantMutation) MoralAlignmentCleared() bool {
-	return m.clearedmoral_alignment
-}
-
-// MoralAlignmentID returns the "moral_alignment" edge ID in the mutation.
-func (m *ServantMutation) MoralAlignmentID() (id int, exists bool) {
-	if m.moral_alignment != nil {
-		return *m.moral_alignment, true
-	}
-	return
+	return m.MoralAlignmentIDCleared() || m.clearedmoral_alignment
 }
 
 // MoralAlignmentIDs returns the "moral_alignment" edge IDs in the mutation.
@@ -2874,7 +3063,7 @@ func (m *ServantMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServantMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, servant.FieldCreatedAt)
 	}
@@ -2884,8 +3073,23 @@ func (m *ServantMutation) Fields() []string {
 	if m.name != nil {
 		fields = append(fields, servant.FieldName)
 	}
+	if m.collection_no != nil {
+		fields = append(fields, servant.FieldCollectionNo)
+	}
 	if m.face != nil {
 		fields = append(fields, servant.FieldFace)
+	}
+	if m.class != nil {
+		fields = append(fields, servant.FieldClassID)
+	}
+	if m.attribute != nil {
+		fields = append(fields, servant.FieldAttributeID)
+	}
+	if m.order_alignment != nil {
+		fields = append(fields, servant.FieldOrderAlignmentID)
+	}
+	if m.moral_alignment != nil {
+		fields = append(fields, servant.FieldMoralAlignmentID)
 	}
 	return fields
 }
@@ -2901,8 +3105,18 @@ func (m *ServantMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case servant.FieldName:
 		return m.Name()
+	case servant.FieldCollectionNo:
+		return m.CollectionNo()
 	case servant.FieldFace:
 		return m.Face()
+	case servant.FieldClassID:
+		return m.ClassID()
+	case servant.FieldAttributeID:
+		return m.AttributeID()
+	case servant.FieldOrderAlignmentID:
+		return m.OrderAlignmentID()
+	case servant.FieldMoralAlignmentID:
+		return m.MoralAlignmentID()
 	}
 	return nil, false
 }
@@ -2918,8 +3132,18 @@ func (m *ServantMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldUpdatedAt(ctx)
 	case servant.FieldName:
 		return m.OldName(ctx)
+	case servant.FieldCollectionNo:
+		return m.OldCollectionNo(ctx)
 	case servant.FieldFace:
 		return m.OldFace(ctx)
+	case servant.FieldClassID:
+		return m.OldClassID(ctx)
+	case servant.FieldAttributeID:
+		return m.OldAttributeID(ctx)
+	case servant.FieldOrderAlignmentID:
+		return m.OldOrderAlignmentID(ctx)
+	case servant.FieldMoralAlignmentID:
+		return m.OldMoralAlignmentID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Servant field %s", name)
 }
@@ -2950,12 +3174,47 @@ func (m *ServantMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
+	case servant.FieldCollectionNo:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCollectionNo(v)
+		return nil
 	case servant.FieldFace:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetFace(v)
+		return nil
+	case servant.FieldClassID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClassID(v)
+		return nil
+	case servant.FieldAttributeID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAttributeID(v)
+		return nil
+	case servant.FieldOrderAlignmentID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrderAlignmentID(v)
+		return nil
+	case servant.FieldMoralAlignmentID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMoralAlignmentID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Servant field %s", name)
@@ -2964,13 +3223,16 @@ func (m *ServantMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *ServantMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *ServantMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
 	return nil, false
 }
 
@@ -2986,7 +3248,14 @@ func (m *ServantMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ServantMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(servant.FieldOrderAlignmentID) {
+		fields = append(fields, servant.FieldOrderAlignmentID)
+	}
+	if m.FieldCleared(servant.FieldMoralAlignmentID) {
+		fields = append(fields, servant.FieldMoralAlignmentID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2999,6 +3268,14 @@ func (m *ServantMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ServantMutation) ClearField(name string) error {
+	switch name {
+	case servant.FieldOrderAlignmentID:
+		m.ClearOrderAlignmentID()
+		return nil
+	case servant.FieldMoralAlignmentID:
+		m.ClearMoralAlignmentID()
+		return nil
+	}
 	return fmt.Errorf("unknown Servant nullable field %s", name)
 }
 
@@ -3015,8 +3292,23 @@ func (m *ServantMutation) ResetField(name string) error {
 	case servant.FieldName:
 		m.ResetName()
 		return nil
+	case servant.FieldCollectionNo:
+		m.ResetCollectionNo()
+		return nil
 	case servant.FieldFace:
 		m.ResetFace()
+		return nil
+	case servant.FieldClassID:
+		m.ResetClassID()
+		return nil
+	case servant.FieldAttributeID:
+		m.ResetAttributeID()
+		return nil
+	case servant.FieldOrderAlignmentID:
+		m.ResetOrderAlignmentID()
+		return nil
+	case servant.FieldMoralAlignmentID:
+		m.ResetMoralAlignmentID()
 		return nil
 	}
 	return fmt.Errorf("unknown Servant field %s", name)
@@ -3265,6 +3557,12 @@ func (m TraitMutation) Tx() (*Tx, error) {
 	tx := &Tx{config: m.config}
 	tx.init()
 	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Trait entities.
+func (m *TraitMutation) SetID(id int) {
+	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available

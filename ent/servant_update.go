@@ -53,6 +53,20 @@ func (su *ServantUpdate) SetNillableName(s *string) *ServantUpdate {
 	return su
 }
 
+// SetCollectionNo sets the "collection_no" field.
+func (su *ServantUpdate) SetCollectionNo(s string) *ServantUpdate {
+	su.mutation.SetCollectionNo(s)
+	return su
+}
+
+// SetNillableCollectionNo sets the "collection_no" field if the given value is not nil.
+func (su *ServantUpdate) SetNillableCollectionNo(s *string) *ServantUpdate {
+	if s != nil {
+		su.SetCollectionNo(*s)
+	}
+	return su
+}
+
 // SetFace sets the "face" field.
 func (su *ServantUpdate) SetFace(s string) *ServantUpdate {
 	su.mutation.SetFace(s)
@@ -67,17 +81,71 @@ func (su *ServantUpdate) SetNillableFace(s *string) *ServantUpdate {
 	return su
 }
 
-// SetClassID sets the "class" edge to the Class entity by ID.
-func (su *ServantUpdate) SetClassID(id int) *ServantUpdate {
-	su.mutation.SetClassID(id)
+// SetClassID sets the "class_id" field.
+func (su *ServantUpdate) SetClassID(i int) *ServantUpdate {
+	su.mutation.SetClassID(i)
 	return su
 }
 
-// SetNillableClassID sets the "class" edge to the Class entity by ID if the given value is not nil.
-func (su *ServantUpdate) SetNillableClassID(id *int) *ServantUpdate {
-	if id != nil {
-		su = su.SetClassID(*id)
+// SetNillableClassID sets the "class_id" field if the given value is not nil.
+func (su *ServantUpdate) SetNillableClassID(i *int) *ServantUpdate {
+	if i != nil {
+		su.SetClassID(*i)
 	}
+	return su
+}
+
+// SetAttributeID sets the "attribute_id" field.
+func (su *ServantUpdate) SetAttributeID(i int) *ServantUpdate {
+	su.mutation.SetAttributeID(i)
+	return su
+}
+
+// SetNillableAttributeID sets the "attribute_id" field if the given value is not nil.
+func (su *ServantUpdate) SetNillableAttributeID(i *int) *ServantUpdate {
+	if i != nil {
+		su.SetAttributeID(*i)
+	}
+	return su
+}
+
+// SetOrderAlignmentID sets the "order_alignment_id" field.
+func (su *ServantUpdate) SetOrderAlignmentID(i int) *ServantUpdate {
+	su.mutation.SetOrderAlignmentID(i)
+	return su
+}
+
+// SetNillableOrderAlignmentID sets the "order_alignment_id" field if the given value is not nil.
+func (su *ServantUpdate) SetNillableOrderAlignmentID(i *int) *ServantUpdate {
+	if i != nil {
+		su.SetOrderAlignmentID(*i)
+	}
+	return su
+}
+
+// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
+func (su *ServantUpdate) ClearOrderAlignmentID() *ServantUpdate {
+	su.mutation.ClearOrderAlignmentID()
+	return su
+}
+
+// SetMoralAlignmentID sets the "moral_alignment_id" field.
+func (su *ServantUpdate) SetMoralAlignmentID(i int) *ServantUpdate {
+	su.mutation.SetMoralAlignmentID(i)
+	return su
+}
+
+// SetNillableMoralAlignmentID sets the "moral_alignment_id" field if the given value is not nil.
+func (su *ServantUpdate) SetNillableMoralAlignmentID(i *int) *ServantUpdate {
+	if i != nil {
+		su.SetMoralAlignmentID(*i)
+	}
+	return su
+}
+
+// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
+func (su *ServantUpdate) ClearMoralAlignmentID() *ServantUpdate {
+	su.mutation.ClearMoralAlignmentID()
 	return su
 }
 
@@ -86,56 +154,14 @@ func (su *ServantUpdate) SetClass(c *Class) *ServantUpdate {
 	return su.SetClassID(c.ID)
 }
 
-// SetAttributeID sets the "attribute" edge to the Attribute entity by ID.
-func (su *ServantUpdate) SetAttributeID(id int) *ServantUpdate {
-	su.mutation.SetAttributeID(id)
-	return su
-}
-
-// SetNillableAttributeID sets the "attribute" edge to the Attribute entity by ID if the given value is not nil.
-func (su *ServantUpdate) SetNillableAttributeID(id *int) *ServantUpdate {
-	if id != nil {
-		su = su.SetAttributeID(*id)
-	}
-	return su
-}
-
 // SetAttribute sets the "attribute" edge to the Attribute entity.
 func (su *ServantUpdate) SetAttribute(a *Attribute) *ServantUpdate {
 	return su.SetAttributeID(a.ID)
 }
 
-// SetOrderAlignmentID sets the "order_alignment" edge to the OrderAlignment entity by ID.
-func (su *ServantUpdate) SetOrderAlignmentID(id int) *ServantUpdate {
-	su.mutation.SetOrderAlignmentID(id)
-	return su
-}
-
-// SetNillableOrderAlignmentID sets the "order_alignment" edge to the OrderAlignment entity by ID if the given value is not nil.
-func (su *ServantUpdate) SetNillableOrderAlignmentID(id *int) *ServantUpdate {
-	if id != nil {
-		su = su.SetOrderAlignmentID(*id)
-	}
-	return su
-}
-
 // SetOrderAlignment sets the "order_alignment" edge to the OrderAlignment entity.
 func (su *ServantUpdate) SetOrderAlignment(o *OrderAlignment) *ServantUpdate {
 	return su.SetOrderAlignmentID(o.ID)
-}
-
-// SetMoralAlignmentID sets the "moral_alignment" edge to the MoralAlignment entity by ID.
-func (su *ServantUpdate) SetMoralAlignmentID(id int) *ServantUpdate {
-	su.mutation.SetMoralAlignmentID(id)
-	return su
-}
-
-// SetNillableMoralAlignmentID sets the "moral_alignment" edge to the MoralAlignment entity by ID if the given value is not nil.
-func (su *ServantUpdate) SetNillableMoralAlignmentID(id *int) *ServantUpdate {
-	if id != nil {
-		su = su.SetMoralAlignmentID(*id)
-	}
-	return su
 }
 
 // SetMoralAlignment sets the "moral_alignment" edge to the MoralAlignment entity.
@@ -251,6 +277,42 @@ func (su *ServantUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
 		}
 	}
+	if v, ok := su.mutation.CollectionNo(); ok {
+		if err := servant.CollectionNoValidator(v); err != nil {
+			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.Face(); ok {
+		if err := servant.FaceValidator(v); err != nil {
+			return &ValidationError{Name: "face", err: fmt.Errorf(`ent: validator failed for field "Servant.face": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.ClassID(); ok {
+		if err := servant.ClassIDValidator(v); err != nil {
+			return &ValidationError{Name: "class_id", err: fmt.Errorf(`ent: validator failed for field "Servant.class_id": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.AttributeID(); ok {
+		if err := servant.AttributeIDValidator(v); err != nil {
+			return &ValidationError{Name: "attribute_id", err: fmt.Errorf(`ent: validator failed for field "Servant.attribute_id": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.OrderAlignmentID(); ok {
+		if err := servant.OrderAlignmentIDValidator(v); err != nil {
+			return &ValidationError{Name: "order_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.order_alignment_id": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.MoralAlignmentID(); ok {
+		if err := servant.MoralAlignmentIDValidator(v); err != nil {
+			return &ValidationError{Name: "moral_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.moral_alignment_id": %w`, err)}
+		}
+	}
+	if su.mutation.ClassCleared() && len(su.mutation.ClassIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Servant.class"`)
+	}
+	if su.mutation.AttributeCleared() && len(su.mutation.AttributeIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Servant.attribute"`)
+	}
 	return nil
 }
 
@@ -271,6 +333,9 @@ func (su *ServantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.Name(); ok {
 		_spec.SetField(servant.FieldName, field.TypeString, value)
+	}
+	if value, ok := su.mutation.CollectionNo(); ok {
+		_spec.SetField(servant.FieldCollectionNo, field.TypeString, value)
 	}
 	if value, ok := su.mutation.Face(); ok {
 		_spec.SetField(servant.FieldFace, field.TypeString, value)
@@ -476,6 +541,20 @@ func (suo *ServantUpdateOne) SetNillableName(s *string) *ServantUpdateOne {
 	return suo
 }
 
+// SetCollectionNo sets the "collection_no" field.
+func (suo *ServantUpdateOne) SetCollectionNo(s string) *ServantUpdateOne {
+	suo.mutation.SetCollectionNo(s)
+	return suo
+}
+
+// SetNillableCollectionNo sets the "collection_no" field if the given value is not nil.
+func (suo *ServantUpdateOne) SetNillableCollectionNo(s *string) *ServantUpdateOne {
+	if s != nil {
+		suo.SetCollectionNo(*s)
+	}
+	return suo
+}
+
 // SetFace sets the "face" field.
 func (suo *ServantUpdateOne) SetFace(s string) *ServantUpdateOne {
 	suo.mutation.SetFace(s)
@@ -490,17 +569,71 @@ func (suo *ServantUpdateOne) SetNillableFace(s *string) *ServantUpdateOne {
 	return suo
 }
 
-// SetClassID sets the "class" edge to the Class entity by ID.
-func (suo *ServantUpdateOne) SetClassID(id int) *ServantUpdateOne {
-	suo.mutation.SetClassID(id)
+// SetClassID sets the "class_id" field.
+func (suo *ServantUpdateOne) SetClassID(i int) *ServantUpdateOne {
+	suo.mutation.SetClassID(i)
 	return suo
 }
 
-// SetNillableClassID sets the "class" edge to the Class entity by ID if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableClassID(id *int) *ServantUpdateOne {
-	if id != nil {
-		suo = suo.SetClassID(*id)
+// SetNillableClassID sets the "class_id" field if the given value is not nil.
+func (suo *ServantUpdateOne) SetNillableClassID(i *int) *ServantUpdateOne {
+	if i != nil {
+		suo.SetClassID(*i)
 	}
+	return suo
+}
+
+// SetAttributeID sets the "attribute_id" field.
+func (suo *ServantUpdateOne) SetAttributeID(i int) *ServantUpdateOne {
+	suo.mutation.SetAttributeID(i)
+	return suo
+}
+
+// SetNillableAttributeID sets the "attribute_id" field if the given value is not nil.
+func (suo *ServantUpdateOne) SetNillableAttributeID(i *int) *ServantUpdateOne {
+	if i != nil {
+		suo.SetAttributeID(*i)
+	}
+	return suo
+}
+
+// SetOrderAlignmentID sets the "order_alignment_id" field.
+func (suo *ServantUpdateOne) SetOrderAlignmentID(i int) *ServantUpdateOne {
+	suo.mutation.SetOrderAlignmentID(i)
+	return suo
+}
+
+// SetNillableOrderAlignmentID sets the "order_alignment_id" field if the given value is not nil.
+func (suo *ServantUpdateOne) SetNillableOrderAlignmentID(i *int) *ServantUpdateOne {
+	if i != nil {
+		suo.SetOrderAlignmentID(*i)
+	}
+	return suo
+}
+
+// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
+func (suo *ServantUpdateOne) ClearOrderAlignmentID() *ServantUpdateOne {
+	suo.mutation.ClearOrderAlignmentID()
+	return suo
+}
+
+// SetMoralAlignmentID sets the "moral_alignment_id" field.
+func (suo *ServantUpdateOne) SetMoralAlignmentID(i int) *ServantUpdateOne {
+	suo.mutation.SetMoralAlignmentID(i)
+	return suo
+}
+
+// SetNillableMoralAlignmentID sets the "moral_alignment_id" field if the given value is not nil.
+func (suo *ServantUpdateOne) SetNillableMoralAlignmentID(i *int) *ServantUpdateOne {
+	if i != nil {
+		suo.SetMoralAlignmentID(*i)
+	}
+	return suo
+}
+
+// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
+func (suo *ServantUpdateOne) ClearMoralAlignmentID() *ServantUpdateOne {
+	suo.mutation.ClearMoralAlignmentID()
 	return suo
 }
 
@@ -509,56 +642,14 @@ func (suo *ServantUpdateOne) SetClass(c *Class) *ServantUpdateOne {
 	return suo.SetClassID(c.ID)
 }
 
-// SetAttributeID sets the "attribute" edge to the Attribute entity by ID.
-func (suo *ServantUpdateOne) SetAttributeID(id int) *ServantUpdateOne {
-	suo.mutation.SetAttributeID(id)
-	return suo
-}
-
-// SetNillableAttributeID sets the "attribute" edge to the Attribute entity by ID if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableAttributeID(id *int) *ServantUpdateOne {
-	if id != nil {
-		suo = suo.SetAttributeID(*id)
-	}
-	return suo
-}
-
 // SetAttribute sets the "attribute" edge to the Attribute entity.
 func (suo *ServantUpdateOne) SetAttribute(a *Attribute) *ServantUpdateOne {
 	return suo.SetAttributeID(a.ID)
 }
 
-// SetOrderAlignmentID sets the "order_alignment" edge to the OrderAlignment entity by ID.
-func (suo *ServantUpdateOne) SetOrderAlignmentID(id int) *ServantUpdateOne {
-	suo.mutation.SetOrderAlignmentID(id)
-	return suo
-}
-
-// SetNillableOrderAlignmentID sets the "order_alignment" edge to the OrderAlignment entity by ID if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableOrderAlignmentID(id *int) *ServantUpdateOne {
-	if id != nil {
-		suo = suo.SetOrderAlignmentID(*id)
-	}
-	return suo
-}
-
 // SetOrderAlignment sets the "order_alignment" edge to the OrderAlignment entity.
 func (suo *ServantUpdateOne) SetOrderAlignment(o *OrderAlignment) *ServantUpdateOne {
 	return suo.SetOrderAlignmentID(o.ID)
-}
-
-// SetMoralAlignmentID sets the "moral_alignment" edge to the MoralAlignment entity by ID.
-func (suo *ServantUpdateOne) SetMoralAlignmentID(id int) *ServantUpdateOne {
-	suo.mutation.SetMoralAlignmentID(id)
-	return suo
-}
-
-// SetNillableMoralAlignmentID sets the "moral_alignment" edge to the MoralAlignment entity by ID if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableMoralAlignmentID(id *int) *ServantUpdateOne {
-	if id != nil {
-		suo = suo.SetMoralAlignmentID(*id)
-	}
-	return suo
 }
 
 // SetMoralAlignment sets the "moral_alignment" edge to the MoralAlignment entity.
@@ -687,6 +778,42 @@ func (suo *ServantUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
 		}
 	}
+	if v, ok := suo.mutation.CollectionNo(); ok {
+		if err := servant.CollectionNoValidator(v); err != nil {
+			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.Face(); ok {
+		if err := servant.FaceValidator(v); err != nil {
+			return &ValidationError{Name: "face", err: fmt.Errorf(`ent: validator failed for field "Servant.face": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.ClassID(); ok {
+		if err := servant.ClassIDValidator(v); err != nil {
+			return &ValidationError{Name: "class_id", err: fmt.Errorf(`ent: validator failed for field "Servant.class_id": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.AttributeID(); ok {
+		if err := servant.AttributeIDValidator(v); err != nil {
+			return &ValidationError{Name: "attribute_id", err: fmt.Errorf(`ent: validator failed for field "Servant.attribute_id": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.OrderAlignmentID(); ok {
+		if err := servant.OrderAlignmentIDValidator(v); err != nil {
+			return &ValidationError{Name: "order_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.order_alignment_id": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.MoralAlignmentID(); ok {
+		if err := servant.MoralAlignmentIDValidator(v); err != nil {
+			return &ValidationError{Name: "moral_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.moral_alignment_id": %w`, err)}
+		}
+	}
+	if suo.mutation.ClassCleared() && len(suo.mutation.ClassIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Servant.class"`)
+	}
+	if suo.mutation.AttributeCleared() && len(suo.mutation.AttributeIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Servant.attribute"`)
+	}
 	return nil
 }
 
@@ -724,6 +851,9 @@ func (suo *ServantUpdateOne) sqlSave(ctx context.Context) (_node *Servant, err e
 	}
 	if value, ok := suo.mutation.Name(); ok {
 		_spec.SetField(servant.FieldName, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.CollectionNo(); ok {
+		_spec.SetField(servant.FieldCollectionNo, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.Face(); ok {
 		_spec.SetField(servant.FieldFace, field.TypeString, value)

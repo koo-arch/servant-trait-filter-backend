@@ -2,6 +2,8 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/edge"
 
 	"github.com/koo-arch/servant-trait-filter-backend/ent/mixin"
@@ -12,11 +14,17 @@ type Trait struct {
 	ent.Schema
 }
 
+// Fields of the Trait.
+func (Trait) Fields() []ent.Field {
+	return []ent.Field{
+		field.Int("id").Positive().Immutable(),
+	}
+}
 
 // Edges of the Trait.
 func (Trait) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("servants", Servant.Type),
+		edge.To("servants", Servant.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

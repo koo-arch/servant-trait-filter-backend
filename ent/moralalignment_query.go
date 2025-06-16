@@ -413,7 +413,9 @@ func (maq *MoralAlignmentQuery) loadServants(ctx context.Context, query *Servant
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(servant.FieldMoralAlignmentID)
+	}
 	query.Where(predicate.Servant(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(moralalignment.ServantsColumn), fks...))
 	}))
@@ -422,13 +424,10 @@ func (maq *MoralAlignmentQuery) loadServants(ctx context.Context, query *Servant
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.moral_alignment_servants
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "moral_alignment_servants" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.MoralAlignmentID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "moral_alignment_servants" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "moral_alignment_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
