@@ -63,6 +63,12 @@ func (oac *OrderAlignmentCreate) SetNameJa(s string) *OrderAlignmentCreate {
 	return oac
 }
 
+// SetID sets the "id" field.
+func (oac *OrderAlignmentCreate) SetID(i int) *OrderAlignmentCreate {
+	oac.mutation.SetID(i)
+	return oac
+}
+
 // AddServantIDs adds the "servants" edge to the Servant entity by IDs.
 func (oac *OrderAlignmentCreate) AddServantIDs(ids ...int) *OrderAlignmentCreate {
 	oac.mutation.AddServantIDs(ids...)
@@ -142,6 +148,11 @@ func (oac *OrderAlignmentCreate) check() error {
 	if _, ok := oac.mutation.NameJa(); !ok {
 		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "OrderAlignment.name_ja"`)}
 	}
+	if v, ok := oac.mutation.ID(); ok {
+		if err := orderalignment.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "OrderAlignment.id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -156,8 +167,10 @@ func (oac *OrderAlignmentCreate) sqlSave(ctx context.Context) (*OrderAlignment, 
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	oac.mutation.id = &_node.ID
 	oac.mutation.done = true
 	return _node, nil
@@ -169,6 +182,10 @@ func (oac *OrderAlignmentCreate) createSpec() (*OrderAlignment, *sqlgraph.Create
 		_spec = sqlgraph.NewCreateSpec(orderalignment.Table, sqlgraph.NewFieldSpec(orderalignment.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = oac.conflict
+	if id, ok := oac.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := oac.mutation.CreatedAt(); ok {
 		_spec.SetField(orderalignment.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -289,17 +306,23 @@ func (u *OrderAlignmentUpsert) UpdateNameJa() *OrderAlignmentUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.OrderAlignment.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(orderalignment.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *OrderAlignmentUpsertOne) UpdateNewValues() *OrderAlignmentUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(orderalignment.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(orderalignment.FieldCreatedAt)
 		}
@@ -456,7 +479,7 @@ func (oacb *OrderAlignmentCreateBulk) Save(ctx context.Context) ([]*OrderAlignme
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}
@@ -546,12 +569,18 @@ type OrderAlignmentUpsertBulk struct {
 //	client.OrderAlignment.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(orderalignment.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *OrderAlignmentUpsertBulk) UpdateNewValues() *OrderAlignmentUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(orderalignment.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(orderalignment.FieldCreatedAt)
 			}

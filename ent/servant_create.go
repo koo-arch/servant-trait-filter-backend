@@ -73,17 +73,49 @@ func (sc *ServantCreate) SetFace(s string) *ServantCreate {
 	return sc
 }
 
-// SetClassID sets the "class" edge to the Class entity by ID.
-func (sc *ServantCreate) SetClassID(id int) *ServantCreate {
-	sc.mutation.SetClassID(id)
+// SetClassID sets the "class_id" field.
+func (sc *ServantCreate) SetClassID(i int) *ServantCreate {
+	sc.mutation.SetClassID(i)
 	return sc
 }
 
-// SetNillableClassID sets the "class" edge to the Class entity by ID if the given value is not nil.
-func (sc *ServantCreate) SetNillableClassID(id *int) *ServantCreate {
-	if id != nil {
-		sc = sc.SetClassID(*id)
+// SetAttributeID sets the "attribute_id" field.
+func (sc *ServantCreate) SetAttributeID(i int) *ServantCreate {
+	sc.mutation.SetAttributeID(i)
+	return sc
+}
+
+// SetOrderAlignmentID sets the "order_alignment_id" field.
+func (sc *ServantCreate) SetOrderAlignmentID(i int) *ServantCreate {
+	sc.mutation.SetOrderAlignmentID(i)
+	return sc
+}
+
+// SetNillableOrderAlignmentID sets the "order_alignment_id" field if the given value is not nil.
+func (sc *ServantCreate) SetNillableOrderAlignmentID(i *int) *ServantCreate {
+	if i != nil {
+		sc.SetOrderAlignmentID(*i)
 	}
+	return sc
+}
+
+// SetMoralAlignmentID sets the "moral_alignment_id" field.
+func (sc *ServantCreate) SetMoralAlignmentID(i int) *ServantCreate {
+	sc.mutation.SetMoralAlignmentID(i)
+	return sc
+}
+
+// SetNillableMoralAlignmentID sets the "moral_alignment_id" field if the given value is not nil.
+func (sc *ServantCreate) SetNillableMoralAlignmentID(i *int) *ServantCreate {
+	if i != nil {
+		sc.SetMoralAlignmentID(*i)
+	}
+	return sc
+}
+
+// SetID sets the "id" field.
+func (sc *ServantCreate) SetID(i int) *ServantCreate {
+	sc.mutation.SetID(i)
 	return sc
 }
 
@@ -92,56 +124,14 @@ func (sc *ServantCreate) SetClass(c *Class) *ServantCreate {
 	return sc.SetClassID(c.ID)
 }
 
-// SetAttributeID sets the "attribute" edge to the Attribute entity by ID.
-func (sc *ServantCreate) SetAttributeID(id int) *ServantCreate {
-	sc.mutation.SetAttributeID(id)
-	return sc
-}
-
-// SetNillableAttributeID sets the "attribute" edge to the Attribute entity by ID if the given value is not nil.
-func (sc *ServantCreate) SetNillableAttributeID(id *int) *ServantCreate {
-	if id != nil {
-		sc = sc.SetAttributeID(*id)
-	}
-	return sc
-}
-
 // SetAttribute sets the "attribute" edge to the Attribute entity.
 func (sc *ServantCreate) SetAttribute(a *Attribute) *ServantCreate {
 	return sc.SetAttributeID(a.ID)
 }
 
-// SetOrderAlignmentID sets the "order_alignment" edge to the OrderAlignment entity by ID.
-func (sc *ServantCreate) SetOrderAlignmentID(id int) *ServantCreate {
-	sc.mutation.SetOrderAlignmentID(id)
-	return sc
-}
-
-// SetNillableOrderAlignmentID sets the "order_alignment" edge to the OrderAlignment entity by ID if the given value is not nil.
-func (sc *ServantCreate) SetNillableOrderAlignmentID(id *int) *ServantCreate {
-	if id != nil {
-		sc = sc.SetOrderAlignmentID(*id)
-	}
-	return sc
-}
-
 // SetOrderAlignment sets the "order_alignment" edge to the OrderAlignment entity.
 func (sc *ServantCreate) SetOrderAlignment(o *OrderAlignment) *ServantCreate {
 	return sc.SetOrderAlignmentID(o.ID)
-}
-
-// SetMoralAlignmentID sets the "moral_alignment" edge to the MoralAlignment entity by ID.
-func (sc *ServantCreate) SetMoralAlignmentID(id int) *ServantCreate {
-	sc.mutation.SetMoralAlignmentID(id)
-	return sc
-}
-
-// SetNillableMoralAlignmentID sets the "moral_alignment" edge to the MoralAlignment entity by ID if the given value is not nil.
-func (sc *ServantCreate) SetNillableMoralAlignmentID(id *int) *ServantCreate {
-	if id != nil {
-		sc = sc.SetMoralAlignmentID(*id)
-	}
-	return sc
 }
 
 // SetMoralAlignment sets the "moral_alignment" edge to the MoralAlignment entity.
@@ -236,6 +226,48 @@ func (sc *ServantCreate) check() error {
 	if _, ok := sc.mutation.Face(); !ok {
 		return &ValidationError{Name: "face", err: errors.New(`ent: missing required field "Servant.face"`)}
 	}
+	if v, ok := sc.mutation.Face(); ok {
+		if err := servant.FaceValidator(v); err != nil {
+			return &ValidationError{Name: "face", err: fmt.Errorf(`ent: validator failed for field "Servant.face": %w`, err)}
+		}
+	}
+	if _, ok := sc.mutation.ClassID(); !ok {
+		return &ValidationError{Name: "class_id", err: errors.New(`ent: missing required field "Servant.class_id"`)}
+	}
+	if v, ok := sc.mutation.ClassID(); ok {
+		if err := servant.ClassIDValidator(v); err != nil {
+			return &ValidationError{Name: "class_id", err: fmt.Errorf(`ent: validator failed for field "Servant.class_id": %w`, err)}
+		}
+	}
+	if _, ok := sc.mutation.AttributeID(); !ok {
+		return &ValidationError{Name: "attribute_id", err: errors.New(`ent: missing required field "Servant.attribute_id"`)}
+	}
+	if v, ok := sc.mutation.AttributeID(); ok {
+		if err := servant.AttributeIDValidator(v); err != nil {
+			return &ValidationError{Name: "attribute_id", err: fmt.Errorf(`ent: validator failed for field "Servant.attribute_id": %w`, err)}
+		}
+	}
+	if v, ok := sc.mutation.OrderAlignmentID(); ok {
+		if err := servant.OrderAlignmentIDValidator(v); err != nil {
+			return &ValidationError{Name: "order_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.order_alignment_id": %w`, err)}
+		}
+	}
+	if v, ok := sc.mutation.MoralAlignmentID(); ok {
+		if err := servant.MoralAlignmentIDValidator(v); err != nil {
+			return &ValidationError{Name: "moral_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.moral_alignment_id": %w`, err)}
+		}
+	}
+	if v, ok := sc.mutation.ID(); ok {
+		if err := servant.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Servant.id": %w`, err)}
+		}
+	}
+	if len(sc.mutation.ClassIDs()) == 0 {
+		return &ValidationError{Name: "class", err: errors.New(`ent: missing required edge "Servant.class"`)}
+	}
+	if len(sc.mutation.AttributeIDs()) == 0 {
+		return &ValidationError{Name: "attribute", err: errors.New(`ent: missing required edge "Servant.attribute"`)}
+	}
 	return nil
 }
 
@@ -250,8 +282,10 @@ func (sc *ServantCreate) sqlSave(ctx context.Context) (*Servant, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	sc.mutation.id = &_node.ID
 	sc.mutation.done = true
 	return _node, nil
@@ -263,6 +297,10 @@ func (sc *ServantCreate) createSpec() (*Servant, *sqlgraph.CreateSpec) {
 		_spec = sqlgraph.NewCreateSpec(servant.Table, sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = sc.conflict
+	if id, ok := sc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := sc.mutation.CreatedAt(); ok {
 		_spec.SetField(servant.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -297,7 +335,7 @@ func (sc *ServantCreate) createSpec() (*Servant, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.class_servants = &nodes[0]
+		_node.ClassID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.AttributeIDs(); len(nodes) > 0 {
@@ -314,7 +352,7 @@ func (sc *ServantCreate) createSpec() (*Servant, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.attribute_servants = &nodes[0]
+		_node.AttributeID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.OrderAlignmentIDs(); len(nodes) > 0 {
@@ -331,7 +369,7 @@ func (sc *ServantCreate) createSpec() (*Servant, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.order_alignment_servants = &nodes[0]
+		_node.OrderAlignmentID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.MoralAlignmentIDs(); len(nodes) > 0 {
@@ -348,7 +386,7 @@ func (sc *ServantCreate) createSpec() (*Servant, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.moral_alignment_servants = &nodes[0]
+		_node.MoralAlignmentID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.TraitsIDs(); len(nodes) > 0 {
@@ -467,17 +505,83 @@ func (u *ServantUpsert) UpdateFace() *ServantUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetClassID sets the "class_id" field.
+func (u *ServantUpsert) SetClassID(v int) *ServantUpsert {
+	u.Set(servant.FieldClassID, v)
+	return u
+}
+
+// UpdateClassID sets the "class_id" field to the value that was provided on create.
+func (u *ServantUpsert) UpdateClassID() *ServantUpsert {
+	u.SetExcluded(servant.FieldClassID)
+	return u
+}
+
+// SetAttributeID sets the "attribute_id" field.
+func (u *ServantUpsert) SetAttributeID(v int) *ServantUpsert {
+	u.Set(servant.FieldAttributeID, v)
+	return u
+}
+
+// UpdateAttributeID sets the "attribute_id" field to the value that was provided on create.
+func (u *ServantUpsert) UpdateAttributeID() *ServantUpsert {
+	u.SetExcluded(servant.FieldAttributeID)
+	return u
+}
+
+// SetOrderAlignmentID sets the "order_alignment_id" field.
+func (u *ServantUpsert) SetOrderAlignmentID(v int) *ServantUpsert {
+	u.Set(servant.FieldOrderAlignmentID, v)
+	return u
+}
+
+// UpdateOrderAlignmentID sets the "order_alignment_id" field to the value that was provided on create.
+func (u *ServantUpsert) UpdateOrderAlignmentID() *ServantUpsert {
+	u.SetExcluded(servant.FieldOrderAlignmentID)
+	return u
+}
+
+// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
+func (u *ServantUpsert) ClearOrderAlignmentID() *ServantUpsert {
+	u.SetNull(servant.FieldOrderAlignmentID)
+	return u
+}
+
+// SetMoralAlignmentID sets the "moral_alignment_id" field.
+func (u *ServantUpsert) SetMoralAlignmentID(v int) *ServantUpsert {
+	u.Set(servant.FieldMoralAlignmentID, v)
+	return u
+}
+
+// UpdateMoralAlignmentID sets the "moral_alignment_id" field to the value that was provided on create.
+func (u *ServantUpsert) UpdateMoralAlignmentID() *ServantUpsert {
+	u.SetExcluded(servant.FieldMoralAlignmentID)
+	return u
+}
+
+// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
+func (u *ServantUpsert) ClearMoralAlignmentID() *ServantUpsert {
+	u.SetNull(servant.FieldMoralAlignmentID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Servant.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(servant.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ServantUpsertOne) UpdateNewValues() *ServantUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(servant.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(servant.FieldCreatedAt)
 		}
@@ -568,6 +672,76 @@ func (u *ServantUpsertOne) UpdateFace() *ServantUpsertOne {
 	})
 }
 
+// SetClassID sets the "class_id" field.
+func (u *ServantUpsertOne) SetClassID(v int) *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetClassID(v)
+	})
+}
+
+// UpdateClassID sets the "class_id" field to the value that was provided on create.
+func (u *ServantUpsertOne) UpdateClassID() *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateClassID()
+	})
+}
+
+// SetAttributeID sets the "attribute_id" field.
+func (u *ServantUpsertOne) SetAttributeID(v int) *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetAttributeID(v)
+	})
+}
+
+// UpdateAttributeID sets the "attribute_id" field to the value that was provided on create.
+func (u *ServantUpsertOne) UpdateAttributeID() *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateAttributeID()
+	})
+}
+
+// SetOrderAlignmentID sets the "order_alignment_id" field.
+func (u *ServantUpsertOne) SetOrderAlignmentID(v int) *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetOrderAlignmentID(v)
+	})
+}
+
+// UpdateOrderAlignmentID sets the "order_alignment_id" field to the value that was provided on create.
+func (u *ServantUpsertOne) UpdateOrderAlignmentID() *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateOrderAlignmentID()
+	})
+}
+
+// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
+func (u *ServantUpsertOne) ClearOrderAlignmentID() *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.ClearOrderAlignmentID()
+	})
+}
+
+// SetMoralAlignmentID sets the "moral_alignment_id" field.
+func (u *ServantUpsertOne) SetMoralAlignmentID(v int) *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetMoralAlignmentID(v)
+	})
+}
+
+// UpdateMoralAlignmentID sets the "moral_alignment_id" field to the value that was provided on create.
+func (u *ServantUpsertOne) UpdateMoralAlignmentID() *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateMoralAlignmentID()
+	})
+}
+
+// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
+func (u *ServantUpsertOne) ClearMoralAlignmentID() *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.ClearMoralAlignmentID()
+	})
+}
+
 // Exec executes the query.
 func (u *ServantUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -648,7 +822,7 @@ func (scb *ServantCreateBulk) Save(ctx context.Context) ([]*Servant, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}
@@ -738,12 +912,18 @@ type ServantUpsertBulk struct {
 //	client.Servant.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(servant.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ServantUpsertBulk) UpdateNewValues() *ServantUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(servant.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(servant.FieldCreatedAt)
 			}
@@ -832,6 +1012,76 @@ func (u *ServantUpsertBulk) SetFace(v string) *ServantUpsertBulk {
 func (u *ServantUpsertBulk) UpdateFace() *ServantUpsertBulk {
 	return u.Update(func(s *ServantUpsert) {
 		s.UpdateFace()
+	})
+}
+
+// SetClassID sets the "class_id" field.
+func (u *ServantUpsertBulk) SetClassID(v int) *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetClassID(v)
+	})
+}
+
+// UpdateClassID sets the "class_id" field to the value that was provided on create.
+func (u *ServantUpsertBulk) UpdateClassID() *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateClassID()
+	})
+}
+
+// SetAttributeID sets the "attribute_id" field.
+func (u *ServantUpsertBulk) SetAttributeID(v int) *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetAttributeID(v)
+	})
+}
+
+// UpdateAttributeID sets the "attribute_id" field to the value that was provided on create.
+func (u *ServantUpsertBulk) UpdateAttributeID() *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateAttributeID()
+	})
+}
+
+// SetOrderAlignmentID sets the "order_alignment_id" field.
+func (u *ServantUpsertBulk) SetOrderAlignmentID(v int) *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetOrderAlignmentID(v)
+	})
+}
+
+// UpdateOrderAlignmentID sets the "order_alignment_id" field to the value that was provided on create.
+func (u *ServantUpsertBulk) UpdateOrderAlignmentID() *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateOrderAlignmentID()
+	})
+}
+
+// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
+func (u *ServantUpsertBulk) ClearOrderAlignmentID() *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.ClearOrderAlignmentID()
+	})
+}
+
+// SetMoralAlignmentID sets the "moral_alignment_id" field.
+func (u *ServantUpsertBulk) SetMoralAlignmentID(v int) *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetMoralAlignmentID(v)
+	})
+}
+
+// UpdateMoralAlignmentID sets the "moral_alignment_id" field to the value that was provided on create.
+func (u *ServantUpsertBulk) UpdateMoralAlignmentID() *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateMoralAlignmentID()
+	})
+}
+
+// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
+func (u *ServantUpsertBulk) ClearMoralAlignmentID() *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.ClearMoralAlignmentID()
 	})
 }
 

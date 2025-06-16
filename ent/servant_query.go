@@ -33,7 +33,6 @@ type ServantQuery struct {
 	withOrderAlignment *OrderAlignmentQuery
 	withMoralAlignment *MoralAlignmentQuery
 	withTraits         *TraitQuery
-	withFKs            bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -515,7 +514,6 @@ func (sq *ServantQuery) prepareQuery(ctx context.Context) error {
 func (sq *ServantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Servant, error) {
 	var (
 		nodes       = []*Servant{}
-		withFKs     = sq.withFKs
 		_spec       = sq.querySpec()
 		loadedTypes = [5]bool{
 			sq.withClass != nil,
@@ -525,12 +523,6 @@ func (sq *ServantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Serv
 			sq.withTraits != nil,
 		}
 	)
-	if sq.withClass != nil || sq.withAttribute != nil || sq.withOrderAlignment != nil || sq.withMoralAlignment != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, servant.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Servant).scanValues(nil, columns)
 	}
@@ -587,10 +579,7 @@ func (sq *ServantQuery) loadClass(ctx context.Context, query *ClassQuery, nodes 
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Servant)
 	for i := range nodes {
-		if nodes[i].class_servants == nil {
-			continue
-		}
-		fk := *nodes[i].class_servants
+		fk := nodes[i].ClassID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -607,7 +596,7 @@ func (sq *ServantQuery) loadClass(ctx context.Context, query *ClassQuery, nodes 
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "class_servants" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "class_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -619,10 +608,7 @@ func (sq *ServantQuery) loadAttribute(ctx context.Context, query *AttributeQuery
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Servant)
 	for i := range nodes {
-		if nodes[i].attribute_servants == nil {
-			continue
-		}
-		fk := *nodes[i].attribute_servants
+		fk := nodes[i].AttributeID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -639,7 +625,7 @@ func (sq *ServantQuery) loadAttribute(ctx context.Context, query *AttributeQuery
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "attribute_servants" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "attribute_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -651,10 +637,7 @@ func (sq *ServantQuery) loadOrderAlignment(ctx context.Context, query *OrderAlig
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Servant)
 	for i := range nodes {
-		if nodes[i].order_alignment_servants == nil {
-			continue
-		}
-		fk := *nodes[i].order_alignment_servants
+		fk := nodes[i].OrderAlignmentID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -671,7 +654,7 @@ func (sq *ServantQuery) loadOrderAlignment(ctx context.Context, query *OrderAlig
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "order_alignment_servants" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "order_alignment_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -683,10 +666,7 @@ func (sq *ServantQuery) loadMoralAlignment(ctx context.Context, query *MoralAlig
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Servant)
 	for i := range nodes {
-		if nodes[i].moral_alignment_servants == nil {
-			continue
-		}
-		fk := *nodes[i].moral_alignment_servants
+		fk := nodes[i].MoralAlignmentID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -703,7 +683,7 @@ func (sq *ServantQuery) loadMoralAlignment(ctx context.Context, query *MoralAlig
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "moral_alignment_servants" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "moral_alignment_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -797,6 +777,18 @@ func (sq *ServantQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != servant.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if sq.withClass != nil {
+			_spec.Node.AddColumnOnce(servant.FieldClassID)
+		}
+		if sq.withAttribute != nil {
+			_spec.Node.AddColumnOnce(servant.FieldAttributeID)
+		}
+		if sq.withOrderAlignment != nil {
+			_spec.Node.AddColumnOnce(servant.FieldOrderAlignmentID)
+		}
+		if sq.withMoralAlignment != nil {
+			_spec.Node.AddColumnOnce(servant.FieldMoralAlignmentID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

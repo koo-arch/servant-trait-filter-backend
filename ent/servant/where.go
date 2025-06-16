@@ -80,6 +80,26 @@ func Face(v string) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldFace, v))
 }
 
+// ClassID applies equality check predicate on the "class_id" field. It's identical to ClassIDEQ.
+func ClassID(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldClassID, v))
+}
+
+// AttributeID applies equality check predicate on the "attribute_id" field. It's identical to AttributeIDEQ.
+func AttributeID(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldAttributeID, v))
+}
+
+// OrderAlignmentID applies equality check predicate on the "order_alignment_id" field. It's identical to OrderAlignmentIDEQ.
+func OrderAlignmentID(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldOrderAlignmentID, v))
+}
+
+// MoralAlignmentID applies equality check predicate on the "moral_alignment_id" field. It's identical to MoralAlignmentIDEQ.
+func MoralAlignmentID(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldMoralAlignmentID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldCreatedAt, v))
@@ -353,6 +373,106 @@ func FaceEqualFold(v string) predicate.Servant {
 // FaceContainsFold applies the ContainsFold predicate on the "face" field.
 func FaceContainsFold(v string) predicate.Servant {
 	return predicate.Servant(sql.FieldContainsFold(FieldFace, v))
+}
+
+// ClassIDEQ applies the EQ predicate on the "class_id" field.
+func ClassIDEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldClassID, v))
+}
+
+// ClassIDNEQ applies the NEQ predicate on the "class_id" field.
+func ClassIDNEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldNEQ(FieldClassID, v))
+}
+
+// ClassIDIn applies the In predicate on the "class_id" field.
+func ClassIDIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldIn(FieldClassID, vs...))
+}
+
+// ClassIDNotIn applies the NotIn predicate on the "class_id" field.
+func ClassIDNotIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldNotIn(FieldClassID, vs...))
+}
+
+// AttributeIDEQ applies the EQ predicate on the "attribute_id" field.
+func AttributeIDEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldAttributeID, v))
+}
+
+// AttributeIDNEQ applies the NEQ predicate on the "attribute_id" field.
+func AttributeIDNEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldNEQ(FieldAttributeID, v))
+}
+
+// AttributeIDIn applies the In predicate on the "attribute_id" field.
+func AttributeIDIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldIn(FieldAttributeID, vs...))
+}
+
+// AttributeIDNotIn applies the NotIn predicate on the "attribute_id" field.
+func AttributeIDNotIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldNotIn(FieldAttributeID, vs...))
+}
+
+// OrderAlignmentIDEQ applies the EQ predicate on the "order_alignment_id" field.
+func OrderAlignmentIDEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldOrderAlignmentID, v))
+}
+
+// OrderAlignmentIDNEQ applies the NEQ predicate on the "order_alignment_id" field.
+func OrderAlignmentIDNEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldNEQ(FieldOrderAlignmentID, v))
+}
+
+// OrderAlignmentIDIn applies the In predicate on the "order_alignment_id" field.
+func OrderAlignmentIDIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldIn(FieldOrderAlignmentID, vs...))
+}
+
+// OrderAlignmentIDNotIn applies the NotIn predicate on the "order_alignment_id" field.
+func OrderAlignmentIDNotIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldNotIn(FieldOrderAlignmentID, vs...))
+}
+
+// OrderAlignmentIDIsNil applies the IsNil predicate on the "order_alignment_id" field.
+func OrderAlignmentIDIsNil() predicate.Servant {
+	return predicate.Servant(sql.FieldIsNull(FieldOrderAlignmentID))
+}
+
+// OrderAlignmentIDNotNil applies the NotNil predicate on the "order_alignment_id" field.
+func OrderAlignmentIDNotNil() predicate.Servant {
+	return predicate.Servant(sql.FieldNotNull(FieldOrderAlignmentID))
+}
+
+// MoralAlignmentIDEQ applies the EQ predicate on the "moral_alignment_id" field.
+func MoralAlignmentIDEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldMoralAlignmentID, v))
+}
+
+// MoralAlignmentIDNEQ applies the NEQ predicate on the "moral_alignment_id" field.
+func MoralAlignmentIDNEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldNEQ(FieldMoralAlignmentID, v))
+}
+
+// MoralAlignmentIDIn applies the In predicate on the "moral_alignment_id" field.
+func MoralAlignmentIDIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldIn(FieldMoralAlignmentID, vs...))
+}
+
+// MoralAlignmentIDNotIn applies the NotIn predicate on the "moral_alignment_id" field.
+func MoralAlignmentIDNotIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldNotIn(FieldMoralAlignmentID, vs...))
+}
+
+// MoralAlignmentIDIsNil applies the IsNil predicate on the "moral_alignment_id" field.
+func MoralAlignmentIDIsNil() predicate.Servant {
+	return predicate.Servant(sql.FieldIsNull(FieldMoralAlignmentID))
+}
+
+// MoralAlignmentIDNotNil applies the NotNil predicate on the "moral_alignment_id" field.
+func MoralAlignmentIDNotNil() predicate.Servant {
+	return predicate.Servant(sql.FieldNotNull(FieldMoralAlignmentID))
 }
 
 // HasClass applies the HasEdge predicate on the "class" edge.

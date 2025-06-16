@@ -63,6 +63,12 @@ func (tc *TraitCreate) SetNameJa(s string) *TraitCreate {
 	return tc
 }
 
+// SetID sets the "id" field.
+func (tc *TraitCreate) SetID(i int) *TraitCreate {
+	tc.mutation.SetID(i)
+	return tc
+}
+
 // AddServantIDs adds the "servants" edge to the Servant entity by IDs.
 func (tc *TraitCreate) AddServantIDs(ids ...int) *TraitCreate {
 	tc.mutation.AddServantIDs(ids...)
@@ -142,6 +148,11 @@ func (tc *TraitCreate) check() error {
 	if _, ok := tc.mutation.NameJa(); !ok {
 		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "Trait.name_ja"`)}
 	}
+	if v, ok := tc.mutation.ID(); ok {
+		if err := trait.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Trait.id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -156,8 +167,10 @@ func (tc *TraitCreate) sqlSave(ctx context.Context) (*Trait, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	tc.mutation.id = &_node.ID
 	tc.mutation.done = true
 	return _node, nil
@@ -169,6 +182,10 @@ func (tc *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 		_spec = sqlgraph.NewCreateSpec(trait.Table, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = tc.conflict
+	if id, ok := tc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := tc.mutation.CreatedAt(); ok {
 		_spec.SetField(trait.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -289,17 +306,23 @@ func (u *TraitUpsert) UpdateNameJa() *TraitUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Trait.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(trait.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *TraitUpsertOne) UpdateNewValues() *TraitUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(trait.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(trait.FieldCreatedAt)
 		}
@@ -456,7 +479,7 @@ func (tcb *TraitCreateBulk) Save(ctx context.Context) ([]*Trait, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}
@@ -546,12 +569,18 @@ type TraitUpsertBulk struct {
 //	client.Trait.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(trait.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *TraitUpsertBulk) UpdateNewValues() *TraitUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(trait.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(trait.FieldCreatedAt)
 			}

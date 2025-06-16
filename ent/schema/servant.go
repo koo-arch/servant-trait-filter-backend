@@ -13,21 +13,41 @@ type Servant struct {
 	ent.Schema
 }
 
+// Fields of the Servant.
 func (Servant) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("id").Positive().Immutable(),
 		field.String("name").NotEmpty(),
 		field.String("collection_no").NotEmpty().Unique(),
-		field.String("face"),
+		field.String("face").NotEmpty(),
+		field.Int("class_id").Positive(),
+		field.Int("attribute_id").Positive(),
+		field.Int("order_alignment_id").Positive().Optional(),
+		field.Int("moral_alignment_id").Positive().Optional(),
 	}
 }
 
 // Edges of the Servant.
 func (Servant) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("class", Class.Type).Ref("servants").Unique(),
-		edge.From("attribute", Attribute.Type).Ref("servants").Unique(),
-		edge.From("order_alignment", OrderAlignment.Type).Ref("servants").Unique(),
-		edge.From("moral_alignment", MoralAlignment.Type).Ref("servants").Unique(),
+		edge.From("class", Class.Type).
+			Ref("servants").
+			Field("class_id").
+			Unique().
+			Required(),
+		edge.From("attribute", Attribute.Type).
+			Ref("servants").
+			Field("attribute_id").
+			Unique().
+			Required(),
+		edge.From("order_alignment", OrderAlignment.Type).
+			Ref("servants").
+			Field("order_alignment_id").
+			Unique(),
+		edge.From("moral_alignment", MoralAlignment.Type).
+			Ref("servants").
+			Field("moral_alignment_id").
+			Unique(),
 		edge.From("traits", Trait.Type).Ref("servants"),
 	}
 }

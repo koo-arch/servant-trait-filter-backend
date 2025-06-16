@@ -32,7 +32,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "servant" package.
 	ServantsInverseTable = "servants"
 	// ServantsColumn is the table column denoting the servants relation/edge.
-	ServantsColumn = "moral_alignment_servants"
+	ServantsColumn = "moral_alignment_id"
 )
 
 // Columns holds all SQL columns for moralalignment fields.
@@ -63,6 +63,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
 	NameEnValidator func(string) error
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(int) error
 )
 
 // OrderOption defines the ordering options for the MoralAlignment queries.

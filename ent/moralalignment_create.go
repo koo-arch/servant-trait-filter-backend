@@ -63,6 +63,12 @@ func (mac *MoralAlignmentCreate) SetNameJa(s string) *MoralAlignmentCreate {
 	return mac
 }
 
+// SetID sets the "id" field.
+func (mac *MoralAlignmentCreate) SetID(i int) *MoralAlignmentCreate {
+	mac.mutation.SetID(i)
+	return mac
+}
+
 // AddServantIDs adds the "servants" edge to the Servant entity by IDs.
 func (mac *MoralAlignmentCreate) AddServantIDs(ids ...int) *MoralAlignmentCreate {
 	mac.mutation.AddServantIDs(ids...)
@@ -142,6 +148,11 @@ func (mac *MoralAlignmentCreate) check() error {
 	if _, ok := mac.mutation.NameJa(); !ok {
 		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "MoralAlignment.name_ja"`)}
 	}
+	if v, ok := mac.mutation.ID(); ok {
+		if err := moralalignment.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "MoralAlignment.id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -156,8 +167,10 @@ func (mac *MoralAlignmentCreate) sqlSave(ctx context.Context) (*MoralAlignment, 
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	mac.mutation.id = &_node.ID
 	mac.mutation.done = true
 	return _node, nil
@@ -169,6 +182,10 @@ func (mac *MoralAlignmentCreate) createSpec() (*MoralAlignment, *sqlgraph.Create
 		_spec = sqlgraph.NewCreateSpec(moralalignment.Table, sqlgraph.NewFieldSpec(moralalignment.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = mac.conflict
+	if id, ok := mac.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := mac.mutation.CreatedAt(); ok {
 		_spec.SetField(moralalignment.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -289,17 +306,23 @@ func (u *MoralAlignmentUpsert) UpdateNameJa() *MoralAlignmentUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.MoralAlignment.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(moralalignment.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MoralAlignmentUpsertOne) UpdateNewValues() *MoralAlignmentUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(moralalignment.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(moralalignment.FieldCreatedAt)
 		}
@@ -456,7 +479,7 @@ func (macb *MoralAlignmentCreateBulk) Save(ctx context.Context) ([]*MoralAlignme
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}
@@ -546,12 +569,18 @@ type MoralAlignmentUpsertBulk struct {
 //	client.MoralAlignment.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(moralalignment.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MoralAlignmentUpsertBulk) UpdateNewValues() *MoralAlignmentUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(moralalignment.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(moralalignment.FieldCreatedAt)
 			}

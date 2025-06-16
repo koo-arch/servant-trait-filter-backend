@@ -31,14 +31,18 @@ type Servant struct {
 	CollectionNo string `json:"collection_no,omitempty"`
 	// Face holds the value of the "face" field.
 	Face string `json:"face,omitempty"`
+	// ClassID holds the value of the "class_id" field.
+	ClassID int `json:"class_id,omitempty"`
+	// AttributeID holds the value of the "attribute_id" field.
+	AttributeID int `json:"attribute_id,omitempty"`
+	// OrderAlignmentID holds the value of the "order_alignment_id" field.
+	OrderAlignmentID int `json:"order_alignment_id,omitempty"`
+	// MoralAlignmentID holds the value of the "moral_alignment_id" field.
+	MoralAlignmentID int `json:"moral_alignment_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ServantQuery when eager-loading is set.
-	Edges                    ServantEdges `json:"edges"`
-	attribute_servants       *int
-	class_servants           *int
-	moral_alignment_servants *int
-	order_alignment_servants *int
-	selectValues             sql.SelectValues
+	Edges        ServantEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // ServantEdges holds the relations/edges for other nodes in the graph.
@@ -116,20 +120,12 @@ func (*Servant) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case servant.FieldID:
+		case servant.FieldID, servant.FieldClassID, servant.FieldAttributeID, servant.FieldOrderAlignmentID, servant.FieldMoralAlignmentID:
 			values[i] = new(sql.NullInt64)
 		case servant.FieldName, servant.FieldCollectionNo, servant.FieldFace:
 			values[i] = new(sql.NullString)
 		case servant.FieldCreatedAt, servant.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case servant.ForeignKeys[0]: // attribute_servants
-			values[i] = new(sql.NullInt64)
-		case servant.ForeignKeys[1]: // class_servants
-			values[i] = new(sql.NullInt64)
-		case servant.ForeignKeys[2]: // moral_alignment_servants
-			values[i] = new(sql.NullInt64)
-		case servant.ForeignKeys[3]: // order_alignment_servants
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -181,33 +177,29 @@ func (s *Servant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.Face = value.String
 			}
-		case servant.ForeignKeys[0]:
+		case servant.FieldClassID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field attribute_servants", value)
+				return fmt.Errorf("unexpected type %T for field class_id", values[i])
 			} else if value.Valid {
-				s.attribute_servants = new(int)
-				*s.attribute_servants = int(value.Int64)
+				s.ClassID = int(value.Int64)
 			}
-		case servant.ForeignKeys[1]:
+		case servant.FieldAttributeID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field class_servants", value)
+				return fmt.Errorf("unexpected type %T for field attribute_id", values[i])
 			} else if value.Valid {
-				s.class_servants = new(int)
-				*s.class_servants = int(value.Int64)
+				s.AttributeID = int(value.Int64)
 			}
-		case servant.ForeignKeys[2]:
+		case servant.FieldOrderAlignmentID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field moral_alignment_servants", value)
+				return fmt.Errorf("unexpected type %T for field order_alignment_id", values[i])
 			} else if value.Valid {
-				s.moral_alignment_servants = new(int)
-				*s.moral_alignment_servants = int(value.Int64)
+				s.OrderAlignmentID = int(value.Int64)
 			}
-		case servant.ForeignKeys[3]:
+		case servant.FieldMoralAlignmentID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field order_alignment_servants", value)
+				return fmt.Errorf("unexpected type %T for field moral_alignment_id", values[i])
 			} else if value.Valid {
-				s.order_alignment_servants = new(int)
-				*s.order_alignment_servants = int(value.Int64)
+				s.MoralAlignmentID = int(value.Int64)
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
@@ -284,6 +276,18 @@ func (s *Servant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("face=")
 	builder.WriteString(s.Face)
+	builder.WriteString(", ")
+	builder.WriteString("class_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.ClassID))
+	builder.WriteString(", ")
+	builder.WriteString("attribute_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.AttributeID))
+	builder.WriteString(", ")
+	builder.WriteString("order_alignment_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.OrderAlignmentID))
+	builder.WriteString(", ")
+	builder.WriteString("moral_alignment_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.MoralAlignmentID))
 	builder.WriteByte(')')
 	return builder.String()
 }

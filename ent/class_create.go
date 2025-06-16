@@ -63,6 +63,12 @@ func (cc *ClassCreate) SetNameJa(s string) *ClassCreate {
 	return cc
 }
 
+// SetID sets the "id" field.
+func (cc *ClassCreate) SetID(i int) *ClassCreate {
+	cc.mutation.SetID(i)
+	return cc
+}
+
 // AddServantIDs adds the "servants" edge to the Servant entity by IDs.
 func (cc *ClassCreate) AddServantIDs(ids ...int) *ClassCreate {
 	cc.mutation.AddServantIDs(ids...)
@@ -142,6 +148,11 @@ func (cc *ClassCreate) check() error {
 	if _, ok := cc.mutation.NameJa(); !ok {
 		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "Class.name_ja"`)}
 	}
+	if v, ok := cc.mutation.ID(); ok {
+		if err := class.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Class.id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -156,8 +167,10 @@ func (cc *ClassCreate) sqlSave(ctx context.Context) (*Class, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	cc.mutation.id = &_node.ID
 	cc.mutation.done = true
 	return _node, nil
@@ -169,6 +182,10 @@ func (cc *ClassCreate) createSpec() (*Class, *sqlgraph.CreateSpec) {
 		_spec = sqlgraph.NewCreateSpec(class.Table, sqlgraph.NewFieldSpec(class.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = cc.conflict
+	if id, ok := cc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := cc.mutation.CreatedAt(); ok {
 		_spec.SetField(class.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -289,17 +306,23 @@ func (u *ClassUpsert) UpdateNameJa() *ClassUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Class.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(class.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ClassUpsertOne) UpdateNewValues() *ClassUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(class.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(class.FieldCreatedAt)
 		}
@@ -456,7 +479,7 @@ func (ccb *ClassCreateBulk) Save(ctx context.Context) ([]*Class, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}
@@ -546,12 +569,18 @@ type ClassUpsertBulk struct {
 //	client.Class.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(class.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ClassUpsertBulk) UpdateNewValues() *ClassUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(class.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(class.FieldCreatedAt)
 			}

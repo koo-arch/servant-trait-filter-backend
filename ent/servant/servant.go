@@ -24,6 +24,14 @@ const (
 	FieldCollectionNo = "collection_no"
 	// FieldFace holds the string denoting the face field in the database.
 	FieldFace = "face"
+	// FieldClassID holds the string denoting the class_id field in the database.
+	FieldClassID = "class_id"
+	// FieldAttributeID holds the string denoting the attribute_id field in the database.
+	FieldAttributeID = "attribute_id"
+	// FieldOrderAlignmentID holds the string denoting the order_alignment_id field in the database.
+	FieldOrderAlignmentID = "order_alignment_id"
+	// FieldMoralAlignmentID holds the string denoting the moral_alignment_id field in the database.
+	FieldMoralAlignmentID = "moral_alignment_id"
 	// EdgeClass holds the string denoting the class edge name in mutations.
 	EdgeClass = "class"
 	// EdgeAttribute holds the string denoting the attribute edge name in mutations.
@@ -42,28 +50,28 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "class" package.
 	ClassInverseTable = "classes"
 	// ClassColumn is the table column denoting the class relation/edge.
-	ClassColumn = "class_servants"
+	ClassColumn = "class_id"
 	// AttributeTable is the table that holds the attribute relation/edge.
 	AttributeTable = "servants"
 	// AttributeInverseTable is the table name for the Attribute entity.
 	// It exists in this package in order to avoid circular dependency with the "attribute" package.
 	AttributeInverseTable = "attributes"
 	// AttributeColumn is the table column denoting the attribute relation/edge.
-	AttributeColumn = "attribute_servants"
+	AttributeColumn = "attribute_id"
 	// OrderAlignmentTable is the table that holds the order_alignment relation/edge.
 	OrderAlignmentTable = "servants"
 	// OrderAlignmentInverseTable is the table name for the OrderAlignment entity.
 	// It exists in this package in order to avoid circular dependency with the "orderalignment" package.
 	OrderAlignmentInverseTable = "order_alignments"
 	// OrderAlignmentColumn is the table column denoting the order_alignment relation/edge.
-	OrderAlignmentColumn = "order_alignment_servants"
+	OrderAlignmentColumn = "order_alignment_id"
 	// MoralAlignmentTable is the table that holds the moral_alignment relation/edge.
 	MoralAlignmentTable = "servants"
 	// MoralAlignmentInverseTable is the table name for the MoralAlignment entity.
 	// It exists in this package in order to avoid circular dependency with the "moralalignment" package.
 	MoralAlignmentInverseTable = "moral_alignments"
 	// MoralAlignmentColumn is the table column denoting the moral_alignment relation/edge.
-	MoralAlignmentColumn = "moral_alignment_servants"
+	MoralAlignmentColumn = "moral_alignment_id"
 	// TraitsTable is the table that holds the traits relation/edge. The primary key declared below.
 	TraitsTable = "trait_servants"
 	// TraitsInverseTable is the table name for the Trait entity.
@@ -79,15 +87,10 @@ var Columns = []string{
 	FieldName,
 	FieldCollectionNo,
 	FieldFace,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "servants"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"attribute_servants",
-	"class_servants",
-	"moral_alignment_servants",
-	"order_alignment_servants",
+	FieldClassID,
+	FieldAttributeID,
+	FieldOrderAlignmentID,
+	FieldMoralAlignmentID,
 }
 
 var (
@@ -100,11 +103,6 @@ var (
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -122,6 +120,18 @@ var (
 	NameValidator func(string) error
 	// CollectionNoValidator is a validator for the "collection_no" field. It is called by the builders before save.
 	CollectionNoValidator func(string) error
+	// FaceValidator is a validator for the "face" field. It is called by the builders before save.
+	FaceValidator func(string) error
+	// ClassIDValidator is a validator for the "class_id" field. It is called by the builders before save.
+	ClassIDValidator func(int) error
+	// AttributeIDValidator is a validator for the "attribute_id" field. It is called by the builders before save.
+	AttributeIDValidator func(int) error
+	// OrderAlignmentIDValidator is a validator for the "order_alignment_id" field. It is called by the builders before save.
+	OrderAlignmentIDValidator func(int) error
+	// MoralAlignmentIDValidator is a validator for the "moral_alignment_id" field. It is called by the builders before save.
+	MoralAlignmentIDValidator func(int) error
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(int) error
 )
 
 // OrderOption defines the ordering options for the Servant queries.
@@ -155,6 +165,26 @@ func ByCollectionNo(opts ...sql.OrderTermOption) OrderOption {
 // ByFace orders the results by the face field.
 func ByFace(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFace, opts...).ToFunc()
+}
+
+// ByClassID orders the results by the class_id field.
+func ByClassID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldClassID, opts...).ToFunc()
+}
+
+// ByAttributeID orders the results by the attribute_id field.
+func ByAttributeID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAttributeID, opts...).ToFunc()
+}
+
+// ByOrderAlignmentID orders the results by the order_alignment_id field.
+func ByOrderAlignmentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrderAlignmentID, opts...).ToFunc()
+}
+
+// ByMoralAlignmentID orders the results by the moral_alignment_id field.
+func ByMoralAlignmentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMoralAlignmentID, opts...).ToFunc()
 }
 
 // ByClassField orders the results by class field.
