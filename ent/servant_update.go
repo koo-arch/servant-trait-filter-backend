@@ -39,6 +39,27 @@ func (su *ServantUpdate) SetUpdatedAt(t time.Time) *ServantUpdate {
 	return su
 }
 
+// SetCollectionNo sets the "collection_no" field.
+func (su *ServantUpdate) SetCollectionNo(i int) *ServantUpdate {
+	su.mutation.ResetCollectionNo()
+	su.mutation.SetCollectionNo(i)
+	return su
+}
+
+// SetNillableCollectionNo sets the "collection_no" field if the given value is not nil.
+func (su *ServantUpdate) SetNillableCollectionNo(i *int) *ServantUpdate {
+	if i != nil {
+		su.SetCollectionNo(*i)
+	}
+	return su
+}
+
+// AddCollectionNo adds i to the "collection_no" field.
+func (su *ServantUpdate) AddCollectionNo(i int) *ServantUpdate {
+	su.mutation.AddCollectionNo(i)
+	return su
+}
+
 // SetName sets the "name" field.
 func (su *ServantUpdate) SetName(s string) *ServantUpdate {
 	su.mutation.SetName(s)
@@ -49,20 +70,6 @@ func (su *ServantUpdate) SetName(s string) *ServantUpdate {
 func (su *ServantUpdate) SetNillableName(s *string) *ServantUpdate {
 	if s != nil {
 		su.SetName(*s)
-	}
-	return su
-}
-
-// SetCollectionNo sets the "collection_no" field.
-func (su *ServantUpdate) SetCollectionNo(s string) *ServantUpdate {
-	su.mutation.SetCollectionNo(s)
-	return su
-}
-
-// SetNillableCollectionNo sets the "collection_no" field if the given value is not nil.
-func (su *ServantUpdate) SetNillableCollectionNo(s *string) *ServantUpdate {
-	if s != nil {
-		su.SetCollectionNo(*s)
 	}
 	return su
 }
@@ -277,11 +284,6 @@ func (su *ServantUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
 		}
 	}
-	if v, ok := su.mutation.CollectionNo(); ok {
-		if err := servant.CollectionNoValidator(v); err != nil {
-			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
-		}
-	}
 	if v, ok := su.mutation.Face(); ok {
 		if err := servant.FaceValidator(v); err != nil {
 			return &ValidationError{Name: "face", err: fmt.Errorf(`ent: validator failed for field "Servant.face": %w`, err)}
@@ -331,11 +333,14 @@ func (su *ServantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.UpdatedAt(); ok {
 		_spec.SetField(servant.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := su.mutation.CollectionNo(); ok {
+		_spec.SetField(servant.FieldCollectionNo, field.TypeInt, value)
+	}
+	if value, ok := su.mutation.AddedCollectionNo(); ok {
+		_spec.AddField(servant.FieldCollectionNo, field.TypeInt, value)
+	}
 	if value, ok := su.mutation.Name(); ok {
 		_spec.SetField(servant.FieldName, field.TypeString, value)
-	}
-	if value, ok := su.mutation.CollectionNo(); ok {
-		_spec.SetField(servant.FieldCollectionNo, field.TypeString, value)
 	}
 	if value, ok := su.mutation.Face(); ok {
 		_spec.SetField(servant.FieldFace, field.TypeString, value)
@@ -527,6 +532,27 @@ func (suo *ServantUpdateOne) SetUpdatedAt(t time.Time) *ServantUpdateOne {
 	return suo
 }
 
+// SetCollectionNo sets the "collection_no" field.
+func (suo *ServantUpdateOne) SetCollectionNo(i int) *ServantUpdateOne {
+	suo.mutation.ResetCollectionNo()
+	suo.mutation.SetCollectionNo(i)
+	return suo
+}
+
+// SetNillableCollectionNo sets the "collection_no" field if the given value is not nil.
+func (suo *ServantUpdateOne) SetNillableCollectionNo(i *int) *ServantUpdateOne {
+	if i != nil {
+		suo.SetCollectionNo(*i)
+	}
+	return suo
+}
+
+// AddCollectionNo adds i to the "collection_no" field.
+func (suo *ServantUpdateOne) AddCollectionNo(i int) *ServantUpdateOne {
+	suo.mutation.AddCollectionNo(i)
+	return suo
+}
+
 // SetName sets the "name" field.
 func (suo *ServantUpdateOne) SetName(s string) *ServantUpdateOne {
 	suo.mutation.SetName(s)
@@ -537,20 +563,6 @@ func (suo *ServantUpdateOne) SetName(s string) *ServantUpdateOne {
 func (suo *ServantUpdateOne) SetNillableName(s *string) *ServantUpdateOne {
 	if s != nil {
 		suo.SetName(*s)
-	}
-	return suo
-}
-
-// SetCollectionNo sets the "collection_no" field.
-func (suo *ServantUpdateOne) SetCollectionNo(s string) *ServantUpdateOne {
-	suo.mutation.SetCollectionNo(s)
-	return suo
-}
-
-// SetNillableCollectionNo sets the "collection_no" field if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableCollectionNo(s *string) *ServantUpdateOne {
-	if s != nil {
-		suo.SetCollectionNo(*s)
 	}
 	return suo
 }
@@ -778,11 +790,6 @@ func (suo *ServantUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
 		}
 	}
-	if v, ok := suo.mutation.CollectionNo(); ok {
-		if err := servant.CollectionNoValidator(v); err != nil {
-			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
-		}
-	}
 	if v, ok := suo.mutation.Face(); ok {
 		if err := servant.FaceValidator(v); err != nil {
 			return &ValidationError{Name: "face", err: fmt.Errorf(`ent: validator failed for field "Servant.face": %w`, err)}
@@ -849,11 +856,14 @@ func (suo *ServantUpdateOne) sqlSave(ctx context.Context) (_node *Servant, err e
 	if value, ok := suo.mutation.UpdatedAt(); ok {
 		_spec.SetField(servant.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := suo.mutation.CollectionNo(); ok {
+		_spec.SetField(servant.FieldCollectionNo, field.TypeInt, value)
+	}
+	if value, ok := suo.mutation.AddedCollectionNo(); ok {
+		_spec.AddField(servant.FieldCollectionNo, field.TypeInt, value)
+	}
 	if value, ok := suo.mutation.Name(); ok {
 		_spec.SetField(servant.FieldName, field.TypeString, value)
-	}
-	if value, ok := suo.mutation.CollectionNo(); ok {
-		_spec.SetField(servant.FieldCollectionNo, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.Face(); ok {
 		_spec.SetField(servant.FieldFace, field.TypeString, value)

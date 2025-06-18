@@ -55,15 +55,15 @@ func (sc *ServantCreate) SetNillableUpdatedAt(t *time.Time) *ServantCreate {
 	return sc
 }
 
-// SetName sets the "name" field.
-func (sc *ServantCreate) SetName(s string) *ServantCreate {
-	sc.mutation.SetName(s)
+// SetCollectionNo sets the "collection_no" field.
+func (sc *ServantCreate) SetCollectionNo(i int) *ServantCreate {
+	sc.mutation.SetCollectionNo(i)
 	return sc
 }
 
-// SetCollectionNo sets the "collection_no" field.
-func (sc *ServantCreate) SetCollectionNo(s string) *ServantCreate {
-	sc.mutation.SetCollectionNo(s)
+// SetName sets the "name" field.
+func (sc *ServantCreate) SetName(s string) *ServantCreate {
+	sc.mutation.SetName(s)
 	return sc
 }
 
@@ -207,20 +207,15 @@ func (sc *ServantCreate) check() error {
 	if _, ok := sc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Servant.updated_at"`)}
 	}
+	if _, ok := sc.mutation.CollectionNo(); !ok {
+		return &ValidationError{Name: "collection_no", err: errors.New(`ent: missing required field "Servant.collection_no"`)}
+	}
 	if _, ok := sc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Servant.name"`)}
 	}
 	if v, ok := sc.mutation.Name(); ok {
 		if err := servant.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
-		}
-	}
-	if _, ok := sc.mutation.CollectionNo(); !ok {
-		return &ValidationError{Name: "collection_no", err: errors.New(`ent: missing required field "Servant.collection_no"`)}
-	}
-	if v, ok := sc.mutation.CollectionNo(); ok {
-		if err := servant.CollectionNoValidator(v); err != nil {
-			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
 		}
 	}
 	if _, ok := sc.mutation.Face(); !ok {
@@ -309,13 +304,13 @@ func (sc *ServantCreate) createSpec() (*Servant, *sqlgraph.CreateSpec) {
 		_spec.SetField(servant.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
+	if value, ok := sc.mutation.CollectionNo(); ok {
+		_spec.SetField(servant.FieldCollectionNo, field.TypeInt, value)
+		_node.CollectionNo = value
+	}
 	if value, ok := sc.mutation.Name(); ok {
 		_spec.SetField(servant.FieldName, field.TypeString, value)
 		_node.Name = value
-	}
-	if value, ok := sc.mutation.CollectionNo(); ok {
-		_spec.SetField(servant.FieldCollectionNo, field.TypeString, value)
-		_node.CollectionNo = value
 	}
 	if value, ok := sc.mutation.Face(); ok {
 		_spec.SetField(servant.FieldFace, field.TypeString, value)
@@ -469,6 +464,24 @@ func (u *ServantUpsert) UpdateUpdatedAt() *ServantUpsert {
 	return u
 }
 
+// SetCollectionNo sets the "collection_no" field.
+func (u *ServantUpsert) SetCollectionNo(v int) *ServantUpsert {
+	u.Set(servant.FieldCollectionNo, v)
+	return u
+}
+
+// UpdateCollectionNo sets the "collection_no" field to the value that was provided on create.
+func (u *ServantUpsert) UpdateCollectionNo() *ServantUpsert {
+	u.SetExcluded(servant.FieldCollectionNo)
+	return u
+}
+
+// AddCollectionNo adds v to the "collection_no" field.
+func (u *ServantUpsert) AddCollectionNo(v int) *ServantUpsert {
+	u.Add(servant.FieldCollectionNo, v)
+	return u
+}
+
 // SetName sets the "name" field.
 func (u *ServantUpsert) SetName(v string) *ServantUpsert {
 	u.Set(servant.FieldName, v)
@@ -478,18 +491,6 @@ func (u *ServantUpsert) SetName(v string) *ServantUpsert {
 // UpdateName sets the "name" field to the value that was provided on create.
 func (u *ServantUpsert) UpdateName() *ServantUpsert {
 	u.SetExcluded(servant.FieldName)
-	return u
-}
-
-// SetCollectionNo sets the "collection_no" field.
-func (u *ServantUpsert) SetCollectionNo(v string) *ServantUpsert {
-	u.Set(servant.FieldCollectionNo, v)
-	return u
-}
-
-// UpdateCollectionNo sets the "collection_no" field to the value that was provided on create.
-func (u *ServantUpsert) UpdateCollectionNo() *ServantUpsert {
-	u.SetExcluded(servant.FieldCollectionNo)
 	return u
 }
 
@@ -630,6 +631,27 @@ func (u *ServantUpsertOne) UpdateUpdatedAt() *ServantUpsertOne {
 	})
 }
 
+// SetCollectionNo sets the "collection_no" field.
+func (u *ServantUpsertOne) SetCollectionNo(v int) *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetCollectionNo(v)
+	})
+}
+
+// AddCollectionNo adds v to the "collection_no" field.
+func (u *ServantUpsertOne) AddCollectionNo(v int) *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.AddCollectionNo(v)
+	})
+}
+
+// UpdateCollectionNo sets the "collection_no" field to the value that was provided on create.
+func (u *ServantUpsertOne) UpdateCollectionNo() *ServantUpsertOne {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateCollectionNo()
+	})
+}
+
 // SetName sets the "name" field.
 func (u *ServantUpsertOne) SetName(v string) *ServantUpsertOne {
 	return u.Update(func(s *ServantUpsert) {
@@ -641,20 +663,6 @@ func (u *ServantUpsertOne) SetName(v string) *ServantUpsertOne {
 func (u *ServantUpsertOne) UpdateName() *ServantUpsertOne {
 	return u.Update(func(s *ServantUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetCollectionNo sets the "collection_no" field.
-func (u *ServantUpsertOne) SetCollectionNo(v string) *ServantUpsertOne {
-	return u.Update(func(s *ServantUpsert) {
-		s.SetCollectionNo(v)
-	})
-}
-
-// UpdateCollectionNo sets the "collection_no" field to the value that was provided on create.
-func (u *ServantUpsertOne) UpdateCollectionNo() *ServantUpsertOne {
-	return u.Update(func(s *ServantUpsert) {
-		s.UpdateCollectionNo()
 	})
 }
 
@@ -973,6 +981,27 @@ func (u *ServantUpsertBulk) UpdateUpdatedAt() *ServantUpsertBulk {
 	})
 }
 
+// SetCollectionNo sets the "collection_no" field.
+func (u *ServantUpsertBulk) SetCollectionNo(v int) *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.SetCollectionNo(v)
+	})
+}
+
+// AddCollectionNo adds v to the "collection_no" field.
+func (u *ServantUpsertBulk) AddCollectionNo(v int) *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.AddCollectionNo(v)
+	})
+}
+
+// UpdateCollectionNo sets the "collection_no" field to the value that was provided on create.
+func (u *ServantUpsertBulk) UpdateCollectionNo() *ServantUpsertBulk {
+	return u.Update(func(s *ServantUpsert) {
+		s.UpdateCollectionNo()
+	})
+}
+
 // SetName sets the "name" field.
 func (u *ServantUpsertBulk) SetName(v string) *ServantUpsertBulk {
 	return u.Update(func(s *ServantUpsert) {
@@ -984,20 +1013,6 @@ func (u *ServantUpsertBulk) SetName(v string) *ServantUpsertBulk {
 func (u *ServantUpsertBulk) UpdateName() *ServantUpsertBulk {
 	return u.Update(func(s *ServantUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetCollectionNo sets the "collection_no" field.
-func (u *ServantUpsertBulk) SetCollectionNo(v string) *ServantUpsertBulk {
-	return u.Update(func(s *ServantUpsert) {
-		s.SetCollectionNo(v)
-	})
-}
-
-// UpdateCollectionNo sets the "collection_no" field to the value that was provided on create.
-func (u *ServantUpsertBulk) UpdateCollectionNo() *ServantUpsertBulk {
-	return u.Update(func(s *ServantUpsert) {
-		s.UpdateCollectionNo()
 	})
 }
 

@@ -65,14 +65,14 @@ func UpdatedAt(v time.Time) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// CollectionNo applies equality check predicate on the "collection_no" field. It's identical to CollectionNoEQ.
+func CollectionNo(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldCollectionNo, v))
+}
+
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v string) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldName, v))
-}
-
-// CollectionNo applies equality check predicate on the "collection_no" field. It's identical to CollectionNoEQ.
-func CollectionNo(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldCollectionNo, v))
 }
 
 // Face applies equality check predicate on the "face" field. It's identical to FaceEQ.
@@ -180,6 +180,46 @@ func UpdatedAtLTE(v time.Time) predicate.Servant {
 	return predicate.Servant(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
+// CollectionNoEQ applies the EQ predicate on the "collection_no" field.
+func CollectionNoEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldEQ(FieldCollectionNo, v))
+}
+
+// CollectionNoNEQ applies the NEQ predicate on the "collection_no" field.
+func CollectionNoNEQ(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldNEQ(FieldCollectionNo, v))
+}
+
+// CollectionNoIn applies the In predicate on the "collection_no" field.
+func CollectionNoIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldIn(FieldCollectionNo, vs...))
+}
+
+// CollectionNoNotIn applies the NotIn predicate on the "collection_no" field.
+func CollectionNoNotIn(vs ...int) predicate.Servant {
+	return predicate.Servant(sql.FieldNotIn(FieldCollectionNo, vs...))
+}
+
+// CollectionNoGT applies the GT predicate on the "collection_no" field.
+func CollectionNoGT(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldGT(FieldCollectionNo, v))
+}
+
+// CollectionNoGTE applies the GTE predicate on the "collection_no" field.
+func CollectionNoGTE(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldGTE(FieldCollectionNo, v))
+}
+
+// CollectionNoLT applies the LT predicate on the "collection_no" field.
+func CollectionNoLT(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldLT(FieldCollectionNo, v))
+}
+
+// CollectionNoLTE applies the LTE predicate on the "collection_no" field.
+func CollectionNoLTE(v int) predicate.Servant {
+	return predicate.Servant(sql.FieldLTE(FieldCollectionNo, v))
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldName, v))
@@ -243,71 +283,6 @@ func NameEqualFold(v string) predicate.Servant {
 // NameContainsFold applies the ContainsFold predicate on the "name" field.
 func NameContainsFold(v string) predicate.Servant {
 	return predicate.Servant(sql.FieldContainsFold(FieldName, v))
-}
-
-// CollectionNoEQ applies the EQ predicate on the "collection_no" field.
-func CollectionNoEQ(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldCollectionNo, v))
-}
-
-// CollectionNoNEQ applies the NEQ predicate on the "collection_no" field.
-func CollectionNoNEQ(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldNEQ(FieldCollectionNo, v))
-}
-
-// CollectionNoIn applies the In predicate on the "collection_no" field.
-func CollectionNoIn(vs ...string) predicate.Servant {
-	return predicate.Servant(sql.FieldIn(FieldCollectionNo, vs...))
-}
-
-// CollectionNoNotIn applies the NotIn predicate on the "collection_no" field.
-func CollectionNoNotIn(vs ...string) predicate.Servant {
-	return predicate.Servant(sql.FieldNotIn(FieldCollectionNo, vs...))
-}
-
-// CollectionNoGT applies the GT predicate on the "collection_no" field.
-func CollectionNoGT(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldGT(FieldCollectionNo, v))
-}
-
-// CollectionNoGTE applies the GTE predicate on the "collection_no" field.
-func CollectionNoGTE(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldGTE(FieldCollectionNo, v))
-}
-
-// CollectionNoLT applies the LT predicate on the "collection_no" field.
-func CollectionNoLT(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldLT(FieldCollectionNo, v))
-}
-
-// CollectionNoLTE applies the LTE predicate on the "collection_no" field.
-func CollectionNoLTE(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldLTE(FieldCollectionNo, v))
-}
-
-// CollectionNoContains applies the Contains predicate on the "collection_no" field.
-func CollectionNoContains(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldContains(FieldCollectionNo, v))
-}
-
-// CollectionNoHasPrefix applies the HasPrefix predicate on the "collection_no" field.
-func CollectionNoHasPrefix(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldHasPrefix(FieldCollectionNo, v))
-}
-
-// CollectionNoHasSuffix applies the HasSuffix predicate on the "collection_no" field.
-func CollectionNoHasSuffix(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldHasSuffix(FieldCollectionNo, v))
-}
-
-// CollectionNoEqualFold applies the EqualFold predicate on the "collection_no" field.
-func CollectionNoEqualFold(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldEqualFold(FieldCollectionNo, v))
-}
-
-// CollectionNoContainsFold applies the ContainsFold predicate on the "collection_no" field.
-func CollectionNoContainsFold(v string) predicate.Servant {
-	return predicate.Servant(sql.FieldContainsFold(FieldCollectionNo, v))
 }
 
 // FaceEQ applies the EQ predicate on the "face" field.

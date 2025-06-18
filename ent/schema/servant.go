@@ -17,8 +17,8 @@ type Servant struct {
 func (Servant) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Positive().Immutable(),
+		field.Int("collection_no").Positive().Unique(),
 		field.String("name").NotEmpty(),
-		field.String("collection_no").NotEmpty().Unique(),
 		field.String("face").NotEmpty(),
 		field.Int("class_id").Positive(),
 		field.Int("attribute_id").Positive(),
