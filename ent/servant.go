@@ -25,10 +25,10 @@ type Servant struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// CollectionNo holds the value of the "collection_no" field.
+	CollectionNo int `json:"collection_no,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// CollectionNo holds the value of the "collection_no" field.
-	CollectionNo string `json:"collection_no,omitempty"`
 	// Face holds the value of the "face" field.
 	Face string `json:"face,omitempty"`
 	// ClassID holds the value of the "class_id" field.
@@ -120,9 +120,9 @@ func (*Servant) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case servant.FieldID, servant.FieldClassID, servant.FieldAttributeID, servant.FieldOrderAlignmentID, servant.FieldMoralAlignmentID:
+		case servant.FieldID, servant.FieldCollectionNo, servant.FieldClassID, servant.FieldAttributeID, servant.FieldOrderAlignmentID, servant.FieldMoralAlignmentID:
 			values[i] = new(sql.NullInt64)
-		case servant.FieldName, servant.FieldCollectionNo, servant.FieldFace:
+		case servant.FieldName, servant.FieldFace:
 			values[i] = new(sql.NullString)
 		case servant.FieldCreatedAt, servant.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -159,17 +159,17 @@ func (s *Servant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.UpdatedAt = value.Time
 			}
+		case servant.FieldCollectionNo:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field collection_no", values[i])
+			} else if value.Valid {
+				s.CollectionNo = int(value.Int64)
+			}
 		case servant.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				s.Name = value.String
-			}
-		case servant.FieldCollectionNo:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field collection_no", values[i])
-			} else if value.Valid {
-				s.CollectionNo = value.String
 			}
 		case servant.FieldFace:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -268,11 +268,11 @@ func (s *Servant) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(s.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
+	builder.WriteString("collection_no=")
+	builder.WriteString(fmt.Sprintf("%v", s.CollectionNo))
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(s.Name)
-	builder.WriteString(", ")
-	builder.WriteString("collection_no=")
-	builder.WriteString(s.CollectionNo)
 	builder.WriteString(", ")
 	builder.WriteString("face=")
 	builder.WriteString(s.Face)

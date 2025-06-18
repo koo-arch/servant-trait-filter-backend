@@ -18,10 +18,10 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldName holds the string denoting the name field in the database.
-	FieldName = "name"
 	// FieldCollectionNo holds the string denoting the collection_no field in the database.
 	FieldCollectionNo = "collection_no"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
 	// FieldFace holds the string denoting the face field in the database.
 	FieldFace = "face"
 	// FieldClassID holds the string denoting the class_id field in the database.
@@ -84,8 +84,8 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldName,
 	FieldCollectionNo,
+	FieldName,
 	FieldFace,
 	FieldClassID,
 	FieldAttributeID,
@@ -118,8 +118,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
-	// CollectionNoValidator is a validator for the "collection_no" field. It is called by the builders before save.
-	CollectionNoValidator func(string) error
 	// FaceValidator is a validator for the "face" field. It is called by the builders before save.
 	FaceValidator func(string) error
 	// ClassIDValidator is a validator for the "class_id" field. It is called by the builders before save.
@@ -152,14 +150,14 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
-// ByName orders the results by the name field.
-func ByName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldName, opts...).ToFunc()
-}
-
 // ByCollectionNo orders the results by the collection_no field.
 func ByCollectionNo(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCollectionNo, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
 // ByFace orders the results by the face field.

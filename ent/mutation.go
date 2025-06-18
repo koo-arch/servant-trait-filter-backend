@@ -2393,8 +2393,9 @@ type ServantMutation struct {
 	id                     *int
 	created_at             *time.Time
 	updated_at             *time.Time
+	collection_no          *int
+	addcollection_no       *int
 	name                   *string
-	collection_no          *string
 	face                   *string
 	clearedFields          map[string]struct{}
 	class                  *int
@@ -2589,6 +2590,62 @@ func (m *ServantMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetCollectionNo sets the "collection_no" field.
+func (m *ServantMutation) SetCollectionNo(i int) {
+	m.collection_no = &i
+	m.addcollection_no = nil
+}
+
+// CollectionNo returns the value of the "collection_no" field in the mutation.
+func (m *ServantMutation) CollectionNo() (r int, exists bool) {
+	v := m.collection_no
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCollectionNo returns the old "collection_no" field's value of the Servant entity.
+// If the Servant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServantMutation) OldCollectionNo(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCollectionNo is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCollectionNo requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCollectionNo: %w", err)
+	}
+	return oldValue.CollectionNo, nil
+}
+
+// AddCollectionNo adds i to the "collection_no" field.
+func (m *ServantMutation) AddCollectionNo(i int) {
+	if m.addcollection_no != nil {
+		*m.addcollection_no += i
+	} else {
+		m.addcollection_no = &i
+	}
+}
+
+// AddedCollectionNo returns the value that was added to the "collection_no" field in this mutation.
+func (m *ServantMutation) AddedCollectionNo() (r int, exists bool) {
+	v := m.addcollection_no
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCollectionNo resets all changes to the "collection_no" field.
+func (m *ServantMutation) ResetCollectionNo() {
+	m.collection_no = nil
+	m.addcollection_no = nil
+}
+
 // SetName sets the "name" field.
 func (m *ServantMutation) SetName(s string) {
 	m.name = &s
@@ -2623,42 +2680,6 @@ func (m *ServantMutation) OldName(ctx context.Context) (v string, err error) {
 // ResetName resets all changes to the "name" field.
 func (m *ServantMutation) ResetName() {
 	m.name = nil
-}
-
-// SetCollectionNo sets the "collection_no" field.
-func (m *ServantMutation) SetCollectionNo(s string) {
-	m.collection_no = &s
-}
-
-// CollectionNo returns the value of the "collection_no" field in the mutation.
-func (m *ServantMutation) CollectionNo() (r string, exists bool) {
-	v := m.collection_no
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCollectionNo returns the old "collection_no" field's value of the Servant entity.
-// If the Servant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServantMutation) OldCollectionNo(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCollectionNo is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCollectionNo requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCollectionNo: %w", err)
-	}
-	return oldValue.CollectionNo, nil
-}
-
-// ResetCollectionNo resets all changes to the "collection_no" field.
-func (m *ServantMutation) ResetCollectionNo() {
-	m.collection_no = nil
 }
 
 // SetFace sets the "face" field.
@@ -3070,11 +3091,11 @@ func (m *ServantMutation) Fields() []string {
 	if m.updated_at != nil {
 		fields = append(fields, servant.FieldUpdatedAt)
 	}
-	if m.name != nil {
-		fields = append(fields, servant.FieldName)
-	}
 	if m.collection_no != nil {
 		fields = append(fields, servant.FieldCollectionNo)
+	}
+	if m.name != nil {
+		fields = append(fields, servant.FieldName)
 	}
 	if m.face != nil {
 		fields = append(fields, servant.FieldFace)
@@ -3103,10 +3124,10 @@ func (m *ServantMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case servant.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case servant.FieldName:
-		return m.Name()
 	case servant.FieldCollectionNo:
 		return m.CollectionNo()
+	case servant.FieldName:
+		return m.Name()
 	case servant.FieldFace:
 		return m.Face()
 	case servant.FieldClassID:
@@ -3130,10 +3151,10 @@ func (m *ServantMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCreatedAt(ctx)
 	case servant.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case servant.FieldName:
-		return m.OldName(ctx)
 	case servant.FieldCollectionNo:
 		return m.OldCollectionNo(ctx)
+	case servant.FieldName:
+		return m.OldName(ctx)
 	case servant.FieldFace:
 		return m.OldFace(ctx)
 	case servant.FieldClassID:
@@ -3167,19 +3188,19 @@ func (m *ServantMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
+	case servant.FieldCollectionNo:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCollectionNo(v)
+		return nil
 	case servant.FieldName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
-		return nil
-	case servant.FieldCollectionNo:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCollectionNo(v)
 		return nil
 	case servant.FieldFace:
 		v, ok := value.(string)
@@ -3224,6 +3245,9 @@ func (m *ServantMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *ServantMutation) AddedFields() []string {
 	var fields []string
+	if m.addcollection_no != nil {
+		fields = append(fields, servant.FieldCollectionNo)
+	}
 	return fields
 }
 
@@ -3232,6 +3256,8 @@ func (m *ServantMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *ServantMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case servant.FieldCollectionNo:
+		return m.AddedCollectionNo()
 	}
 	return nil, false
 }
@@ -3241,6 +3267,13 @@ func (m *ServantMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ServantMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case servant.FieldCollectionNo:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCollectionNo(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Servant numeric field %s", name)
 }
@@ -3289,11 +3322,11 @@ func (m *ServantMutation) ResetField(name string) error {
 	case servant.FieldUpdatedAt:
 		m.ResetUpdatedAt()
 		return nil
-	case servant.FieldName:
-		m.ResetName()
-		return nil
 	case servant.FieldCollectionNo:
 		m.ResetCollectionNo()
+		return nil
+	case servant.FieldName:
+		m.ResetName()
 		return nil
 	case servant.FieldFace:
 		m.ResetFace()
