@@ -12,3 +12,22 @@ type Servant struct {
 	Traits           []int   `json:"traits"`
 }
 
+type Class struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type Attribute struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type OrderAlignment struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type MoralAlignment struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}

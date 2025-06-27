@@ -6,11 +6,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/transaction"
 )
 
 type OrderAlignmentRepository interface {
-
+	ListAll(ctx context.Context) ([]*ent.OrderAlignment, error)
+	UpsertBulk(ctx context.Context, orderAlignments []model.OrderAlignment) error
 }
 
 type OrderAlignmentRepositoryImpl struct {
@@ -29,7 +31,7 @@ func (r *OrderAlignmentRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Orde
 		All(ctx)
 }
 
-func (r *OrderAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, orderAlignments []*ent.OrderAlignment) error {
+func (r *OrderAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, orderAlignments []model.OrderAlignment) error {
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
 		return err
@@ -43,7 +45,7 @@ func (r *OrderAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, orderAlig
 	for _, oa := range orderAlignments {
 		builder := tx.OrderAlignment.Create().
 			SetID(oa.ID).
-			SetNameEn(oa.NameEn)
+			SetNameEn(oa.Name)
 		builders = append(builders, builder)
 	}
 	err = tx.OrderAlignment.CreateBulk(builders...).

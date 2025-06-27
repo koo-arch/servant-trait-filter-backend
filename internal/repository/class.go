@@ -6,12 +6,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/class"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/transaction"
 )
 
 // ClassRepository is the interface for the class repository.
 type ClassRepository interface {
-	
+	UpsertBulk(ctx context.Context, classes []model.Class) error
+	ListAll(ctx context.Context) ([]*ent.Class, error)
 }
 
 type ClassRepositoryImpl struct {
@@ -30,12 +32,12 @@ func (r *ClassRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Class, error)
 		All(ctx)
 }
 
-func (r *ClassRepositoryImpl) UpsertBulk(ctx context.Context, classes []*ent.Class) error {
+func (r *ClassRepositoryImpl) UpsertBulk(ctx context.Context, classes []model.Class) error {
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
 		return err
 	}
-	
+
 	defer transaction.HandleTransaction(tx, &err)
 
 	// 一度に1000件ずつ処理する
@@ -47,7 +49,7 @@ func (r *ClassRepositoryImpl) UpsertBulk(ctx context.Context, classes []*ent.Cla
 		for _, cls := range classes[i:end] {
 			builder := tx.Class.Create().
 				SetID(cls.ID).
-				SetNameEn(cls.NameEn)
+				SetNameEn(cls.Name)
 			builders = append(builders, builder)
 		}
 		if len(builders) == 0 {

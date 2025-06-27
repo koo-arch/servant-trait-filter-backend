@@ -6,10 +6,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/transaction"
 )
 
 type MoralAlignmentRepository interface {
-
+	ListAll(ctx context.Context) ([]*ent.MoralAlignment, error)
+	UpsertBulk(ctx context.Context, moralAlignments []model.MoralAlignment) error
 }
 
 type MoralAlignmentRepositoryImpl struct {
@@ -28,11 +31,13 @@ func (r *MoralAlignmentRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Mora
 		All(ctx)
 }
 
-func (r *MoralAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, moralAlignments []*ent.MoralAlignment) error {
+func (r *MoralAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, moralAlignments []model.MoralAlignment) error {
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
 		return err
 	}
+
+	defer transaction.HandleTransaction(tx, &err)
 
 	if len(moralAlignments) == 0 {
 		return nil
@@ -42,7 +47,7 @@ func (r *MoralAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, moralAlig
 	for _, ma := range moralAlignments {
 		builder := tx.MoralAlignment.Create().
 			SetID(ma.ID).
-			SetNameEn(ma.NameEn)
+			SetNameEn(ma.Name)
 		builders = append(builders, builder)
 	}
 

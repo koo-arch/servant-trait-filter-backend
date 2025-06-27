@@ -6,12 +6,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/transaction"
 )
 
 type AttributeRepository interface {
 	ListAll(ctx context.Context) ([]*ent.Attribute, error)
-	UpsertBulk(ctx context.Context, attributes []*ent.Attribute) error
+	UpsertBulk(ctx context.Context, attributes []model.Attribute) error
 }
 
 type AttributeRepositoryImpl struct {
@@ -30,7 +31,7 @@ func (r *AttributeRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Attribute
 		All(ctx)
 }
 
-func (r *AttributeRepositoryImpl) UpsertBulk(ctx context.Context, attributes []*ent.Attribute) error {
+func (r *AttributeRepositoryImpl) UpsertBulk(ctx context.Context, attributes []model.Attribute) error {
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
 		return err
@@ -44,7 +45,7 @@ func (r *AttributeRepositoryImpl) UpsertBulk(ctx context.Context, attributes []*
 	for _, attr := range attributes {
 		builder := tx.Attribute.Create().
 			SetID(attr.ID).
-			SetNameEn(attr.NameEn)
+			SetNameEn(attr.Name)
 		builders = append(builders, builder)
 	}
 	err = tx.Attribute.CreateBulk(builders...).

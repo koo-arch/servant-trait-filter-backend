@@ -66,7 +66,6 @@ func (r *ServantRepositoryImpl) UpsertBulk(ctx context.Context, servants []model
 		if err := tx.Servant.CreateBulk(builders...).
 			OnConflict(
 				sql.ConflictColumns(
-					servant.FieldID,
 					servant.FieldCollectionNo,
 				),
 			).
