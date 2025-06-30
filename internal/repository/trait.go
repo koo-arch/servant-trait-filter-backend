@@ -5,11 +5,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/trait"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
 )
 
 // Repository is the interface for the repository.
 type TraitRepository interface {
-
+	ListAll(ctx context.Context) ([]*ent.Trait, error)
+	UpsertBulk(ctx context.Context, traits []model.Trait) error
+	WithTx(tx *ent.Tx) TraitRepository
 }
 
 type TraitRepositoryImpl struct {
@@ -22,10 +25,22 @@ func NewTraitRepository(client *ent.Client) TraitRepository {
 	}
 }
 
-func (r *TraitRepositoryImpl) UpsertBulk(ctx context.Context, traits []*ent.Trait) error {
-	tx, err := r.client.Tx(ctx)
-	if err != nil {
-		return err
+func (r *TraitRepositoryImpl) WithTx(tx *ent.Tx) TraitRepository {
+	return &TraitRepositoryImpl{
+		client: tx.Client(),
+	}
+}
+
+func (r *TraitRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Trait, error) {
+	return r.client.Trait.Query().
+		Order(ent.Asc(trait.FieldID)).
+		All(ctx)
+}
+
+
+func (r *TraitRepositoryImpl) UpsertBulk(ctx context.Context, traits []model.Trait) error {
+	if len(traits) == 0 {
+		return nil
 	}
 
 	// 一度に1000件ずつ処理する
@@ -35,9 +50,9 @@ func (r *TraitRepositoryImpl) UpsertBulk(ctx context.Context, traits []*ent.Trai
 		builders := make([]*ent.TraitCreate, 0, end-i)
 
 		for _, trt := range traits[i:end] {
-			builder := tx.Trait.Create().
+			builder := r.client.Trait.Create().
 				SetID(trt.ID).
-				SetNameEn(trt.NameEn)
+				SetNameEn(trt.Name)
 			builders = append(builders, builder)
 		}
 		if len(builders) == 0 {
@@ -45,7 +60,7 @@ func (r *TraitRepositoryImpl) UpsertBulk(ctx context.Context, traits []*ent.Trai
 		}
 
 		// 一括で作成
-		err = tx.Trait.CreateBulk(builders...).
+		err := r.client.Trait.CreateBulk(builders...).
 			OnConflict(
 				sql.ConflictColumns(trait.FieldID),
 				sql.UpdateWhere(
@@ -61,5 +76,5 @@ func (r *TraitRepositoryImpl) UpsertBulk(ctx context.Context, traits []*ent.Trai
 		}
 	}
 
-	return tx.Commit()
+	return nil
 }

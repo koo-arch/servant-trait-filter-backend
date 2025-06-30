@@ -7,12 +7,12 @@ import (
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
-	"github.com/koo-arch/servant-trait-filter-backend/internal/transaction"
 )
 
 type ServantRepository interface {
 	ListAll(ctx context.Context) ([]*ent.Servant, error)
 	UpsertBulk(ctx context.Context, servants []model.Servant) error
+	WithTx(tx *ent.Tx) ServantRepository
 }
 
 type ServantRepositoryImpl struct {
@@ -25,6 +25,12 @@ func NewServantRepository(client *ent.Client) ServantRepository {
 	}
 }
 
+func (r *ServantRepositoryImpl) WithTx(tx *ent.Tx) ServantRepository {
+	return &ServantRepositoryImpl{
+		client: tx.Client(),
+	}
+}
+
 func (r *ServantRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Servant, error) {
 	return r.client.Servant.Query().
 		Order(ent.Asc(servant.FieldID)).
@@ -32,12 +38,9 @@ func (r *ServantRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Servant, er
 }
 
 func (r *ServantRepositoryImpl) UpsertBulk(ctx context.Context, servants []model.Servant) error {
-	tx, err := r.client.Tx(ctx)
-	if err != nil {
-		return err
+	if len(servants) == 0 {
+		return nil
 	}
-
-	defer transaction.HandleTransaction(tx, &err)
 
 	// 一度に1000件ずつ処理する
 	const batchSize = 1000
@@ -47,15 +50,19 @@ func (r *ServantRepositoryImpl) UpsertBulk(ctx context.Context, servants []model
 		batchSvt := servants[i:end]
 
 		for _, svt := range batchSvt {
-			builder := tx.Servant.Create().
+			builder := r.client.Servant.Create().
 				SetID(svt.ID).
 				SetName(svt.Name).
 				SetCollectionNo(svt.CollectionNo).
 				SetFace(svt.Face).
 				SetClassID(svt.ClassID).
-				SetOrderAlignmentID(svt.OrderAlignmentID).
-				SetMoralAlignmentID(svt.MoralAlignmentID).
 				SetAttributeID(svt.AttributeID)
+			if svt.MoralAlignmentID > 0 {
+				builder.SetMoralAlignmentID(svt.MoralAlignmentID)
+			}
+			if svt.OrderAlignmentID > 0 {
+				builder.SetOrderAlignmentID(svt.OrderAlignmentID)
+			}
 			builders = append(builders, builder)
 			}
 		if len(builders) == 0 {
@@ -63,7 +70,7 @@ func (r *ServantRepositoryImpl) UpsertBulk(ctx context.Context, servants []model
 		}
 
 		// 一括で作成
-		if err := tx.Servant.CreateBulk(builders...).
+		if err := r.client.Servant.CreateBulk(builders...).
 			OnConflict(
 				sql.ConflictColumns(
 					servant.FieldCollectionNo,
@@ -76,17 +83,17 @@ func (r *ServantRepositoryImpl) UpsertBulk(ctx context.Context, servants []model
 		
 		// 同時にTraitsも更新
 		for _, svt := range batchSvt {
-			if err := r.syncServantTraits(ctx, tx, svt.ID, svt.Traits); err != nil {
+			if err := r.syncServantTraits(ctx, svt.ID, svt.Traits); err != nil {
 				return err
 			}
 		}
 	}
 
-	return tx.Commit()
+	return nil
 }
 
-func (r *ServantRepositoryImpl) syncServantTraits(ctx context.Context, tx *ent.Tx, servantID int, newTraitIDs []int) error {
-	currentTraitIDs, err := tx.Servant.Query().
+func (r *ServantRepositoryImpl) syncServantTraits(ctx context.Context, servantID int, newTraitIDs []int) error {
+	currentTraitIDs, err := r.client.Servant.Query().
 		Where(servant.ID(servantID)).
 		QueryTraits().
 		IDs(ctx)
@@ -101,7 +108,7 @@ func (r *ServantRepositoryImpl) syncServantTraits(ctx context.Context, tx *ent.T
 		return nil
 	}
 
-	syncTraits:= tx.Servant.UpdateOneID(servantID)
+	syncTraits:= r.client.Servant.UpdateOneID(servantID)
 	if len(toAdd) > 0 {
 		syncTraits.AddTraitIDs(toAdd...)
 	}

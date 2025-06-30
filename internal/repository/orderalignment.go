@@ -7,12 +7,12 @@ import (
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
-	"github.com/koo-arch/servant-trait-filter-backend/internal/transaction"
 )
 
 type OrderAlignmentRepository interface {
 	ListAll(ctx context.Context) ([]*ent.OrderAlignment, error)
 	UpsertBulk(ctx context.Context, orderAlignments []model.OrderAlignment) error
+	WithTx(tx *ent.Tx) OrderAlignmentRepository
 }
 
 type OrderAlignmentRepositoryImpl struct {
@@ -25,6 +25,12 @@ func NewOrderAlignmentRepository(client *ent.Client) OrderAlignmentRepository {
 	}
 }
 
+func (r *OrderAlignmentRepositoryImpl) WithTx(tx *ent.Tx) OrderAlignmentRepository {
+	return &OrderAlignmentRepositoryImpl{
+		client: tx.Client(),
+	}
+}
+
 func (r *OrderAlignmentRepositoryImpl) ListAll(ctx context.Context) ([]*ent.OrderAlignment, error) {
 	return r.client.OrderAlignment.Query().
 		Order(ent.Asc(orderalignment.FieldID)).
@@ -32,23 +38,18 @@ func (r *OrderAlignmentRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Orde
 }
 
 func (r *OrderAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, orderAlignments []model.OrderAlignment) error {
-	tx, err := r.client.Tx(ctx)
-	if err != nil {
-		return err
-	}
-	defer transaction.HandleTransaction(tx, &err)
-
 	if len(orderAlignments) == 0 {
 		return nil
 	}
+
 	builders := make([]*ent.OrderAlignmentCreate, 0, len(orderAlignments))
 	for _, oa := range orderAlignments {
-		builder := tx.OrderAlignment.Create().
+		builder := r.client.OrderAlignment.Create().
 			SetID(oa.ID).
 			SetNameEn(oa.Name)
 		builders = append(builders, builder)
 	}
-	err = tx.OrderAlignment.CreateBulk(builders...).
+	err := r.client.OrderAlignment.CreateBulk(builders...).
 		OnConflict(
 			sql.ConflictColumns(orderalignment.FieldID),
 			sql.UpdateWhere(
@@ -61,5 +62,5 @@ func (r *OrderAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, orderAlig
 		return err
 	}
 
-	return tx.Commit()
+	return nil
 }

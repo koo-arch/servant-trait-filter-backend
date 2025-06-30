@@ -7,13 +7,13 @@ import (
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/class"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
-	"github.com/koo-arch/servant-trait-filter-backend/internal/transaction"
 )
 
 // ClassRepository is the interface for the class repository.
 type ClassRepository interface {
 	UpsertBulk(ctx context.Context, classes []model.Class) error
 	ListAll(ctx context.Context) ([]*ent.Class, error)
+	WithTx(tx *ent.Tx) ClassRepository
 }
 
 type ClassRepositoryImpl struct {
@@ -26,6 +26,12 @@ func NewClassRepository(client *ent.Client) ClassRepository {
 	}
 }
 
+func (r *ClassRepositoryImpl) WithTx(tx *ent.Tx) ClassRepository {
+	return &ClassRepositoryImpl{
+		client: tx.Client(),
+	}
+}
+
 func (r *ClassRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Class, error) {
 	return r.client.Class.Query().
 		Order(ent.Asc(class.FieldID)).
@@ -33,12 +39,6 @@ func (r *ClassRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Class, error)
 }
 
 func (r *ClassRepositoryImpl) UpsertBulk(ctx context.Context, classes []model.Class) error {
-	tx, err := r.client.Tx(ctx)
-	if err != nil {
-		return err
-	}
-
-	defer transaction.HandleTransaction(tx, &err)
 
 	// 一度に1000件ずつ処理する
 	const batchSize = 1000
@@ -47,7 +47,7 @@ func (r *ClassRepositoryImpl) UpsertBulk(ctx context.Context, classes []model.Cl
 		builders := make([]*ent.ClassCreate, 0, end-i)
 
 		for _, cls := range classes[i:end] {
-			builder := tx.Class.Create().
+			builder := r.client.Class.Create().
 				SetID(cls.ID).
 				SetNameEn(cls.Name)
 			builders = append(builders, builder)
@@ -57,7 +57,7 @@ func (r *ClassRepositoryImpl) UpsertBulk(ctx context.Context, classes []model.Cl
 		}
 
 		// 一括で作成
-		err = tx.Class.CreateBulk(builders...).
+		err := r.client.Class.CreateBulk(builders...).
 			OnConflict(
 				sql.ConflictColumns(class.FieldID),
 				sql.UpdateWhere(
@@ -73,5 +73,5 @@ func (r *ClassRepositoryImpl) UpsertBulk(ctx context.Context, classes []model.Cl
 		}
 	}
 
-	return tx.Commit()
+	return nil
 }

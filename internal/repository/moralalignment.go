@@ -7,12 +7,12 @@ import (
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
-	"github.com/koo-arch/servant-trait-filter-backend/internal/transaction"
 )
 
 type MoralAlignmentRepository interface {
 	ListAll(ctx context.Context) ([]*ent.MoralAlignment, error)
 	UpsertBulk(ctx context.Context, moralAlignments []model.MoralAlignment) error
+	WithTx(tx *ent.Tx) MoralAlignmentRepository
 }
 
 type MoralAlignmentRepositoryImpl struct {
@@ -25,6 +25,12 @@ func NewMoralAlignmentRepository(client *ent.Client) MoralAlignmentRepository {
 	}
 }
 
+func (r *MoralAlignmentRepositoryImpl) WithTx(tx *ent.Tx) MoralAlignmentRepository {
+	return &MoralAlignmentRepositoryImpl{
+		client: tx.Client(),
+	}
+}
+
 func (r *MoralAlignmentRepositoryImpl) ListAll(ctx context.Context) ([]*ent.MoralAlignment, error) {
 	return r.client.MoralAlignment.Query().
 		Order(ent.Asc(moralalignment.FieldID)).
@@ -32,26 +38,19 @@ func (r *MoralAlignmentRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Mora
 }
 
 func (r *MoralAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, moralAlignments []model.MoralAlignment) error {
-	tx, err := r.client.Tx(ctx)
-	if err != nil {
-		return err
-	}
-
-	defer transaction.HandleTransaction(tx, &err)
-
 	if len(moralAlignments) == 0 {
 		return nil
 	}
 
 	builders := make([]*ent.MoralAlignmentCreate, 0, len(moralAlignments))
 	for _, ma := range moralAlignments {
-		builder := tx.MoralAlignment.Create().
+		builder := r.client.MoralAlignment.Create().
 			SetID(ma.ID).
 			SetNameEn(ma.Name)
 		builders = append(builders, builder)
 	}
 
-	err = tx.MoralAlignment.CreateBulk(builders...).
+	err := r.client.MoralAlignment.CreateBulk(builders...).
 		OnConflict(
 			sql.ConflictColumns(moralalignment.FieldID),
 			sql.UpdateWhere(
@@ -63,7 +62,7 @@ func (r *MoralAlignmentRepositoryImpl) UpsertBulk(ctx context.Context, moralAlig
 	if err != nil {
 		return err
 	}
-	return tx.Commit()
+	return nil
 }
 
 
