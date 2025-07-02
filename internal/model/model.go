@@ -12,6 +12,11 @@ type Servant struct {
 	Traits           []int   `json:"traits"`
 }
 
+type Trait struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type Class struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`

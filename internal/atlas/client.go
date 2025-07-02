@@ -10,11 +10,13 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
 )
 
 type Client interface {
 	FetchServants(ctx context.Context, region string) ([]Servant, error)
-	FetchTraits(ctx context.Context, region string) ([]Trait, error)
+	FetchTraits(ctx context.Context, region string) ([]model.Trait, error)
 }
 
 type client struct {
