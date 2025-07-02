@@ -275,6 +275,16 @@ func NameJaHasSuffix(v string) predicate.OrderAlignment {
 	return predicate.OrderAlignment(sql.FieldHasSuffix(FieldNameJa, v))
 }
 
+// NameJaIsNil applies the IsNil predicate on the "name_ja" field.
+func NameJaIsNil() predicate.OrderAlignment {
+	return predicate.OrderAlignment(sql.FieldIsNull(FieldNameJa))
+}
+
+// NameJaNotNil applies the NotNil predicate on the "name_ja" field.
+func NameJaNotNil() predicate.OrderAlignment {
+	return predicate.OrderAlignment(sql.FieldNotNull(FieldNameJa))
+}
+
 // NameJaEqualFold applies the EqualFold predicate on the "name_ja" field.
 func NameJaEqualFold(v string) predicate.OrderAlignment {
 	return predicate.OrderAlignment(sql.FieldEqualFold(FieldNameJa, v))

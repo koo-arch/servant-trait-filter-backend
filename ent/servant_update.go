@@ -279,6 +279,11 @@ func (su *ServantUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (su *ServantUpdate) check() error {
+	if v, ok := su.mutation.CollectionNo(); ok {
+		if err := servant.CollectionNoValidator(v); err != nil {
+			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
+		}
+	}
 	if v, ok := su.mutation.Name(); ok {
 		if err := servant.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
@@ -785,6 +790,11 @@ func (suo *ServantUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (suo *ServantUpdateOne) check() error {
+	if v, ok := suo.mutation.CollectionNo(); ok {
+		if err := servant.CollectionNoValidator(v); err != nil {
+			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
+		}
+	}
 	if v, ok := suo.mutation.Name(); ok {
 		if err := servant.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}

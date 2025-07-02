@@ -63,6 +63,12 @@ func (oau *OrderAlignmentUpdate) SetNillableNameJa(s *string) *OrderAlignmentUpd
 	return oau
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (oau *OrderAlignmentUpdate) ClearNameJa() *OrderAlignmentUpdate {
+	oau.mutation.ClearNameJa()
+	return oau
+}
+
 // AddServantIDs adds the "servants" edge to the Servant entity by IDs.
 func (oau *OrderAlignmentUpdate) AddServantIDs(ids ...int) *OrderAlignmentUpdate {
 	oau.mutation.AddServantIDs(ids...)
@@ -171,6 +177,9 @@ func (oau *OrderAlignmentUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if value, ok := oau.mutation.NameJa(); ok {
 		_spec.SetField(orderalignment.FieldNameJa, field.TypeString, value)
 	}
+	if oau.mutation.NameJaCleared() {
+		_spec.ClearField(orderalignment.FieldNameJa, field.TypeString)
+	}
 	if oau.mutation.ServantsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -267,6 +276,12 @@ func (oauo *OrderAlignmentUpdateOne) SetNillableNameJa(s *string) *OrderAlignmen
 	if s != nil {
 		oauo.SetNameJa(*s)
 	}
+	return oauo
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (oauo *OrderAlignmentUpdateOne) ClearNameJa() *OrderAlignmentUpdateOne {
+	oauo.mutation.ClearNameJa()
 	return oauo
 }
 
@@ -407,6 +422,9 @@ func (oauo *OrderAlignmentUpdateOne) sqlSave(ctx context.Context) (_node *OrderA
 	}
 	if value, ok := oauo.mutation.NameJa(); ok {
 		_spec.SetField(orderalignment.FieldNameJa, field.TypeString, value)
+	}
+	if oauo.mutation.NameJaCleared() {
+		_spec.ClearField(orderalignment.FieldNameJa, field.TypeString)
 	}
 	if oauo.mutation.ServantsCleared() {
 		edge := &sqlgraph.EdgeSpec{

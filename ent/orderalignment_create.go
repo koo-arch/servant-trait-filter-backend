@@ -63,6 +63,14 @@ func (oac *OrderAlignmentCreate) SetNameJa(s string) *OrderAlignmentCreate {
 	return oac
 }
 
+// SetNillableNameJa sets the "name_ja" field if the given value is not nil.
+func (oac *OrderAlignmentCreate) SetNillableNameJa(s *string) *OrderAlignmentCreate {
+	if s != nil {
+		oac.SetNameJa(*s)
+	}
+	return oac
+}
+
 // SetID sets the "id" field.
 func (oac *OrderAlignmentCreate) SetID(i int) *OrderAlignmentCreate {
 	oac.mutation.SetID(i)
@@ -144,9 +152,6 @@ func (oac *OrderAlignmentCreate) check() error {
 		if err := orderalignment.NameEnValidator(v); err != nil {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "OrderAlignment.name_en": %w`, err)}
 		}
-	}
-	if _, ok := oac.mutation.NameJa(); !ok {
-		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "OrderAlignment.name_ja"`)}
 	}
 	if v, ok := oac.mutation.ID(); ok {
 		if err := orderalignment.IDValidator(v); err != nil {
@@ -306,6 +311,12 @@ func (u *OrderAlignmentUpsert) UpdateNameJa() *OrderAlignmentUpsert {
 	return u
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *OrderAlignmentUpsert) ClearNameJa() *OrderAlignmentUpsert {
+	u.SetNull(orderalignment.FieldNameJa)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -396,6 +407,13 @@ func (u *OrderAlignmentUpsertOne) SetNameJa(v string) *OrderAlignmentUpsertOne {
 func (u *OrderAlignmentUpsertOne) UpdateNameJa() *OrderAlignmentUpsertOne {
 	return u.Update(func(s *OrderAlignmentUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *OrderAlignmentUpsertOne) ClearNameJa() *OrderAlignmentUpsertOne {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.ClearNameJa()
 	})
 }
 
@@ -655,6 +673,13 @@ func (u *OrderAlignmentUpsertBulk) SetNameJa(v string) *OrderAlignmentUpsertBulk
 func (u *OrderAlignmentUpsertBulk) UpdateNameJa() *OrderAlignmentUpsertBulk {
 	return u.Update(func(s *OrderAlignmentUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *OrderAlignmentUpsertBulk) ClearNameJa() *OrderAlignmentUpsertBulk {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.ClearNameJa()
 	})
 }
 

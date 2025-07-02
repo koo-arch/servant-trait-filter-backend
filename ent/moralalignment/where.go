@@ -275,6 +275,16 @@ func NameJaHasSuffix(v string) predicate.MoralAlignment {
 	return predicate.MoralAlignment(sql.FieldHasSuffix(FieldNameJa, v))
 }
 
+// NameJaIsNil applies the IsNil predicate on the "name_ja" field.
+func NameJaIsNil() predicate.MoralAlignment {
+	return predicate.MoralAlignment(sql.FieldIsNull(FieldNameJa))
+}
+
+// NameJaNotNil applies the NotNil predicate on the "name_ja" field.
+func NameJaNotNil() predicate.MoralAlignment {
+	return predicate.MoralAlignment(sql.FieldNotNull(FieldNameJa))
+}
+
 // NameJaEqualFold applies the EqualFold predicate on the "name_ja" field.
 func NameJaEqualFold(v string) predicate.MoralAlignment {
 	return predicate.MoralAlignment(sql.FieldEqualFold(FieldNameJa, v))

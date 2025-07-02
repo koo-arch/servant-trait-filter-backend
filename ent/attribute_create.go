@@ -63,6 +63,14 @@ func (ac *AttributeCreate) SetNameJa(s string) *AttributeCreate {
 	return ac
 }
 
+// SetNillableNameJa sets the "name_ja" field if the given value is not nil.
+func (ac *AttributeCreate) SetNillableNameJa(s *string) *AttributeCreate {
+	if s != nil {
+		ac.SetNameJa(*s)
+	}
+	return ac
+}
+
 // SetID sets the "id" field.
 func (ac *AttributeCreate) SetID(i int) *AttributeCreate {
 	ac.mutation.SetID(i)
@@ -144,9 +152,6 @@ func (ac *AttributeCreate) check() error {
 		if err := attribute.NameEnValidator(v); err != nil {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "Attribute.name_en": %w`, err)}
 		}
-	}
-	if _, ok := ac.mutation.NameJa(); !ok {
-		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "Attribute.name_ja"`)}
 	}
 	if v, ok := ac.mutation.ID(); ok {
 		if err := attribute.IDValidator(v); err != nil {
@@ -306,6 +311,12 @@ func (u *AttributeUpsert) UpdateNameJa() *AttributeUpsert {
 	return u
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *AttributeUpsert) ClearNameJa() *AttributeUpsert {
+	u.SetNull(attribute.FieldNameJa)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -396,6 +407,13 @@ func (u *AttributeUpsertOne) SetNameJa(v string) *AttributeUpsertOne {
 func (u *AttributeUpsertOne) UpdateNameJa() *AttributeUpsertOne {
 	return u.Update(func(s *AttributeUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *AttributeUpsertOne) ClearNameJa() *AttributeUpsertOne {
+	return u.Update(func(s *AttributeUpsert) {
+		s.ClearNameJa()
 	})
 }
 
@@ -655,6 +673,13 @@ func (u *AttributeUpsertBulk) SetNameJa(v string) *AttributeUpsertBulk {
 func (u *AttributeUpsertBulk) UpdateNameJa() *AttributeUpsertBulk {
 	return u.Update(func(s *AttributeUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *AttributeUpsertBulk) ClearNameJa() *AttributeUpsertBulk {
+	return u.Update(func(s *AttributeUpsert) {
+		s.ClearNameJa()
 	})
 }
 

@@ -14,7 +14,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// AttributesTable holds the schema information for the "attributes" table.
 	AttributesTable = &schema.Table{
@@ -28,7 +28,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// ClassesTable holds the schema information for the "classes" table.
 	ClassesTable = &schema.Table{
@@ -42,7 +42,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// MoralAlignmentsTable holds the schema information for the "moral_alignments" table.
 	MoralAlignmentsTable = &schema.Table{
@@ -56,7 +56,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// OrderAlignmentsTable holds the schema information for the "order_alignments" table.
 	OrderAlignmentsTable = &schema.Table{
@@ -115,7 +115,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// TraitsTable holds the schema information for the "traits" table.
 	TraitsTable = &schema.Table{

@@ -63,6 +63,14 @@ func (mac *MoralAlignmentCreate) SetNameJa(s string) *MoralAlignmentCreate {
 	return mac
 }
 
+// SetNillableNameJa sets the "name_ja" field if the given value is not nil.
+func (mac *MoralAlignmentCreate) SetNillableNameJa(s *string) *MoralAlignmentCreate {
+	if s != nil {
+		mac.SetNameJa(*s)
+	}
+	return mac
+}
+
 // SetID sets the "id" field.
 func (mac *MoralAlignmentCreate) SetID(i int) *MoralAlignmentCreate {
 	mac.mutation.SetID(i)
@@ -144,9 +152,6 @@ func (mac *MoralAlignmentCreate) check() error {
 		if err := moralalignment.NameEnValidator(v); err != nil {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "MoralAlignment.name_en": %w`, err)}
 		}
-	}
-	if _, ok := mac.mutation.NameJa(); !ok {
-		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "MoralAlignment.name_ja"`)}
 	}
 	if v, ok := mac.mutation.ID(); ok {
 		if err := moralalignment.IDValidator(v); err != nil {
@@ -306,6 +311,12 @@ func (u *MoralAlignmentUpsert) UpdateNameJa() *MoralAlignmentUpsert {
 	return u
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *MoralAlignmentUpsert) ClearNameJa() *MoralAlignmentUpsert {
+	u.SetNull(moralalignment.FieldNameJa)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -396,6 +407,13 @@ func (u *MoralAlignmentUpsertOne) SetNameJa(v string) *MoralAlignmentUpsertOne {
 func (u *MoralAlignmentUpsertOne) UpdateNameJa() *MoralAlignmentUpsertOne {
 	return u.Update(func(s *MoralAlignmentUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *MoralAlignmentUpsertOne) ClearNameJa() *MoralAlignmentUpsertOne {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.ClearNameJa()
 	})
 }
 
@@ -655,6 +673,13 @@ func (u *MoralAlignmentUpsertBulk) SetNameJa(v string) *MoralAlignmentUpsertBulk
 func (u *MoralAlignmentUpsertBulk) UpdateNameJa() *MoralAlignmentUpsertBulk {
 	return u.Update(func(s *MoralAlignmentUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *MoralAlignmentUpsertBulk) ClearNameJa() *MoralAlignmentUpsertBulk {
+	return u.Update(func(s *MoralAlignmentUpsert) {
+		s.ClearNameJa()
 	})
 }
 

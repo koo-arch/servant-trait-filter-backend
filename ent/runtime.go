@@ -133,6 +133,10 @@ func init() {
 	servant.DefaultUpdatedAt = servantDescUpdatedAt.Default.(func() time.Time)
 	// servant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	servant.UpdateDefaultUpdatedAt = servantDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// servantDescCollectionNo is the schema descriptor for collection_no field.
+	servantDescCollectionNo := servantFields[1].Descriptor()
+	// servant.CollectionNoValidator is a validator for the "collection_no" field. It is called by the builders before save.
+	servant.CollectionNoValidator = servantDescCollectionNo.Validators[0].(func(int) error)
 	// servantDescName is the schema descriptor for name field.
 	servantDescName := servantFields[2].Descriptor()
 	// servant.NameValidator is a validator for the "name" field. It is called by the builders before save.

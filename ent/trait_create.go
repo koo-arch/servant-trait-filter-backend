@@ -63,6 +63,14 @@ func (tc *TraitCreate) SetNameJa(s string) *TraitCreate {
 	return tc
 }
 
+// SetNillableNameJa sets the "name_ja" field if the given value is not nil.
+func (tc *TraitCreate) SetNillableNameJa(s *string) *TraitCreate {
+	if s != nil {
+		tc.SetNameJa(*s)
+	}
+	return tc
+}
+
 // SetID sets the "id" field.
 func (tc *TraitCreate) SetID(i int) *TraitCreate {
 	tc.mutation.SetID(i)
@@ -144,9 +152,6 @@ func (tc *TraitCreate) check() error {
 		if err := trait.NameEnValidator(v); err != nil {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "Trait.name_en": %w`, err)}
 		}
-	}
-	if _, ok := tc.mutation.NameJa(); !ok {
-		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "Trait.name_ja"`)}
 	}
 	if v, ok := tc.mutation.ID(); ok {
 		if err := trait.IDValidator(v); err != nil {
@@ -306,6 +311,12 @@ func (u *TraitUpsert) UpdateNameJa() *TraitUpsert {
 	return u
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *TraitUpsert) ClearNameJa() *TraitUpsert {
+	u.SetNull(trait.FieldNameJa)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -396,6 +407,13 @@ func (u *TraitUpsertOne) SetNameJa(v string) *TraitUpsertOne {
 func (u *TraitUpsertOne) UpdateNameJa() *TraitUpsertOne {
 	return u.Update(func(s *TraitUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *TraitUpsertOne) ClearNameJa() *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.ClearNameJa()
 	})
 }
 
@@ -655,6 +673,13 @@ func (u *TraitUpsertBulk) SetNameJa(v string) *TraitUpsertBulk {
 func (u *TraitUpsertBulk) UpdateNameJa() *TraitUpsertBulk {
 	return u.Update(func(s *TraitUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *TraitUpsertBulk) ClearNameJa() *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.ClearNameJa()
 	})
 }
 

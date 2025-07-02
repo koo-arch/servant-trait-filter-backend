@@ -299,9 +299,22 @@ func (m *AttributeMutation) OldNameJa(ctx context.Context) (v string, err error)
 	return oldValue.NameJa, nil
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (m *AttributeMutation) ClearNameJa() {
+	m.name_ja = nil
+	m.clearedFields[attribute.FieldNameJa] = struct{}{}
+}
+
+// NameJaCleared returns if the "name_ja" field was cleared in this mutation.
+func (m *AttributeMutation) NameJaCleared() bool {
+	_, ok := m.clearedFields[attribute.FieldNameJa]
+	return ok
+}
+
 // ResetNameJa resets all changes to the "name_ja" field.
 func (m *AttributeMutation) ResetNameJa() {
 	m.name_ja = nil
+	delete(m.clearedFields, attribute.FieldNameJa)
 }
 
 // AddServantIDs adds the "servants" edge to the Servant entity by ids.
@@ -504,7 +517,11 @@ func (m *AttributeMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *AttributeMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(attribute.FieldNameJa) {
+		fields = append(fields, attribute.FieldNameJa)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -517,6 +534,11 @@ func (m *AttributeMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *AttributeMutation) ClearField(name string) error {
+	switch name {
+	case attribute.FieldNameJa:
+		m.ClearNameJa()
+		return nil
+	}
 	return fmt.Errorf("unknown Attribute nullable field %s", name)
 }
 
@@ -886,9 +908,22 @@ func (m *ClassMutation) OldNameJa(ctx context.Context) (v string, err error) {
 	return oldValue.NameJa, nil
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (m *ClassMutation) ClearNameJa() {
+	m.name_ja = nil
+	m.clearedFields[class.FieldNameJa] = struct{}{}
+}
+
+// NameJaCleared returns if the "name_ja" field was cleared in this mutation.
+func (m *ClassMutation) NameJaCleared() bool {
+	_, ok := m.clearedFields[class.FieldNameJa]
+	return ok
+}
+
 // ResetNameJa resets all changes to the "name_ja" field.
 func (m *ClassMutation) ResetNameJa() {
 	m.name_ja = nil
+	delete(m.clearedFields, class.FieldNameJa)
 }
 
 // AddServantIDs adds the "servants" edge to the Servant entity by ids.
@@ -1091,7 +1126,11 @@ func (m *ClassMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ClassMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(class.FieldNameJa) {
+		fields = append(fields, class.FieldNameJa)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1104,6 +1143,11 @@ func (m *ClassMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ClassMutation) ClearField(name string) error {
+	switch name {
+	case class.FieldNameJa:
+		m.ClearNameJa()
+		return nil
+	}
 	return fmt.Errorf("unknown Class nullable field %s", name)
 }
 
@@ -1473,9 +1517,22 @@ func (m *MoralAlignmentMutation) OldNameJa(ctx context.Context) (v string, err e
 	return oldValue.NameJa, nil
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (m *MoralAlignmentMutation) ClearNameJa() {
+	m.name_ja = nil
+	m.clearedFields[moralalignment.FieldNameJa] = struct{}{}
+}
+
+// NameJaCleared returns if the "name_ja" field was cleared in this mutation.
+func (m *MoralAlignmentMutation) NameJaCleared() bool {
+	_, ok := m.clearedFields[moralalignment.FieldNameJa]
+	return ok
+}
+
 // ResetNameJa resets all changes to the "name_ja" field.
 func (m *MoralAlignmentMutation) ResetNameJa() {
 	m.name_ja = nil
+	delete(m.clearedFields, moralalignment.FieldNameJa)
 }
 
 // AddServantIDs adds the "servants" edge to the Servant entity by ids.
@@ -1678,7 +1735,11 @@ func (m *MoralAlignmentMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *MoralAlignmentMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(moralalignment.FieldNameJa) {
+		fields = append(fields, moralalignment.FieldNameJa)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1691,6 +1752,11 @@ func (m *MoralAlignmentMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *MoralAlignmentMutation) ClearField(name string) error {
+	switch name {
+	case moralalignment.FieldNameJa:
+		m.ClearNameJa()
+		return nil
+	}
 	return fmt.Errorf("unknown MoralAlignment nullable field %s", name)
 }
 
@@ -2060,9 +2126,22 @@ func (m *OrderAlignmentMutation) OldNameJa(ctx context.Context) (v string, err e
 	return oldValue.NameJa, nil
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (m *OrderAlignmentMutation) ClearNameJa() {
+	m.name_ja = nil
+	m.clearedFields[orderalignment.FieldNameJa] = struct{}{}
+}
+
+// NameJaCleared returns if the "name_ja" field was cleared in this mutation.
+func (m *OrderAlignmentMutation) NameJaCleared() bool {
+	_, ok := m.clearedFields[orderalignment.FieldNameJa]
+	return ok
+}
+
 // ResetNameJa resets all changes to the "name_ja" field.
 func (m *OrderAlignmentMutation) ResetNameJa() {
 	m.name_ja = nil
+	delete(m.clearedFields, orderalignment.FieldNameJa)
 }
 
 // AddServantIDs adds the "servants" edge to the Servant entity by ids.
@@ -2265,7 +2344,11 @@ func (m *OrderAlignmentMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *OrderAlignmentMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(orderalignment.FieldNameJa) {
+		fields = append(fields, orderalignment.FieldNameJa)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2278,6 +2361,11 @@ func (m *OrderAlignmentMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *OrderAlignmentMutation) ClearField(name string) error {
+	switch name {
+	case orderalignment.FieldNameJa:
+		m.ClearNameJa()
+		return nil
+	}
 	return fmt.Errorf("unknown OrderAlignment nullable field %s", name)
 }
 
@@ -3765,9 +3853,22 @@ func (m *TraitMutation) OldNameJa(ctx context.Context) (v string, err error) {
 	return oldValue.NameJa, nil
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (m *TraitMutation) ClearNameJa() {
+	m.name_ja = nil
+	m.clearedFields[trait.FieldNameJa] = struct{}{}
+}
+
+// NameJaCleared returns if the "name_ja" field was cleared in this mutation.
+func (m *TraitMutation) NameJaCleared() bool {
+	_, ok := m.clearedFields[trait.FieldNameJa]
+	return ok
+}
+
 // ResetNameJa resets all changes to the "name_ja" field.
 func (m *TraitMutation) ResetNameJa() {
 	m.name_ja = nil
+	delete(m.clearedFields, trait.FieldNameJa)
 }
 
 // AddServantIDs adds the "servants" edge to the Servant entity by ids.
@@ -3970,7 +4071,11 @@ func (m *TraitMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *TraitMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(trait.FieldNameJa) {
+		fields = append(fields, trait.FieldNameJa)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -3983,6 +4088,11 @@ func (m *TraitMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *TraitMutation) ClearField(name string) error {
+	switch name {
+	case trait.FieldNameJa:
+		m.ClearNameJa()
+		return nil
+	}
 	return fmt.Errorf("unknown Trait nullable field %s", name)
 }
 

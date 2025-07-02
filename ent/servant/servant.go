@@ -116,6 +116,8 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// CollectionNoValidator is a validator for the "collection_no" field. It is called by the builders before save.
+	CollectionNoValidator func(int) error
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// FaceValidator is a validator for the "face" field. It is called by the builders before save.

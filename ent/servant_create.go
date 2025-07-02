@@ -210,6 +210,11 @@ func (sc *ServantCreate) check() error {
 	if _, ok := sc.mutation.CollectionNo(); !ok {
 		return &ValidationError{Name: "collection_no", err: errors.New(`ent: missing required field "Servant.collection_no"`)}
 	}
+	if v, ok := sc.mutation.CollectionNo(); ok {
+		if err := servant.CollectionNoValidator(v); err != nil {
+			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
+		}
+	}
 	if _, ok := sc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Servant.name"`)}
 	}

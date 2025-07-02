@@ -63,6 +63,12 @@ func (mau *MoralAlignmentUpdate) SetNillableNameJa(s *string) *MoralAlignmentUpd
 	return mau
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (mau *MoralAlignmentUpdate) ClearNameJa() *MoralAlignmentUpdate {
+	mau.mutation.ClearNameJa()
+	return mau
+}
+
 // AddServantIDs adds the "servants" edge to the Servant entity by IDs.
 func (mau *MoralAlignmentUpdate) AddServantIDs(ids ...int) *MoralAlignmentUpdate {
 	mau.mutation.AddServantIDs(ids...)
@@ -171,6 +177,9 @@ func (mau *MoralAlignmentUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if value, ok := mau.mutation.NameJa(); ok {
 		_spec.SetField(moralalignment.FieldNameJa, field.TypeString, value)
 	}
+	if mau.mutation.NameJaCleared() {
+		_spec.ClearField(moralalignment.FieldNameJa, field.TypeString)
+	}
 	if mau.mutation.ServantsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -267,6 +276,12 @@ func (mauo *MoralAlignmentUpdateOne) SetNillableNameJa(s *string) *MoralAlignmen
 	if s != nil {
 		mauo.SetNameJa(*s)
 	}
+	return mauo
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (mauo *MoralAlignmentUpdateOne) ClearNameJa() *MoralAlignmentUpdateOne {
+	mauo.mutation.ClearNameJa()
 	return mauo
 }
 
@@ -407,6 +422,9 @@ func (mauo *MoralAlignmentUpdateOne) sqlSave(ctx context.Context) (_node *MoralA
 	}
 	if value, ok := mauo.mutation.NameJa(); ok {
 		_spec.SetField(moralalignment.FieldNameJa, field.TypeString, value)
+	}
+	if mauo.mutation.NameJaCleared() {
+		_spec.ClearField(moralalignment.FieldNameJa, field.TypeString)
 	}
 	if mauo.mutation.ServantsCleared() {
 		edge := &sqlgraph.EdgeSpec{
