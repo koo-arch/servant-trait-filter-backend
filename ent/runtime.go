@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/class"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
@@ -18,6 +19,37 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	ascensionMixin := schema.Ascension{}.Mixin()
+	ascensionMixinFields0 := ascensionMixin[0].Fields()
+	_ = ascensionMixinFields0
+	ascensionFields := schema.Ascension{}.Fields()
+	_ = ascensionFields
+	// ascensionDescCreatedAt is the schema descriptor for created_at field.
+	ascensionDescCreatedAt := ascensionMixinFields0[0].Descriptor()
+	// ascension.DefaultCreatedAt holds the default value on creation for the created_at field.
+	ascension.DefaultCreatedAt = ascensionDescCreatedAt.Default.(func() time.Time)
+	// ascensionDescUpdatedAt is the schema descriptor for updated_at field.
+	ascensionDescUpdatedAt := ascensionMixinFields0[1].Descriptor()
+	// ascension.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	ascension.DefaultUpdatedAt = ascensionDescUpdatedAt.Default.(func() time.Time)
+	// ascension.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	ascension.UpdateDefaultUpdatedAt = ascensionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// ascensionDescStage is the schema descriptor for stage field.
+	ascensionDescStage := ascensionFields[1].Descriptor()
+	// ascension.StageValidator is a validator for the "stage" field. It is called by the builders before save.
+	ascension.StageValidator = ascensionDescStage.Validators[0].(func(int) error)
+	// ascensionDescAttributeID is the schema descriptor for attribute_id field.
+	ascensionDescAttributeID := ascensionFields[2].Descriptor()
+	// ascension.AttributeIDValidator is a validator for the "attribute_id" field. It is called by the builders before save.
+	ascension.AttributeIDValidator = ascensionDescAttributeID.Validators[0].(func(int) error)
+	// ascensionDescOrderAlignmentID is the schema descriptor for order_alignment_id field.
+	ascensionDescOrderAlignmentID := ascensionFields[3].Descriptor()
+	// ascension.OrderAlignmentIDValidator is a validator for the "order_alignment_id" field. It is called by the builders before save.
+	ascension.OrderAlignmentIDValidator = ascensionDescOrderAlignmentID.Validators[0].(func(int) error)
+	// ascensionDescMoralAlignmentID is the schema descriptor for moral_alignment_id field.
+	ascensionDescMoralAlignmentID := ascensionFields[4].Descriptor()
+	// ascension.MoralAlignmentIDValidator is a validator for the "moral_alignment_id" field. It is called by the builders before save.
+	ascension.MoralAlignmentIDValidator = ascensionDescMoralAlignmentID.Validators[0].(func(int) error)
 	attributeMixin := schema.Attribute{}.Mixin()
 	attributeMixinFields0 := attributeMixin[0].Fields()
 	_ = attributeMixinFields0
@@ -149,18 +181,6 @@ func init() {
 	servantDescClassID := servantFields[4].Descriptor()
 	// servant.ClassIDValidator is a validator for the "class_id" field. It is called by the builders before save.
 	servant.ClassIDValidator = servantDescClassID.Validators[0].(func(int) error)
-	// servantDescAttributeID is the schema descriptor for attribute_id field.
-	servantDescAttributeID := servantFields[5].Descriptor()
-	// servant.AttributeIDValidator is a validator for the "attribute_id" field. It is called by the builders before save.
-	servant.AttributeIDValidator = servantDescAttributeID.Validators[0].(func(int) error)
-	// servantDescOrderAlignmentID is the schema descriptor for order_alignment_id field.
-	servantDescOrderAlignmentID := servantFields[6].Descriptor()
-	// servant.OrderAlignmentIDValidator is a validator for the "order_alignment_id" field. It is called by the builders before save.
-	servant.OrderAlignmentIDValidator = servantDescOrderAlignmentID.Validators[0].(func(int) error)
-	// servantDescMoralAlignmentID is the schema descriptor for moral_alignment_id field.
-	servantDescMoralAlignmentID := servantFields[7].Descriptor()
-	// servant.MoralAlignmentIDValidator is a validator for the "moral_alignment_id" field. It is called by the builders before save.
-	servant.MoralAlignmentIDValidator = servantDescMoralAlignmentID.Validators[0].(func(int) error)
 	// servantDescID is the schema descriptor for id field.
 	servantDescID := servantFields[0].Descriptor()
 	// servant.IDValidator is a validator for the "id" field. It is called by the builders before save.

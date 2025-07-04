@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Ascension is the predicate function for ascension builders.
+type Ascension func(*sql.Selector)
+
 // Attribute is the predicate function for attribute builders.
 type Attribute func(*sql.Selector)
 

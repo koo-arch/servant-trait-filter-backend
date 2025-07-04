@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/predicate"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // OrderAlignmentUpdate is the builder for updating OrderAlignment entities.
@@ -69,19 +69,19 @@ func (oau *OrderAlignmentUpdate) ClearNameJa() *OrderAlignmentUpdate {
 	return oau
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (oau *OrderAlignmentUpdate) AddServantIDs(ids ...int) *OrderAlignmentUpdate {
-	oau.mutation.AddServantIDs(ids...)
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (oau *OrderAlignmentUpdate) AddAscensionIDs(ids ...int) *OrderAlignmentUpdate {
+	oau.mutation.AddAscensionIDs(ids...)
 	return oau
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (oau *OrderAlignmentUpdate) AddServants(s ...*Servant) *OrderAlignmentUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (oau *OrderAlignmentUpdate) AddAscensions(a ...*Ascension) *OrderAlignmentUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return oau.AddServantIDs(ids...)
+	return oau.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the OrderAlignmentMutation object of the builder.
@@ -89,25 +89,25 @@ func (oau *OrderAlignmentUpdate) Mutation() *OrderAlignmentMutation {
 	return oau.mutation
 }
 
-// ClearServants clears all "servants" edges to the Servant entity.
-func (oau *OrderAlignmentUpdate) ClearServants() *OrderAlignmentUpdate {
-	oau.mutation.ClearServants()
+// ClearAscensions clears all "ascensions" edges to the Ascension entity.
+func (oau *OrderAlignmentUpdate) ClearAscensions() *OrderAlignmentUpdate {
+	oau.mutation.ClearAscensions()
 	return oau
 }
 
-// RemoveServantIDs removes the "servants" edge to Servant entities by IDs.
-func (oau *OrderAlignmentUpdate) RemoveServantIDs(ids ...int) *OrderAlignmentUpdate {
-	oau.mutation.RemoveServantIDs(ids...)
+// RemoveAscensionIDs removes the "ascensions" edge to Ascension entities by IDs.
+func (oau *OrderAlignmentUpdate) RemoveAscensionIDs(ids ...int) *OrderAlignmentUpdate {
+	oau.mutation.RemoveAscensionIDs(ids...)
 	return oau
 }
 
-// RemoveServants removes "servants" edges to Servant entities.
-func (oau *OrderAlignmentUpdate) RemoveServants(s ...*Servant) *OrderAlignmentUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveAscensions removes "ascensions" edges to Ascension entities.
+func (oau *OrderAlignmentUpdate) RemoveAscensions(a ...*Ascension) *OrderAlignmentUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return oau.RemoveServantIDs(ids...)
+	return oau.RemoveAscensionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -180,28 +180,28 @@ func (oau *OrderAlignmentUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if oau.mutation.NameJaCleared() {
 		_spec.ClearField(orderalignment.FieldNameJa, field.TypeString)
 	}
-	if oau.mutation.ServantsCleared() {
+	if oau.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   orderalignment.ServantsTable,
-			Columns: []string{orderalignment.ServantsColumn},
+			Table:   orderalignment.AscensionsTable,
+			Columns: []string{orderalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oau.mutation.RemovedServantsIDs(); len(nodes) > 0 && !oau.mutation.ServantsCleared() {
+	if nodes := oau.mutation.RemovedAscensionsIDs(); len(nodes) > 0 && !oau.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   orderalignment.ServantsTable,
-			Columns: []string{orderalignment.ServantsColumn},
+			Table:   orderalignment.AscensionsTable,
+			Columns: []string{orderalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -209,15 +209,15 @@ func (oau *OrderAlignmentUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oau.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := oau.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   orderalignment.ServantsTable,
-			Columns: []string{orderalignment.ServantsColumn},
+			Table:   orderalignment.AscensionsTable,
+			Columns: []string{orderalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -285,19 +285,19 @@ func (oauo *OrderAlignmentUpdateOne) ClearNameJa() *OrderAlignmentUpdateOne {
 	return oauo
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (oauo *OrderAlignmentUpdateOne) AddServantIDs(ids ...int) *OrderAlignmentUpdateOne {
-	oauo.mutation.AddServantIDs(ids...)
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (oauo *OrderAlignmentUpdateOne) AddAscensionIDs(ids ...int) *OrderAlignmentUpdateOne {
+	oauo.mutation.AddAscensionIDs(ids...)
 	return oauo
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (oauo *OrderAlignmentUpdateOne) AddServants(s ...*Servant) *OrderAlignmentUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (oauo *OrderAlignmentUpdateOne) AddAscensions(a ...*Ascension) *OrderAlignmentUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return oauo.AddServantIDs(ids...)
+	return oauo.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the OrderAlignmentMutation object of the builder.
@@ -305,25 +305,25 @@ func (oauo *OrderAlignmentUpdateOne) Mutation() *OrderAlignmentMutation {
 	return oauo.mutation
 }
 
-// ClearServants clears all "servants" edges to the Servant entity.
-func (oauo *OrderAlignmentUpdateOne) ClearServants() *OrderAlignmentUpdateOne {
-	oauo.mutation.ClearServants()
+// ClearAscensions clears all "ascensions" edges to the Ascension entity.
+func (oauo *OrderAlignmentUpdateOne) ClearAscensions() *OrderAlignmentUpdateOne {
+	oauo.mutation.ClearAscensions()
 	return oauo
 }
 
-// RemoveServantIDs removes the "servants" edge to Servant entities by IDs.
-func (oauo *OrderAlignmentUpdateOne) RemoveServantIDs(ids ...int) *OrderAlignmentUpdateOne {
-	oauo.mutation.RemoveServantIDs(ids...)
+// RemoveAscensionIDs removes the "ascensions" edge to Ascension entities by IDs.
+func (oauo *OrderAlignmentUpdateOne) RemoveAscensionIDs(ids ...int) *OrderAlignmentUpdateOne {
+	oauo.mutation.RemoveAscensionIDs(ids...)
 	return oauo
 }
 
-// RemoveServants removes "servants" edges to Servant entities.
-func (oauo *OrderAlignmentUpdateOne) RemoveServants(s ...*Servant) *OrderAlignmentUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveAscensions removes "ascensions" edges to Ascension entities.
+func (oauo *OrderAlignmentUpdateOne) RemoveAscensions(a ...*Ascension) *OrderAlignmentUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return oauo.RemoveServantIDs(ids...)
+	return oauo.RemoveAscensionIDs(ids...)
 }
 
 // Where appends a list predicates to the OrderAlignmentUpdate builder.
@@ -426,28 +426,28 @@ func (oauo *OrderAlignmentUpdateOne) sqlSave(ctx context.Context) (_node *OrderA
 	if oauo.mutation.NameJaCleared() {
 		_spec.ClearField(orderalignment.FieldNameJa, field.TypeString)
 	}
-	if oauo.mutation.ServantsCleared() {
+	if oauo.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   orderalignment.ServantsTable,
-			Columns: []string{orderalignment.ServantsColumn},
+			Table:   orderalignment.AscensionsTable,
+			Columns: []string{orderalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oauo.mutation.RemovedServantsIDs(); len(nodes) > 0 && !oauo.mutation.ServantsCleared() {
+	if nodes := oauo.mutation.RemovedAscensionsIDs(); len(nodes) > 0 && !oauo.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   orderalignment.ServantsTable,
-			Columns: []string{orderalignment.ServantsColumn},
+			Table:   orderalignment.AscensionsTable,
+			Columns: []string{orderalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -455,15 +455,15 @@ func (oauo *OrderAlignmentUpdateOne) sqlSave(ctx context.Context) (_node *OrderA
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := oauo.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := oauo.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   orderalignment.ServantsTable,
-			Columns: []string{orderalignment.ServantsColumn},
+			Table:   orderalignment.AscensionsTable,
+			Columns: []string{orderalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

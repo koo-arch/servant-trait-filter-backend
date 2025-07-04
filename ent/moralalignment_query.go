@@ -12,19 +12,19 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/predicate"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // MoralAlignmentQuery is the builder for querying MoralAlignment entities.
 type MoralAlignmentQuery struct {
 	config
-	ctx          *QueryContext
-	order        []moralalignment.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.MoralAlignment
-	withServants *ServantQuery
+	ctx            *QueryContext
+	order          []moralalignment.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.MoralAlignment
+	withAscensions *AscensionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,9 +61,9 @@ func (maq *MoralAlignmentQuery) Order(o ...moralalignment.OrderOption) *MoralAli
 	return maq
 }
 
-// QueryServants chains the current query on the "servants" edge.
-func (maq *MoralAlignmentQuery) QueryServants() *ServantQuery {
-	query := (&ServantClient{config: maq.config}).Query()
+// QueryAscensions chains the current query on the "ascensions" edge.
+func (maq *MoralAlignmentQuery) QueryAscensions() *AscensionQuery {
+	query := (&AscensionClient{config: maq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := maq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,8 +74,8 @@ func (maq *MoralAlignmentQuery) QueryServants() *ServantQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(moralalignment.Table, moralalignment.FieldID, selector),
-			sqlgraph.To(servant.Table, servant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, moralalignment.ServantsTable, moralalignment.ServantsColumn),
+			sqlgraph.To(ascension.Table, ascension.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, moralalignment.AscensionsTable, moralalignment.AscensionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(maq.driver.Dialect(), step)
 		return fromU, nil
@@ -270,26 +270,26 @@ func (maq *MoralAlignmentQuery) Clone() *MoralAlignmentQuery {
 		return nil
 	}
 	return &MoralAlignmentQuery{
-		config:       maq.config,
-		ctx:          maq.ctx.Clone(),
-		order:        append([]moralalignment.OrderOption{}, maq.order...),
-		inters:       append([]Interceptor{}, maq.inters...),
-		predicates:   append([]predicate.MoralAlignment{}, maq.predicates...),
-		withServants: maq.withServants.Clone(),
+		config:         maq.config,
+		ctx:            maq.ctx.Clone(),
+		order:          append([]moralalignment.OrderOption{}, maq.order...),
+		inters:         append([]Interceptor{}, maq.inters...),
+		predicates:     append([]predicate.MoralAlignment{}, maq.predicates...),
+		withAscensions: maq.withAscensions.Clone(),
 		// clone intermediate query.
 		sql:  maq.sql.Clone(),
 		path: maq.path,
 	}
 }
 
-// WithServants tells the query-builder to eager-load the nodes that are connected to
-// the "servants" edge. The optional arguments are used to configure the query builder of the edge.
-func (maq *MoralAlignmentQuery) WithServants(opts ...func(*ServantQuery)) *MoralAlignmentQuery {
-	query := (&ServantClient{config: maq.config}).Query()
+// WithAscensions tells the query-builder to eager-load the nodes that are connected to
+// the "ascensions" edge. The optional arguments are used to configure the query builder of the edge.
+func (maq *MoralAlignmentQuery) WithAscensions(opts ...func(*AscensionQuery)) *MoralAlignmentQuery {
+	query := (&AscensionClient{config: maq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	maq.withServants = query
+	maq.withAscensions = query
 	return maq
 }
 
@@ -372,7 +372,7 @@ func (maq *MoralAlignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 		nodes       = []*MoralAlignment{}
 		_spec       = maq.querySpec()
 		loadedTypes = [1]bool{
-			maq.withServants != nil,
+			maq.withAscensions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -393,17 +393,17 @@ func (maq *MoralAlignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := maq.withServants; query != nil {
-		if err := maq.loadServants(ctx, query, nodes,
-			func(n *MoralAlignment) { n.Edges.Servants = []*Servant{} },
-			func(n *MoralAlignment, e *Servant) { n.Edges.Servants = append(n.Edges.Servants, e) }); err != nil {
+	if query := maq.withAscensions; query != nil {
+		if err := maq.loadAscensions(ctx, query, nodes,
+			func(n *MoralAlignment) { n.Edges.Ascensions = []*Ascension{} },
+			func(n *MoralAlignment, e *Ascension) { n.Edges.Ascensions = append(n.Edges.Ascensions, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (maq *MoralAlignmentQuery) loadServants(ctx context.Context, query *ServantQuery, nodes []*MoralAlignment, init func(*MoralAlignment), assign func(*MoralAlignment, *Servant)) error {
+func (maq *MoralAlignmentQuery) loadAscensions(ctx context.Context, query *AscensionQuery, nodes []*MoralAlignment, init func(*MoralAlignment), assign func(*MoralAlignment, *Ascension)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*MoralAlignment)
 	for i := range nodes {
@@ -414,10 +414,10 @@ func (maq *MoralAlignmentQuery) loadServants(ctx context.Context, query *Servant
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(servant.FieldMoralAlignmentID)
+		query.ctx.AppendFieldOnce(ascension.FieldMoralAlignmentID)
 	}
-	query.Where(predicate.Servant(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(moralalignment.ServantsColumn), fks...))
+	query.Where(predicate.Ascension(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(moralalignment.AscensionsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

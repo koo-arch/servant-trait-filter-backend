@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // MoralAlignmentCreate is the builder for creating a MoralAlignment entity.
@@ -77,19 +77,19 @@ func (mac *MoralAlignmentCreate) SetID(i int) *MoralAlignmentCreate {
 	return mac
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (mac *MoralAlignmentCreate) AddServantIDs(ids ...int) *MoralAlignmentCreate {
-	mac.mutation.AddServantIDs(ids...)
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (mac *MoralAlignmentCreate) AddAscensionIDs(ids ...int) *MoralAlignmentCreate {
+	mac.mutation.AddAscensionIDs(ids...)
 	return mac
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (mac *MoralAlignmentCreate) AddServants(s ...*Servant) *MoralAlignmentCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (mac *MoralAlignmentCreate) AddAscensions(a ...*Ascension) *MoralAlignmentCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return mac.AddServantIDs(ids...)
+	return mac.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the MoralAlignmentMutation object of the builder.
@@ -207,15 +207,15 @@ func (mac *MoralAlignmentCreate) createSpec() (*MoralAlignment, *sqlgraph.Create
 		_spec.SetField(moralalignment.FieldNameJa, field.TypeString, value)
 		_node.NameJa = value
 	}
-	if nodes := mac.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := mac.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   moralalignment.ServantsTable,
-			Columns: []string{moralalignment.ServantsColumn},
+			Table:   moralalignment.AscensionsTable,
+			Columns: []string{moralalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -24,7 +24,7 @@ func (OrderAlignment) Fields() []ent.Field {
 // Edges of the OrderAlignment.
 func (OrderAlignment) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("servants", Servant.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
+		edge.To("ascensions", Ascension.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

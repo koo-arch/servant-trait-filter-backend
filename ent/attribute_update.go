@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/predicate"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // AttributeUpdate is the builder for updating Attribute entities.
@@ -69,19 +69,19 @@ func (au *AttributeUpdate) ClearNameJa() *AttributeUpdate {
 	return au
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (au *AttributeUpdate) AddServantIDs(ids ...int) *AttributeUpdate {
-	au.mutation.AddServantIDs(ids...)
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (au *AttributeUpdate) AddAscensionIDs(ids ...int) *AttributeUpdate {
+	au.mutation.AddAscensionIDs(ids...)
 	return au
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (au *AttributeUpdate) AddServants(s ...*Servant) *AttributeUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (au *AttributeUpdate) AddAscensions(a ...*Ascension) *AttributeUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return au.AddServantIDs(ids...)
+	return au.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the AttributeMutation object of the builder.
@@ -89,25 +89,25 @@ func (au *AttributeUpdate) Mutation() *AttributeMutation {
 	return au.mutation
 }
 
-// ClearServants clears all "servants" edges to the Servant entity.
-func (au *AttributeUpdate) ClearServants() *AttributeUpdate {
-	au.mutation.ClearServants()
+// ClearAscensions clears all "ascensions" edges to the Ascension entity.
+func (au *AttributeUpdate) ClearAscensions() *AttributeUpdate {
+	au.mutation.ClearAscensions()
 	return au
 }
 
-// RemoveServantIDs removes the "servants" edge to Servant entities by IDs.
-func (au *AttributeUpdate) RemoveServantIDs(ids ...int) *AttributeUpdate {
-	au.mutation.RemoveServantIDs(ids...)
+// RemoveAscensionIDs removes the "ascensions" edge to Ascension entities by IDs.
+func (au *AttributeUpdate) RemoveAscensionIDs(ids ...int) *AttributeUpdate {
+	au.mutation.RemoveAscensionIDs(ids...)
 	return au
 }
 
-// RemoveServants removes "servants" edges to Servant entities.
-func (au *AttributeUpdate) RemoveServants(s ...*Servant) *AttributeUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveAscensions removes "ascensions" edges to Ascension entities.
+func (au *AttributeUpdate) RemoveAscensions(a ...*Ascension) *AttributeUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return au.RemoveServantIDs(ids...)
+	return au.RemoveAscensionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -180,28 +180,28 @@ func (au *AttributeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if au.mutation.NameJaCleared() {
 		_spec.ClearField(attribute.FieldNameJa, field.TypeString)
 	}
-	if au.mutation.ServantsCleared() {
+	if au.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   attribute.ServantsTable,
-			Columns: []string{attribute.ServantsColumn},
+			Table:   attribute.AscensionsTable,
+			Columns: []string{attribute.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.RemovedServantsIDs(); len(nodes) > 0 && !au.mutation.ServantsCleared() {
+	if nodes := au.mutation.RemovedAscensionsIDs(); len(nodes) > 0 && !au.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   attribute.ServantsTable,
-			Columns: []string{attribute.ServantsColumn},
+			Table:   attribute.AscensionsTable,
+			Columns: []string{attribute.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -209,15 +209,15 @@ func (au *AttributeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := au.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   attribute.ServantsTable,
-			Columns: []string{attribute.ServantsColumn},
+			Table:   attribute.AscensionsTable,
+			Columns: []string{attribute.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -285,19 +285,19 @@ func (auo *AttributeUpdateOne) ClearNameJa() *AttributeUpdateOne {
 	return auo
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (auo *AttributeUpdateOne) AddServantIDs(ids ...int) *AttributeUpdateOne {
-	auo.mutation.AddServantIDs(ids...)
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (auo *AttributeUpdateOne) AddAscensionIDs(ids ...int) *AttributeUpdateOne {
+	auo.mutation.AddAscensionIDs(ids...)
 	return auo
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (auo *AttributeUpdateOne) AddServants(s ...*Servant) *AttributeUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (auo *AttributeUpdateOne) AddAscensions(a ...*Ascension) *AttributeUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return auo.AddServantIDs(ids...)
+	return auo.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the AttributeMutation object of the builder.
@@ -305,25 +305,25 @@ func (auo *AttributeUpdateOne) Mutation() *AttributeMutation {
 	return auo.mutation
 }
 
-// ClearServants clears all "servants" edges to the Servant entity.
-func (auo *AttributeUpdateOne) ClearServants() *AttributeUpdateOne {
-	auo.mutation.ClearServants()
+// ClearAscensions clears all "ascensions" edges to the Ascension entity.
+func (auo *AttributeUpdateOne) ClearAscensions() *AttributeUpdateOne {
+	auo.mutation.ClearAscensions()
 	return auo
 }
 
-// RemoveServantIDs removes the "servants" edge to Servant entities by IDs.
-func (auo *AttributeUpdateOne) RemoveServantIDs(ids ...int) *AttributeUpdateOne {
-	auo.mutation.RemoveServantIDs(ids...)
+// RemoveAscensionIDs removes the "ascensions" edge to Ascension entities by IDs.
+func (auo *AttributeUpdateOne) RemoveAscensionIDs(ids ...int) *AttributeUpdateOne {
+	auo.mutation.RemoveAscensionIDs(ids...)
 	return auo
 }
 
-// RemoveServants removes "servants" edges to Servant entities.
-func (auo *AttributeUpdateOne) RemoveServants(s ...*Servant) *AttributeUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveAscensions removes "ascensions" edges to Ascension entities.
+func (auo *AttributeUpdateOne) RemoveAscensions(a ...*Ascension) *AttributeUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return auo.RemoveServantIDs(ids...)
+	return auo.RemoveAscensionIDs(ids...)
 }
 
 // Where appends a list predicates to the AttributeUpdate builder.
@@ -426,28 +426,28 @@ func (auo *AttributeUpdateOne) sqlSave(ctx context.Context) (_node *Attribute, e
 	if auo.mutation.NameJaCleared() {
 		_spec.ClearField(attribute.FieldNameJa, field.TypeString)
 	}
-	if auo.mutation.ServantsCleared() {
+	if auo.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   attribute.ServantsTable,
-			Columns: []string{attribute.ServantsColumn},
+			Table:   attribute.AscensionsTable,
+			Columns: []string{attribute.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.RemovedServantsIDs(); len(nodes) > 0 && !auo.mutation.ServantsCleared() {
+	if nodes := auo.mutation.RemovedAscensionsIDs(); len(nodes) > 0 && !auo.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   attribute.ServantsTable,
-			Columns: []string{attribute.ServantsColumn},
+			Table:   attribute.AscensionsTable,
+			Columns: []string{attribute.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -455,15 +455,15 @@ func (auo *AttributeUpdateOne) sqlSave(ctx context.Context) (_node *Attribute, e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := auo.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   attribute.ServantsTable,
-			Columns: []string{attribute.ServantsColumn},
+			Table:   attribute.AscensionsTable,
+			Columns: []string{attribute.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

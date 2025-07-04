@@ -24,7 +24,8 @@ func (MoralAlignment) Fields() []ent.Field {
 // Edges of the MoralAlignment.
 func (MoralAlignment) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("servants", Servant.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
+		edge.To("ascensions", Ascension.Type).
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // OrderAlignmentCreate is the builder for creating a OrderAlignment entity.
@@ -77,19 +77,19 @@ func (oac *OrderAlignmentCreate) SetID(i int) *OrderAlignmentCreate {
 	return oac
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (oac *OrderAlignmentCreate) AddServantIDs(ids ...int) *OrderAlignmentCreate {
-	oac.mutation.AddServantIDs(ids...)
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (oac *OrderAlignmentCreate) AddAscensionIDs(ids ...int) *OrderAlignmentCreate {
+	oac.mutation.AddAscensionIDs(ids...)
 	return oac
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (oac *OrderAlignmentCreate) AddServants(s ...*Servant) *OrderAlignmentCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (oac *OrderAlignmentCreate) AddAscensions(a ...*Ascension) *OrderAlignmentCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return oac.AddServantIDs(ids...)
+	return oac.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the OrderAlignmentMutation object of the builder.
@@ -207,15 +207,15 @@ func (oac *OrderAlignmentCreate) createSpec() (*OrderAlignment, *sqlgraph.Create
 		_spec.SetField(orderalignment.FieldNameJa, field.TypeString, value)
 		_node.NameJa = value
 	}
-	if nodes := oac.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := oac.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   orderalignment.ServantsTable,
-			Columns: []string{orderalignment.ServantsColumn},
+			Table:   orderalignment.AscensionsTable,
+			Columns: []string{orderalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

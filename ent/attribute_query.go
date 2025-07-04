@@ -12,19 +12,19 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/predicate"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // AttributeQuery is the builder for querying Attribute entities.
 type AttributeQuery struct {
 	config
-	ctx          *QueryContext
-	order        []attribute.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Attribute
-	withServants *ServantQuery
+	ctx            *QueryContext
+	order          []attribute.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.Attribute
+	withAscensions *AscensionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,9 +61,9 @@ func (aq *AttributeQuery) Order(o ...attribute.OrderOption) *AttributeQuery {
 	return aq
 }
 
-// QueryServants chains the current query on the "servants" edge.
-func (aq *AttributeQuery) QueryServants() *ServantQuery {
-	query := (&ServantClient{config: aq.config}).Query()
+// QueryAscensions chains the current query on the "ascensions" edge.
+func (aq *AttributeQuery) QueryAscensions() *AscensionQuery {
+	query := (&AscensionClient{config: aq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := aq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,8 +74,8 @@ func (aq *AttributeQuery) QueryServants() *ServantQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(attribute.Table, attribute.FieldID, selector),
-			sqlgraph.To(servant.Table, servant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, attribute.ServantsTable, attribute.ServantsColumn),
+			sqlgraph.To(ascension.Table, ascension.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, attribute.AscensionsTable, attribute.AscensionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
 		return fromU, nil
@@ -270,26 +270,26 @@ func (aq *AttributeQuery) Clone() *AttributeQuery {
 		return nil
 	}
 	return &AttributeQuery{
-		config:       aq.config,
-		ctx:          aq.ctx.Clone(),
-		order:        append([]attribute.OrderOption{}, aq.order...),
-		inters:       append([]Interceptor{}, aq.inters...),
-		predicates:   append([]predicate.Attribute{}, aq.predicates...),
-		withServants: aq.withServants.Clone(),
+		config:         aq.config,
+		ctx:            aq.ctx.Clone(),
+		order:          append([]attribute.OrderOption{}, aq.order...),
+		inters:         append([]Interceptor{}, aq.inters...),
+		predicates:     append([]predicate.Attribute{}, aq.predicates...),
+		withAscensions: aq.withAscensions.Clone(),
 		// clone intermediate query.
 		sql:  aq.sql.Clone(),
 		path: aq.path,
 	}
 }
 
-// WithServants tells the query-builder to eager-load the nodes that are connected to
-// the "servants" edge. The optional arguments are used to configure the query builder of the edge.
-func (aq *AttributeQuery) WithServants(opts ...func(*ServantQuery)) *AttributeQuery {
-	query := (&ServantClient{config: aq.config}).Query()
+// WithAscensions tells the query-builder to eager-load the nodes that are connected to
+// the "ascensions" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AttributeQuery) WithAscensions(opts ...func(*AscensionQuery)) *AttributeQuery {
+	query := (&AscensionClient{config: aq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	aq.withServants = query
+	aq.withAscensions = query
 	return aq
 }
 
@@ -372,7 +372,7 @@ func (aq *AttributeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*At
 		nodes       = []*Attribute{}
 		_spec       = aq.querySpec()
 		loadedTypes = [1]bool{
-			aq.withServants != nil,
+			aq.withAscensions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -393,17 +393,17 @@ func (aq *AttributeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*At
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := aq.withServants; query != nil {
-		if err := aq.loadServants(ctx, query, nodes,
-			func(n *Attribute) { n.Edges.Servants = []*Servant{} },
-			func(n *Attribute, e *Servant) { n.Edges.Servants = append(n.Edges.Servants, e) }); err != nil {
+	if query := aq.withAscensions; query != nil {
+		if err := aq.loadAscensions(ctx, query, nodes,
+			func(n *Attribute) { n.Edges.Ascensions = []*Ascension{} },
+			func(n *Attribute, e *Ascension) { n.Edges.Ascensions = append(n.Edges.Ascensions, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (aq *AttributeQuery) loadServants(ctx context.Context, query *ServantQuery, nodes []*Attribute, init func(*Attribute), assign func(*Attribute, *Servant)) error {
+func (aq *AttributeQuery) loadAscensions(ctx context.Context, query *AscensionQuery, nodes []*Attribute, init func(*Attribute), assign func(*Attribute, *Ascension)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Attribute)
 	for i := range nodes {
@@ -414,10 +414,10 @@ func (aq *AttributeQuery) loadServants(ctx context.Context, query *ServantQuery,
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(servant.FieldAttributeID)
+		query.ctx.AppendFieldOnce(ascension.FieldAttributeID)
 	}
-	query.Where(predicate.Servant(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(attribute.ServantsColumn), fks...))
+	query.Where(predicate.Ascension(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(attribute.AscensionsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

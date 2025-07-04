@@ -9,6 +9,18 @@ import (
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 )
 
+// The AscensionFunc type is an adapter to allow the use of ordinary
+// function as Ascension mutator.
+type AscensionFunc func(context.Context, *ent.AscensionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AscensionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AscensionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AscensionMutation", m)
+}
+
 // The AttributeFunc type is an adapter to allow the use of ordinary
 // function as Attribute mutator.
 type AttributeFunc func(context.Context, *ent.AttributeMutation) (ent.Value, error)

@@ -12,19 +12,19 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/predicate"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // OrderAlignmentQuery is the builder for querying OrderAlignment entities.
 type OrderAlignmentQuery struct {
 	config
-	ctx          *QueryContext
-	order        []orderalignment.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.OrderAlignment
-	withServants *ServantQuery
+	ctx            *QueryContext
+	order          []orderalignment.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.OrderAlignment
+	withAscensions *AscensionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,9 +61,9 @@ func (oaq *OrderAlignmentQuery) Order(o ...orderalignment.OrderOption) *OrderAli
 	return oaq
 }
 
-// QueryServants chains the current query on the "servants" edge.
-func (oaq *OrderAlignmentQuery) QueryServants() *ServantQuery {
-	query := (&ServantClient{config: oaq.config}).Query()
+// QueryAscensions chains the current query on the "ascensions" edge.
+func (oaq *OrderAlignmentQuery) QueryAscensions() *AscensionQuery {
+	query := (&AscensionClient{config: oaq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := oaq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,8 +74,8 @@ func (oaq *OrderAlignmentQuery) QueryServants() *ServantQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(orderalignment.Table, orderalignment.FieldID, selector),
-			sqlgraph.To(servant.Table, servant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, orderalignment.ServantsTable, orderalignment.ServantsColumn),
+			sqlgraph.To(ascension.Table, ascension.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, orderalignment.AscensionsTable, orderalignment.AscensionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(oaq.driver.Dialect(), step)
 		return fromU, nil
@@ -270,26 +270,26 @@ func (oaq *OrderAlignmentQuery) Clone() *OrderAlignmentQuery {
 		return nil
 	}
 	return &OrderAlignmentQuery{
-		config:       oaq.config,
-		ctx:          oaq.ctx.Clone(),
-		order:        append([]orderalignment.OrderOption{}, oaq.order...),
-		inters:       append([]Interceptor{}, oaq.inters...),
-		predicates:   append([]predicate.OrderAlignment{}, oaq.predicates...),
-		withServants: oaq.withServants.Clone(),
+		config:         oaq.config,
+		ctx:            oaq.ctx.Clone(),
+		order:          append([]orderalignment.OrderOption{}, oaq.order...),
+		inters:         append([]Interceptor{}, oaq.inters...),
+		predicates:     append([]predicate.OrderAlignment{}, oaq.predicates...),
+		withAscensions: oaq.withAscensions.Clone(),
 		// clone intermediate query.
 		sql:  oaq.sql.Clone(),
 		path: oaq.path,
 	}
 }
 
-// WithServants tells the query-builder to eager-load the nodes that are connected to
-// the "servants" edge. The optional arguments are used to configure the query builder of the edge.
-func (oaq *OrderAlignmentQuery) WithServants(opts ...func(*ServantQuery)) *OrderAlignmentQuery {
-	query := (&ServantClient{config: oaq.config}).Query()
+// WithAscensions tells the query-builder to eager-load the nodes that are connected to
+// the "ascensions" edge. The optional arguments are used to configure the query builder of the edge.
+func (oaq *OrderAlignmentQuery) WithAscensions(opts ...func(*AscensionQuery)) *OrderAlignmentQuery {
+	query := (&AscensionClient{config: oaq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	oaq.withServants = query
+	oaq.withAscensions = query
 	return oaq
 }
 
@@ -372,7 +372,7 @@ func (oaq *OrderAlignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 		nodes       = []*OrderAlignment{}
 		_spec       = oaq.querySpec()
 		loadedTypes = [1]bool{
-			oaq.withServants != nil,
+			oaq.withAscensions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -393,17 +393,17 @@ func (oaq *OrderAlignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := oaq.withServants; query != nil {
-		if err := oaq.loadServants(ctx, query, nodes,
-			func(n *OrderAlignment) { n.Edges.Servants = []*Servant{} },
-			func(n *OrderAlignment, e *Servant) { n.Edges.Servants = append(n.Edges.Servants, e) }); err != nil {
+	if query := oaq.withAscensions; query != nil {
+		if err := oaq.loadAscensions(ctx, query, nodes,
+			func(n *OrderAlignment) { n.Edges.Ascensions = []*Ascension{} },
+			func(n *OrderAlignment, e *Ascension) { n.Edges.Ascensions = append(n.Edges.Ascensions, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (oaq *OrderAlignmentQuery) loadServants(ctx context.Context, query *ServantQuery, nodes []*OrderAlignment, init func(*OrderAlignment), assign func(*OrderAlignment, *Servant)) error {
+func (oaq *OrderAlignmentQuery) loadAscensions(ctx context.Context, query *AscensionQuery, nodes []*OrderAlignment, init func(*OrderAlignment), assign func(*OrderAlignment, *Ascension)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*OrderAlignment)
 	for i := range nodes {
@@ -414,10 +414,10 @@ func (oaq *OrderAlignmentQuery) loadServants(ctx context.Context, query *Servant
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(servant.FieldOrderAlignmentID)
+		query.ctx.AppendFieldOnce(ascension.FieldOrderAlignmentID)
 	}
-	query.Where(predicate.Servant(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(orderalignment.ServantsColumn), fks...))
+	query.Where(predicate.Ascension(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(orderalignment.AscensionsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

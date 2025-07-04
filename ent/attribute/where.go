@@ -295,21 +295,21 @@ func NameJaContainsFold(v string) predicate.Attribute {
 	return predicate.Attribute(sql.FieldContainsFold(FieldNameJa, v))
 }
 
-// HasServants applies the HasEdge predicate on the "servants" edge.
-func HasServants() predicate.Attribute {
+// HasAscensions applies the HasEdge predicate on the "ascensions" edge.
+func HasAscensions() predicate.Attribute {
 	return predicate.Attribute(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ServantsTable, ServantsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, AscensionsTable, AscensionsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasServantsWith applies the HasEdge predicate on the "servants" edge with a given conditions (other predicates).
-func HasServantsWith(preds ...predicate.Servant) predicate.Attribute {
+// HasAscensionsWith applies the HasEdge predicate on the "ascensions" edge with a given conditions (other predicates).
+func HasAscensionsWith(preds ...predicate.Ascension) predicate.Attribute {
 	return predicate.Attribute(func(s *sql.Selector) {
-		step := newServantsStep()
+		step := newAscensionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

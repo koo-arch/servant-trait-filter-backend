@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/class"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
@@ -29,6 +30,7 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
+	TypeAscension      = "Ascension"
 	TypeAttribute      = "Attribute"
 	TypeClass          = "Class"
 	TypeMoralAlignment = "MoralAlignment"
@@ -37,23 +39,961 @@ const (
 	TypeTrait          = "Trait"
 )
 
+// AscensionMutation represents an operation that mutates the Ascension nodes in the graph.
+type AscensionMutation struct {
+	config
+	op                     Op
+	typ                    string
+	id                     *int
+	created_at             *time.Time
+	updated_at             *time.Time
+	stage                  *int
+	addstage               *int
+	clearedFields          map[string]struct{}
+	servant                *int
+	clearedservant         bool
+	attribute              *int
+	clearedattribute       bool
+	order_alignment        *int
+	clearedorder_alignment bool
+	moral_alignment        *int
+	clearedmoral_alignment bool
+	done                   bool
+	oldValue               func(context.Context) (*Ascension, error)
+	predicates             []predicate.Ascension
+}
+
+var _ ent.Mutation = (*AscensionMutation)(nil)
+
+// ascensionOption allows management of the mutation configuration using functional options.
+type ascensionOption func(*AscensionMutation)
+
+// newAscensionMutation creates new mutation for the Ascension entity.
+func newAscensionMutation(c config, op Op, opts ...ascensionOption) *AscensionMutation {
+	m := &AscensionMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeAscension,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withAscensionID sets the ID field of the mutation.
+func withAscensionID(id int) ascensionOption {
+	return func(m *AscensionMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Ascension
+		)
+		m.oldValue = func(ctx context.Context) (*Ascension, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Ascension.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withAscension sets the old Ascension of the mutation.
+func withAscension(node *Ascension) ascensionOption {
+	return func(m *AscensionMutation) {
+		m.oldValue = func(context.Context) (*Ascension, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m AscensionMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m AscensionMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *AscensionMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *AscensionMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Ascension.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *AscensionMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *AscensionMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Ascension entity.
+// If the Ascension object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AscensionMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *AscensionMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *AscensionMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *AscensionMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Ascension entity.
+// If the Ascension object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AscensionMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *AscensionMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetServantID sets the "servant_id" field.
+func (m *AscensionMutation) SetServantID(i int) {
+	m.servant = &i
+}
+
+// ServantID returns the value of the "servant_id" field in the mutation.
+func (m *AscensionMutation) ServantID() (r int, exists bool) {
+	v := m.servant
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldServantID returns the old "servant_id" field's value of the Ascension entity.
+// If the Ascension object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AscensionMutation) OldServantID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldServantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldServantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldServantID: %w", err)
+	}
+	return oldValue.ServantID, nil
+}
+
+// ResetServantID resets all changes to the "servant_id" field.
+func (m *AscensionMutation) ResetServantID() {
+	m.servant = nil
+}
+
+// SetStage sets the "stage" field.
+func (m *AscensionMutation) SetStage(i int) {
+	m.stage = &i
+	m.addstage = nil
+}
+
+// Stage returns the value of the "stage" field in the mutation.
+func (m *AscensionMutation) Stage() (r int, exists bool) {
+	v := m.stage
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStage returns the old "stage" field's value of the Ascension entity.
+// If the Ascension object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AscensionMutation) OldStage(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStage: %w", err)
+	}
+	return oldValue.Stage, nil
+}
+
+// AddStage adds i to the "stage" field.
+func (m *AscensionMutation) AddStage(i int) {
+	if m.addstage != nil {
+		*m.addstage += i
+	} else {
+		m.addstage = &i
+	}
+}
+
+// AddedStage returns the value that was added to the "stage" field in this mutation.
+func (m *AscensionMutation) AddedStage() (r int, exists bool) {
+	v := m.addstage
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetStage resets all changes to the "stage" field.
+func (m *AscensionMutation) ResetStage() {
+	m.stage = nil
+	m.addstage = nil
+}
+
+// SetAttributeID sets the "attribute_id" field.
+func (m *AscensionMutation) SetAttributeID(i int) {
+	m.attribute = &i
+}
+
+// AttributeID returns the value of the "attribute_id" field in the mutation.
+func (m *AscensionMutation) AttributeID() (r int, exists bool) {
+	v := m.attribute
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAttributeID returns the old "attribute_id" field's value of the Ascension entity.
+// If the Ascension object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AscensionMutation) OldAttributeID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAttributeID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAttributeID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAttributeID: %w", err)
+	}
+	return oldValue.AttributeID, nil
+}
+
+// ClearAttributeID clears the value of the "attribute_id" field.
+func (m *AscensionMutation) ClearAttributeID() {
+	m.attribute = nil
+	m.clearedFields[ascension.FieldAttributeID] = struct{}{}
+}
+
+// AttributeIDCleared returns if the "attribute_id" field was cleared in this mutation.
+func (m *AscensionMutation) AttributeIDCleared() bool {
+	_, ok := m.clearedFields[ascension.FieldAttributeID]
+	return ok
+}
+
+// ResetAttributeID resets all changes to the "attribute_id" field.
+func (m *AscensionMutation) ResetAttributeID() {
+	m.attribute = nil
+	delete(m.clearedFields, ascension.FieldAttributeID)
+}
+
+// SetOrderAlignmentID sets the "order_alignment_id" field.
+func (m *AscensionMutation) SetOrderAlignmentID(i int) {
+	m.order_alignment = &i
+}
+
+// OrderAlignmentID returns the value of the "order_alignment_id" field in the mutation.
+func (m *AscensionMutation) OrderAlignmentID() (r int, exists bool) {
+	v := m.order_alignment
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrderAlignmentID returns the old "order_alignment_id" field's value of the Ascension entity.
+// If the Ascension object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AscensionMutation) OldOrderAlignmentID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrderAlignmentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrderAlignmentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrderAlignmentID: %w", err)
+	}
+	return oldValue.OrderAlignmentID, nil
+}
+
+// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
+func (m *AscensionMutation) ClearOrderAlignmentID() {
+	m.order_alignment = nil
+	m.clearedFields[ascension.FieldOrderAlignmentID] = struct{}{}
+}
+
+// OrderAlignmentIDCleared returns if the "order_alignment_id" field was cleared in this mutation.
+func (m *AscensionMutation) OrderAlignmentIDCleared() bool {
+	_, ok := m.clearedFields[ascension.FieldOrderAlignmentID]
+	return ok
+}
+
+// ResetOrderAlignmentID resets all changes to the "order_alignment_id" field.
+func (m *AscensionMutation) ResetOrderAlignmentID() {
+	m.order_alignment = nil
+	delete(m.clearedFields, ascension.FieldOrderAlignmentID)
+}
+
+// SetMoralAlignmentID sets the "moral_alignment_id" field.
+func (m *AscensionMutation) SetMoralAlignmentID(i int) {
+	m.moral_alignment = &i
+}
+
+// MoralAlignmentID returns the value of the "moral_alignment_id" field in the mutation.
+func (m *AscensionMutation) MoralAlignmentID() (r int, exists bool) {
+	v := m.moral_alignment
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMoralAlignmentID returns the old "moral_alignment_id" field's value of the Ascension entity.
+// If the Ascension object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AscensionMutation) OldMoralAlignmentID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMoralAlignmentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMoralAlignmentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMoralAlignmentID: %w", err)
+	}
+	return oldValue.MoralAlignmentID, nil
+}
+
+// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
+func (m *AscensionMutation) ClearMoralAlignmentID() {
+	m.moral_alignment = nil
+	m.clearedFields[ascension.FieldMoralAlignmentID] = struct{}{}
+}
+
+// MoralAlignmentIDCleared returns if the "moral_alignment_id" field was cleared in this mutation.
+func (m *AscensionMutation) MoralAlignmentIDCleared() bool {
+	_, ok := m.clearedFields[ascension.FieldMoralAlignmentID]
+	return ok
+}
+
+// ResetMoralAlignmentID resets all changes to the "moral_alignment_id" field.
+func (m *AscensionMutation) ResetMoralAlignmentID() {
+	m.moral_alignment = nil
+	delete(m.clearedFields, ascension.FieldMoralAlignmentID)
+}
+
+// ClearServant clears the "servant" edge to the Servant entity.
+func (m *AscensionMutation) ClearServant() {
+	m.clearedservant = true
+	m.clearedFields[ascension.FieldServantID] = struct{}{}
+}
+
+// ServantCleared reports if the "servant" edge to the Servant entity was cleared.
+func (m *AscensionMutation) ServantCleared() bool {
+	return m.clearedservant
+}
+
+// ServantIDs returns the "servant" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ServantID instead. It exists only for internal usage by the builders.
+func (m *AscensionMutation) ServantIDs() (ids []int) {
+	if id := m.servant; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetServant resets all changes to the "servant" edge.
+func (m *AscensionMutation) ResetServant() {
+	m.servant = nil
+	m.clearedservant = false
+}
+
+// ClearAttribute clears the "attribute" edge to the Attribute entity.
+func (m *AscensionMutation) ClearAttribute() {
+	m.clearedattribute = true
+	m.clearedFields[ascension.FieldAttributeID] = struct{}{}
+}
+
+// AttributeCleared reports if the "attribute" edge to the Attribute entity was cleared.
+func (m *AscensionMutation) AttributeCleared() bool {
+	return m.AttributeIDCleared() || m.clearedattribute
+}
+
+// AttributeIDs returns the "attribute" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AttributeID instead. It exists only for internal usage by the builders.
+func (m *AscensionMutation) AttributeIDs() (ids []int) {
+	if id := m.attribute; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAttribute resets all changes to the "attribute" edge.
+func (m *AscensionMutation) ResetAttribute() {
+	m.attribute = nil
+	m.clearedattribute = false
+}
+
+// ClearOrderAlignment clears the "order_alignment" edge to the OrderAlignment entity.
+func (m *AscensionMutation) ClearOrderAlignment() {
+	m.clearedorder_alignment = true
+	m.clearedFields[ascension.FieldOrderAlignmentID] = struct{}{}
+}
+
+// OrderAlignmentCleared reports if the "order_alignment" edge to the OrderAlignment entity was cleared.
+func (m *AscensionMutation) OrderAlignmentCleared() bool {
+	return m.OrderAlignmentIDCleared() || m.clearedorder_alignment
+}
+
+// OrderAlignmentIDs returns the "order_alignment" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// OrderAlignmentID instead. It exists only for internal usage by the builders.
+func (m *AscensionMutation) OrderAlignmentIDs() (ids []int) {
+	if id := m.order_alignment; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetOrderAlignment resets all changes to the "order_alignment" edge.
+func (m *AscensionMutation) ResetOrderAlignment() {
+	m.order_alignment = nil
+	m.clearedorder_alignment = false
+}
+
+// ClearMoralAlignment clears the "moral_alignment" edge to the MoralAlignment entity.
+func (m *AscensionMutation) ClearMoralAlignment() {
+	m.clearedmoral_alignment = true
+	m.clearedFields[ascension.FieldMoralAlignmentID] = struct{}{}
+}
+
+// MoralAlignmentCleared reports if the "moral_alignment" edge to the MoralAlignment entity was cleared.
+func (m *AscensionMutation) MoralAlignmentCleared() bool {
+	return m.MoralAlignmentIDCleared() || m.clearedmoral_alignment
+}
+
+// MoralAlignmentIDs returns the "moral_alignment" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// MoralAlignmentID instead. It exists only for internal usage by the builders.
+func (m *AscensionMutation) MoralAlignmentIDs() (ids []int) {
+	if id := m.moral_alignment; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMoralAlignment resets all changes to the "moral_alignment" edge.
+func (m *AscensionMutation) ResetMoralAlignment() {
+	m.moral_alignment = nil
+	m.clearedmoral_alignment = false
+}
+
+// Where appends a list predicates to the AscensionMutation builder.
+func (m *AscensionMutation) Where(ps ...predicate.Ascension) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the AscensionMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *AscensionMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Ascension, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *AscensionMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *AscensionMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Ascension).
+func (m *AscensionMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *AscensionMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.created_at != nil {
+		fields = append(fields, ascension.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, ascension.FieldUpdatedAt)
+	}
+	if m.servant != nil {
+		fields = append(fields, ascension.FieldServantID)
+	}
+	if m.stage != nil {
+		fields = append(fields, ascension.FieldStage)
+	}
+	if m.attribute != nil {
+		fields = append(fields, ascension.FieldAttributeID)
+	}
+	if m.order_alignment != nil {
+		fields = append(fields, ascension.FieldOrderAlignmentID)
+	}
+	if m.moral_alignment != nil {
+		fields = append(fields, ascension.FieldMoralAlignmentID)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *AscensionMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case ascension.FieldCreatedAt:
+		return m.CreatedAt()
+	case ascension.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case ascension.FieldServantID:
+		return m.ServantID()
+	case ascension.FieldStage:
+		return m.Stage()
+	case ascension.FieldAttributeID:
+		return m.AttributeID()
+	case ascension.FieldOrderAlignmentID:
+		return m.OrderAlignmentID()
+	case ascension.FieldMoralAlignmentID:
+		return m.MoralAlignmentID()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *AscensionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case ascension.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case ascension.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case ascension.FieldServantID:
+		return m.OldServantID(ctx)
+	case ascension.FieldStage:
+		return m.OldStage(ctx)
+	case ascension.FieldAttributeID:
+		return m.OldAttributeID(ctx)
+	case ascension.FieldOrderAlignmentID:
+		return m.OldOrderAlignmentID(ctx)
+	case ascension.FieldMoralAlignmentID:
+		return m.OldMoralAlignmentID(ctx)
+	}
+	return nil, fmt.Errorf("unknown Ascension field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AscensionMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case ascension.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case ascension.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case ascension.FieldServantID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetServantID(v)
+		return nil
+	case ascension.FieldStage:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStage(v)
+		return nil
+	case ascension.FieldAttributeID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAttributeID(v)
+		return nil
+	case ascension.FieldOrderAlignmentID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrderAlignmentID(v)
+		return nil
+	case ascension.FieldMoralAlignmentID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMoralAlignmentID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Ascension field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *AscensionMutation) AddedFields() []string {
+	var fields []string
+	if m.addstage != nil {
+		fields = append(fields, ascension.FieldStage)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *AscensionMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case ascension.FieldStage:
+		return m.AddedStage()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AscensionMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case ascension.FieldStage:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddStage(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Ascension numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *AscensionMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(ascension.FieldAttributeID) {
+		fields = append(fields, ascension.FieldAttributeID)
+	}
+	if m.FieldCleared(ascension.FieldOrderAlignmentID) {
+		fields = append(fields, ascension.FieldOrderAlignmentID)
+	}
+	if m.FieldCleared(ascension.FieldMoralAlignmentID) {
+		fields = append(fields, ascension.FieldMoralAlignmentID)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *AscensionMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *AscensionMutation) ClearField(name string) error {
+	switch name {
+	case ascension.FieldAttributeID:
+		m.ClearAttributeID()
+		return nil
+	case ascension.FieldOrderAlignmentID:
+		m.ClearOrderAlignmentID()
+		return nil
+	case ascension.FieldMoralAlignmentID:
+		m.ClearMoralAlignmentID()
+		return nil
+	}
+	return fmt.Errorf("unknown Ascension nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *AscensionMutation) ResetField(name string) error {
+	switch name {
+	case ascension.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case ascension.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case ascension.FieldServantID:
+		m.ResetServantID()
+		return nil
+	case ascension.FieldStage:
+		m.ResetStage()
+		return nil
+	case ascension.FieldAttributeID:
+		m.ResetAttributeID()
+		return nil
+	case ascension.FieldOrderAlignmentID:
+		m.ResetOrderAlignmentID()
+		return nil
+	case ascension.FieldMoralAlignmentID:
+		m.ResetMoralAlignmentID()
+		return nil
+	}
+	return fmt.Errorf("unknown Ascension field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *AscensionMutation) AddedEdges() []string {
+	edges := make([]string, 0, 4)
+	if m.servant != nil {
+		edges = append(edges, ascension.EdgeServant)
+	}
+	if m.attribute != nil {
+		edges = append(edges, ascension.EdgeAttribute)
+	}
+	if m.order_alignment != nil {
+		edges = append(edges, ascension.EdgeOrderAlignment)
+	}
+	if m.moral_alignment != nil {
+		edges = append(edges, ascension.EdgeMoralAlignment)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *AscensionMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case ascension.EdgeServant:
+		if id := m.servant; id != nil {
+			return []ent.Value{*id}
+		}
+	case ascension.EdgeAttribute:
+		if id := m.attribute; id != nil {
+			return []ent.Value{*id}
+		}
+	case ascension.EdgeOrderAlignment:
+		if id := m.order_alignment; id != nil {
+			return []ent.Value{*id}
+		}
+	case ascension.EdgeMoralAlignment:
+		if id := m.moral_alignment; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *AscensionMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 4)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *AscensionMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *AscensionMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 4)
+	if m.clearedservant {
+		edges = append(edges, ascension.EdgeServant)
+	}
+	if m.clearedattribute {
+		edges = append(edges, ascension.EdgeAttribute)
+	}
+	if m.clearedorder_alignment {
+		edges = append(edges, ascension.EdgeOrderAlignment)
+	}
+	if m.clearedmoral_alignment {
+		edges = append(edges, ascension.EdgeMoralAlignment)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *AscensionMutation) EdgeCleared(name string) bool {
+	switch name {
+	case ascension.EdgeServant:
+		return m.clearedservant
+	case ascension.EdgeAttribute:
+		return m.clearedattribute
+	case ascension.EdgeOrderAlignment:
+		return m.clearedorder_alignment
+	case ascension.EdgeMoralAlignment:
+		return m.clearedmoral_alignment
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *AscensionMutation) ClearEdge(name string) error {
+	switch name {
+	case ascension.EdgeServant:
+		m.ClearServant()
+		return nil
+	case ascension.EdgeAttribute:
+		m.ClearAttribute()
+		return nil
+	case ascension.EdgeOrderAlignment:
+		m.ClearOrderAlignment()
+		return nil
+	case ascension.EdgeMoralAlignment:
+		m.ClearMoralAlignment()
+		return nil
+	}
+	return fmt.Errorf("unknown Ascension unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *AscensionMutation) ResetEdge(name string) error {
+	switch name {
+	case ascension.EdgeServant:
+		m.ResetServant()
+		return nil
+	case ascension.EdgeAttribute:
+		m.ResetAttribute()
+		return nil
+	case ascension.EdgeOrderAlignment:
+		m.ResetOrderAlignment()
+		return nil
+	case ascension.EdgeMoralAlignment:
+		m.ResetMoralAlignment()
+		return nil
+	}
+	return fmt.Errorf("unknown Ascension edge %s", name)
+}
+
 // AttributeMutation represents an operation that mutates the Attribute nodes in the graph.
 type AttributeMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	created_at      *time.Time
-	updated_at      *time.Time
-	name_en         *string
-	name_ja         *string
-	clearedFields   map[string]struct{}
-	servants        map[int]struct{}
-	removedservants map[int]struct{}
-	clearedservants bool
-	done            bool
-	oldValue        func(context.Context) (*Attribute, error)
-	predicates      []predicate.Attribute
+	op                Op
+	typ               string
+	id                *int
+	created_at        *time.Time
+	updated_at        *time.Time
+	name_en           *string
+	name_ja           *string
+	clearedFields     map[string]struct{}
+	ascensions        map[int]struct{}
+	removedascensions map[int]struct{}
+	clearedascensions bool
+	done              bool
+	oldValue          func(context.Context) (*Attribute, error)
+	predicates        []predicate.Attribute
 }
 
 var _ ent.Mutation = (*AttributeMutation)(nil)
@@ -317,58 +1257,58 @@ func (m *AttributeMutation) ResetNameJa() {
 	delete(m.clearedFields, attribute.FieldNameJa)
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by ids.
-func (m *AttributeMutation) AddServantIDs(ids ...int) {
-	if m.servants == nil {
-		m.servants = make(map[int]struct{})
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by ids.
+func (m *AttributeMutation) AddAscensionIDs(ids ...int) {
+	if m.ascensions == nil {
+		m.ascensions = make(map[int]struct{})
 	}
 	for i := range ids {
-		m.servants[ids[i]] = struct{}{}
+		m.ascensions[ids[i]] = struct{}{}
 	}
 }
 
-// ClearServants clears the "servants" edge to the Servant entity.
-func (m *AttributeMutation) ClearServants() {
-	m.clearedservants = true
+// ClearAscensions clears the "ascensions" edge to the Ascension entity.
+func (m *AttributeMutation) ClearAscensions() {
+	m.clearedascensions = true
 }
 
-// ServantsCleared reports if the "servants" edge to the Servant entity was cleared.
-func (m *AttributeMutation) ServantsCleared() bool {
-	return m.clearedservants
+// AscensionsCleared reports if the "ascensions" edge to the Ascension entity was cleared.
+func (m *AttributeMutation) AscensionsCleared() bool {
+	return m.clearedascensions
 }
 
-// RemoveServantIDs removes the "servants" edge to the Servant entity by IDs.
-func (m *AttributeMutation) RemoveServantIDs(ids ...int) {
-	if m.removedservants == nil {
-		m.removedservants = make(map[int]struct{})
+// RemoveAscensionIDs removes the "ascensions" edge to the Ascension entity by IDs.
+func (m *AttributeMutation) RemoveAscensionIDs(ids ...int) {
+	if m.removedascensions == nil {
+		m.removedascensions = make(map[int]struct{})
 	}
 	for i := range ids {
-		delete(m.servants, ids[i])
-		m.removedservants[ids[i]] = struct{}{}
+		delete(m.ascensions, ids[i])
+		m.removedascensions[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedServants returns the removed IDs of the "servants" edge to the Servant entity.
-func (m *AttributeMutation) RemovedServantsIDs() (ids []int) {
-	for id := range m.removedservants {
+// RemovedAscensions returns the removed IDs of the "ascensions" edge to the Ascension entity.
+func (m *AttributeMutation) RemovedAscensionsIDs() (ids []int) {
+	for id := range m.removedascensions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ServantsIDs returns the "servants" edge IDs in the mutation.
-func (m *AttributeMutation) ServantsIDs() (ids []int) {
-	for id := range m.servants {
+// AscensionsIDs returns the "ascensions" edge IDs in the mutation.
+func (m *AttributeMutation) AscensionsIDs() (ids []int) {
+	for id := range m.ascensions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetServants resets all changes to the "servants" edge.
-func (m *AttributeMutation) ResetServants() {
-	m.servants = nil
-	m.clearedservants = false
-	m.removedservants = nil
+// ResetAscensions resets all changes to the "ascensions" edge.
+func (m *AttributeMutation) ResetAscensions() {
+	m.ascensions = nil
+	m.clearedascensions = false
+	m.removedascensions = nil
 }
 
 // Where appends a list predicates to the AttributeMutation builder.
@@ -565,8 +1505,8 @@ func (m *AttributeMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AttributeMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.servants != nil {
-		edges = append(edges, attribute.EdgeServants)
+	if m.ascensions != nil {
+		edges = append(edges, attribute.EdgeAscensions)
 	}
 	return edges
 }
@@ -575,9 +1515,9 @@ func (m *AttributeMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *AttributeMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case attribute.EdgeServants:
-		ids := make([]ent.Value, 0, len(m.servants))
-		for id := range m.servants {
+	case attribute.EdgeAscensions:
+		ids := make([]ent.Value, 0, len(m.ascensions))
+		for id := range m.ascensions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -588,8 +1528,8 @@ func (m *AttributeMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AttributeMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedservants != nil {
-		edges = append(edges, attribute.EdgeServants)
+	if m.removedascensions != nil {
+		edges = append(edges, attribute.EdgeAscensions)
 	}
 	return edges
 }
@@ -598,9 +1538,9 @@ func (m *AttributeMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *AttributeMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case attribute.EdgeServants:
-		ids := make([]ent.Value, 0, len(m.removedservants))
-		for id := range m.removedservants {
+	case attribute.EdgeAscensions:
+		ids := make([]ent.Value, 0, len(m.removedascensions))
+		for id := range m.removedascensions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -611,8 +1551,8 @@ func (m *AttributeMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AttributeMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedservants {
-		edges = append(edges, attribute.EdgeServants)
+	if m.clearedascensions {
+		edges = append(edges, attribute.EdgeAscensions)
 	}
 	return edges
 }
@@ -621,8 +1561,8 @@ func (m *AttributeMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *AttributeMutation) EdgeCleared(name string) bool {
 	switch name {
-	case attribute.EdgeServants:
-		return m.clearedservants
+	case attribute.EdgeAscensions:
+		return m.clearedascensions
 	}
 	return false
 }
@@ -639,8 +1579,8 @@ func (m *AttributeMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *AttributeMutation) ResetEdge(name string) error {
 	switch name {
-	case attribute.EdgeServants:
-		m.ResetServants()
+	case attribute.EdgeAscensions:
+		m.ResetAscensions()
 		return nil
 	}
 	return fmt.Errorf("unknown Attribute edge %s", name)
@@ -1258,20 +2198,20 @@ func (m *ClassMutation) ResetEdge(name string) error {
 // MoralAlignmentMutation represents an operation that mutates the MoralAlignment nodes in the graph.
 type MoralAlignmentMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	created_at      *time.Time
-	updated_at      *time.Time
-	name_en         *string
-	name_ja         *string
-	clearedFields   map[string]struct{}
-	servants        map[int]struct{}
-	removedservants map[int]struct{}
-	clearedservants bool
-	done            bool
-	oldValue        func(context.Context) (*MoralAlignment, error)
-	predicates      []predicate.MoralAlignment
+	op                Op
+	typ               string
+	id                *int
+	created_at        *time.Time
+	updated_at        *time.Time
+	name_en           *string
+	name_ja           *string
+	clearedFields     map[string]struct{}
+	ascensions        map[int]struct{}
+	removedascensions map[int]struct{}
+	clearedascensions bool
+	done              bool
+	oldValue          func(context.Context) (*MoralAlignment, error)
+	predicates        []predicate.MoralAlignment
 }
 
 var _ ent.Mutation = (*MoralAlignmentMutation)(nil)
@@ -1535,58 +2475,58 @@ func (m *MoralAlignmentMutation) ResetNameJa() {
 	delete(m.clearedFields, moralalignment.FieldNameJa)
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by ids.
-func (m *MoralAlignmentMutation) AddServantIDs(ids ...int) {
-	if m.servants == nil {
-		m.servants = make(map[int]struct{})
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by ids.
+func (m *MoralAlignmentMutation) AddAscensionIDs(ids ...int) {
+	if m.ascensions == nil {
+		m.ascensions = make(map[int]struct{})
 	}
 	for i := range ids {
-		m.servants[ids[i]] = struct{}{}
+		m.ascensions[ids[i]] = struct{}{}
 	}
 }
 
-// ClearServants clears the "servants" edge to the Servant entity.
-func (m *MoralAlignmentMutation) ClearServants() {
-	m.clearedservants = true
+// ClearAscensions clears the "ascensions" edge to the Ascension entity.
+func (m *MoralAlignmentMutation) ClearAscensions() {
+	m.clearedascensions = true
 }
 
-// ServantsCleared reports if the "servants" edge to the Servant entity was cleared.
-func (m *MoralAlignmentMutation) ServantsCleared() bool {
-	return m.clearedservants
+// AscensionsCleared reports if the "ascensions" edge to the Ascension entity was cleared.
+func (m *MoralAlignmentMutation) AscensionsCleared() bool {
+	return m.clearedascensions
 }
 
-// RemoveServantIDs removes the "servants" edge to the Servant entity by IDs.
-func (m *MoralAlignmentMutation) RemoveServantIDs(ids ...int) {
-	if m.removedservants == nil {
-		m.removedservants = make(map[int]struct{})
+// RemoveAscensionIDs removes the "ascensions" edge to the Ascension entity by IDs.
+func (m *MoralAlignmentMutation) RemoveAscensionIDs(ids ...int) {
+	if m.removedascensions == nil {
+		m.removedascensions = make(map[int]struct{})
 	}
 	for i := range ids {
-		delete(m.servants, ids[i])
-		m.removedservants[ids[i]] = struct{}{}
+		delete(m.ascensions, ids[i])
+		m.removedascensions[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedServants returns the removed IDs of the "servants" edge to the Servant entity.
-func (m *MoralAlignmentMutation) RemovedServantsIDs() (ids []int) {
-	for id := range m.removedservants {
+// RemovedAscensions returns the removed IDs of the "ascensions" edge to the Ascension entity.
+func (m *MoralAlignmentMutation) RemovedAscensionsIDs() (ids []int) {
+	for id := range m.removedascensions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ServantsIDs returns the "servants" edge IDs in the mutation.
-func (m *MoralAlignmentMutation) ServantsIDs() (ids []int) {
-	for id := range m.servants {
+// AscensionsIDs returns the "ascensions" edge IDs in the mutation.
+func (m *MoralAlignmentMutation) AscensionsIDs() (ids []int) {
+	for id := range m.ascensions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetServants resets all changes to the "servants" edge.
-func (m *MoralAlignmentMutation) ResetServants() {
-	m.servants = nil
-	m.clearedservants = false
-	m.removedservants = nil
+// ResetAscensions resets all changes to the "ascensions" edge.
+func (m *MoralAlignmentMutation) ResetAscensions() {
+	m.ascensions = nil
+	m.clearedascensions = false
+	m.removedascensions = nil
 }
 
 // Where appends a list predicates to the MoralAlignmentMutation builder.
@@ -1783,8 +2723,8 @@ func (m *MoralAlignmentMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MoralAlignmentMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.servants != nil {
-		edges = append(edges, moralalignment.EdgeServants)
+	if m.ascensions != nil {
+		edges = append(edges, moralalignment.EdgeAscensions)
 	}
 	return edges
 }
@@ -1793,9 +2733,9 @@ func (m *MoralAlignmentMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *MoralAlignmentMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case moralalignment.EdgeServants:
-		ids := make([]ent.Value, 0, len(m.servants))
-		for id := range m.servants {
+	case moralalignment.EdgeAscensions:
+		ids := make([]ent.Value, 0, len(m.ascensions))
+		for id := range m.ascensions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -1806,8 +2746,8 @@ func (m *MoralAlignmentMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MoralAlignmentMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedservants != nil {
-		edges = append(edges, moralalignment.EdgeServants)
+	if m.removedascensions != nil {
+		edges = append(edges, moralalignment.EdgeAscensions)
 	}
 	return edges
 }
@@ -1816,9 +2756,9 @@ func (m *MoralAlignmentMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *MoralAlignmentMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case moralalignment.EdgeServants:
-		ids := make([]ent.Value, 0, len(m.removedservants))
-		for id := range m.removedservants {
+	case moralalignment.EdgeAscensions:
+		ids := make([]ent.Value, 0, len(m.removedascensions))
+		for id := range m.removedascensions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -1829,8 +2769,8 @@ func (m *MoralAlignmentMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MoralAlignmentMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedservants {
-		edges = append(edges, moralalignment.EdgeServants)
+	if m.clearedascensions {
+		edges = append(edges, moralalignment.EdgeAscensions)
 	}
 	return edges
 }
@@ -1839,8 +2779,8 @@ func (m *MoralAlignmentMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *MoralAlignmentMutation) EdgeCleared(name string) bool {
 	switch name {
-	case moralalignment.EdgeServants:
-		return m.clearedservants
+	case moralalignment.EdgeAscensions:
+		return m.clearedascensions
 	}
 	return false
 }
@@ -1857,8 +2797,8 @@ func (m *MoralAlignmentMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *MoralAlignmentMutation) ResetEdge(name string) error {
 	switch name {
-	case moralalignment.EdgeServants:
-		m.ResetServants()
+	case moralalignment.EdgeAscensions:
+		m.ResetAscensions()
 		return nil
 	}
 	return fmt.Errorf("unknown MoralAlignment edge %s", name)
@@ -1867,20 +2807,20 @@ func (m *MoralAlignmentMutation) ResetEdge(name string) error {
 // OrderAlignmentMutation represents an operation that mutates the OrderAlignment nodes in the graph.
 type OrderAlignmentMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	created_at      *time.Time
-	updated_at      *time.Time
-	name_en         *string
-	name_ja         *string
-	clearedFields   map[string]struct{}
-	servants        map[int]struct{}
-	removedservants map[int]struct{}
-	clearedservants bool
-	done            bool
-	oldValue        func(context.Context) (*OrderAlignment, error)
-	predicates      []predicate.OrderAlignment
+	op                Op
+	typ               string
+	id                *int
+	created_at        *time.Time
+	updated_at        *time.Time
+	name_en           *string
+	name_ja           *string
+	clearedFields     map[string]struct{}
+	ascensions        map[int]struct{}
+	removedascensions map[int]struct{}
+	clearedascensions bool
+	done              bool
+	oldValue          func(context.Context) (*OrderAlignment, error)
+	predicates        []predicate.OrderAlignment
 }
 
 var _ ent.Mutation = (*OrderAlignmentMutation)(nil)
@@ -2144,58 +3084,58 @@ func (m *OrderAlignmentMutation) ResetNameJa() {
 	delete(m.clearedFields, orderalignment.FieldNameJa)
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by ids.
-func (m *OrderAlignmentMutation) AddServantIDs(ids ...int) {
-	if m.servants == nil {
-		m.servants = make(map[int]struct{})
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by ids.
+func (m *OrderAlignmentMutation) AddAscensionIDs(ids ...int) {
+	if m.ascensions == nil {
+		m.ascensions = make(map[int]struct{})
 	}
 	for i := range ids {
-		m.servants[ids[i]] = struct{}{}
+		m.ascensions[ids[i]] = struct{}{}
 	}
 }
 
-// ClearServants clears the "servants" edge to the Servant entity.
-func (m *OrderAlignmentMutation) ClearServants() {
-	m.clearedservants = true
+// ClearAscensions clears the "ascensions" edge to the Ascension entity.
+func (m *OrderAlignmentMutation) ClearAscensions() {
+	m.clearedascensions = true
 }
 
-// ServantsCleared reports if the "servants" edge to the Servant entity was cleared.
-func (m *OrderAlignmentMutation) ServantsCleared() bool {
-	return m.clearedservants
+// AscensionsCleared reports if the "ascensions" edge to the Ascension entity was cleared.
+func (m *OrderAlignmentMutation) AscensionsCleared() bool {
+	return m.clearedascensions
 }
 
-// RemoveServantIDs removes the "servants" edge to the Servant entity by IDs.
-func (m *OrderAlignmentMutation) RemoveServantIDs(ids ...int) {
-	if m.removedservants == nil {
-		m.removedservants = make(map[int]struct{})
+// RemoveAscensionIDs removes the "ascensions" edge to the Ascension entity by IDs.
+func (m *OrderAlignmentMutation) RemoveAscensionIDs(ids ...int) {
+	if m.removedascensions == nil {
+		m.removedascensions = make(map[int]struct{})
 	}
 	for i := range ids {
-		delete(m.servants, ids[i])
-		m.removedservants[ids[i]] = struct{}{}
+		delete(m.ascensions, ids[i])
+		m.removedascensions[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedServants returns the removed IDs of the "servants" edge to the Servant entity.
-func (m *OrderAlignmentMutation) RemovedServantsIDs() (ids []int) {
-	for id := range m.removedservants {
+// RemovedAscensions returns the removed IDs of the "ascensions" edge to the Ascension entity.
+func (m *OrderAlignmentMutation) RemovedAscensionsIDs() (ids []int) {
+	for id := range m.removedascensions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ServantsIDs returns the "servants" edge IDs in the mutation.
-func (m *OrderAlignmentMutation) ServantsIDs() (ids []int) {
-	for id := range m.servants {
+// AscensionsIDs returns the "ascensions" edge IDs in the mutation.
+func (m *OrderAlignmentMutation) AscensionsIDs() (ids []int) {
+	for id := range m.ascensions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetServants resets all changes to the "servants" edge.
-func (m *OrderAlignmentMutation) ResetServants() {
-	m.servants = nil
-	m.clearedservants = false
-	m.removedservants = nil
+// ResetAscensions resets all changes to the "ascensions" edge.
+func (m *OrderAlignmentMutation) ResetAscensions() {
+	m.ascensions = nil
+	m.clearedascensions = false
+	m.removedascensions = nil
 }
 
 // Where appends a list predicates to the OrderAlignmentMutation builder.
@@ -2392,8 +3332,8 @@ func (m *OrderAlignmentMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *OrderAlignmentMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.servants != nil {
-		edges = append(edges, orderalignment.EdgeServants)
+	if m.ascensions != nil {
+		edges = append(edges, orderalignment.EdgeAscensions)
 	}
 	return edges
 }
@@ -2402,9 +3342,9 @@ func (m *OrderAlignmentMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *OrderAlignmentMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case orderalignment.EdgeServants:
-		ids := make([]ent.Value, 0, len(m.servants))
-		for id := range m.servants {
+	case orderalignment.EdgeAscensions:
+		ids := make([]ent.Value, 0, len(m.ascensions))
+		for id := range m.ascensions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2415,8 +3355,8 @@ func (m *OrderAlignmentMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *OrderAlignmentMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedservants != nil {
-		edges = append(edges, orderalignment.EdgeServants)
+	if m.removedascensions != nil {
+		edges = append(edges, orderalignment.EdgeAscensions)
 	}
 	return edges
 }
@@ -2425,9 +3365,9 @@ func (m *OrderAlignmentMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *OrderAlignmentMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case orderalignment.EdgeServants:
-		ids := make([]ent.Value, 0, len(m.removedservants))
-		for id := range m.removedservants {
+	case orderalignment.EdgeAscensions:
+		ids := make([]ent.Value, 0, len(m.removedascensions))
+		for id := range m.removedascensions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2438,8 +3378,8 @@ func (m *OrderAlignmentMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *OrderAlignmentMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedservants {
-		edges = append(edges, orderalignment.EdgeServants)
+	if m.clearedascensions {
+		edges = append(edges, orderalignment.EdgeAscensions)
 	}
 	return edges
 }
@@ -2448,8 +3388,8 @@ func (m *OrderAlignmentMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *OrderAlignmentMutation) EdgeCleared(name string) bool {
 	switch name {
-	case orderalignment.EdgeServants:
-		return m.clearedservants
+	case orderalignment.EdgeAscensions:
+		return m.clearedascensions
 	}
 	return false
 }
@@ -2466,8 +3406,8 @@ func (m *OrderAlignmentMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *OrderAlignmentMutation) ResetEdge(name string) error {
 	switch name {
-	case orderalignment.EdgeServants:
-		m.ResetServants()
+	case orderalignment.EdgeAscensions:
+		m.ResetAscensions()
 		return nil
 	}
 	return fmt.Errorf("unknown OrderAlignment edge %s", name)
@@ -2476,30 +3416,27 @@ func (m *OrderAlignmentMutation) ResetEdge(name string) error {
 // ServantMutation represents an operation that mutates the Servant nodes in the graph.
 type ServantMutation struct {
 	config
-	op                     Op
-	typ                    string
-	id                     *int
-	created_at             *time.Time
-	updated_at             *time.Time
-	collection_no          *int
-	addcollection_no       *int
-	name                   *string
-	face                   *string
-	clearedFields          map[string]struct{}
-	class                  *int
-	clearedclass           bool
-	attribute              *int
-	clearedattribute       bool
-	order_alignment        *int
-	clearedorder_alignment bool
-	moral_alignment        *int
-	clearedmoral_alignment bool
-	traits                 map[int]struct{}
-	removedtraits          map[int]struct{}
-	clearedtraits          bool
-	done                   bool
-	oldValue               func(context.Context) (*Servant, error)
-	predicates             []predicate.Servant
+	op                Op
+	typ               string
+	id                *int
+	created_at        *time.Time
+	updated_at        *time.Time
+	collection_no     *int
+	addcollection_no  *int
+	name              *string
+	face              *string
+	clearedFields     map[string]struct{}
+	class             *int
+	clearedclass      bool
+	traits            map[int]struct{}
+	removedtraits     map[int]struct{}
+	clearedtraits     bool
+	ascensions        map[int]struct{}
+	removedascensions map[int]struct{}
+	clearedascensions bool
+	done              bool
+	oldValue          func(context.Context) (*Servant, error)
+	predicates        []predicate.Servant
 }
 
 var _ ent.Mutation = (*ServantMutation)(nil)
@@ -2842,140 +3779,6 @@ func (m *ServantMutation) ResetClassID() {
 	m.class = nil
 }
 
-// SetAttributeID sets the "attribute_id" field.
-func (m *ServantMutation) SetAttributeID(i int) {
-	m.attribute = &i
-}
-
-// AttributeID returns the value of the "attribute_id" field in the mutation.
-func (m *ServantMutation) AttributeID() (r int, exists bool) {
-	v := m.attribute
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAttributeID returns the old "attribute_id" field's value of the Servant entity.
-// If the Servant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServantMutation) OldAttributeID(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAttributeID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAttributeID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAttributeID: %w", err)
-	}
-	return oldValue.AttributeID, nil
-}
-
-// ResetAttributeID resets all changes to the "attribute_id" field.
-func (m *ServantMutation) ResetAttributeID() {
-	m.attribute = nil
-}
-
-// SetOrderAlignmentID sets the "order_alignment_id" field.
-func (m *ServantMutation) SetOrderAlignmentID(i int) {
-	m.order_alignment = &i
-}
-
-// OrderAlignmentID returns the value of the "order_alignment_id" field in the mutation.
-func (m *ServantMutation) OrderAlignmentID() (r int, exists bool) {
-	v := m.order_alignment
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOrderAlignmentID returns the old "order_alignment_id" field's value of the Servant entity.
-// If the Servant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServantMutation) OldOrderAlignmentID(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOrderAlignmentID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOrderAlignmentID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOrderAlignmentID: %w", err)
-	}
-	return oldValue.OrderAlignmentID, nil
-}
-
-// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
-func (m *ServantMutation) ClearOrderAlignmentID() {
-	m.order_alignment = nil
-	m.clearedFields[servant.FieldOrderAlignmentID] = struct{}{}
-}
-
-// OrderAlignmentIDCleared returns if the "order_alignment_id" field was cleared in this mutation.
-func (m *ServantMutation) OrderAlignmentIDCleared() bool {
-	_, ok := m.clearedFields[servant.FieldOrderAlignmentID]
-	return ok
-}
-
-// ResetOrderAlignmentID resets all changes to the "order_alignment_id" field.
-func (m *ServantMutation) ResetOrderAlignmentID() {
-	m.order_alignment = nil
-	delete(m.clearedFields, servant.FieldOrderAlignmentID)
-}
-
-// SetMoralAlignmentID sets the "moral_alignment_id" field.
-func (m *ServantMutation) SetMoralAlignmentID(i int) {
-	m.moral_alignment = &i
-}
-
-// MoralAlignmentID returns the value of the "moral_alignment_id" field in the mutation.
-func (m *ServantMutation) MoralAlignmentID() (r int, exists bool) {
-	v := m.moral_alignment
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldMoralAlignmentID returns the old "moral_alignment_id" field's value of the Servant entity.
-// If the Servant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServantMutation) OldMoralAlignmentID(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMoralAlignmentID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMoralAlignmentID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMoralAlignmentID: %w", err)
-	}
-	return oldValue.MoralAlignmentID, nil
-}
-
-// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
-func (m *ServantMutation) ClearMoralAlignmentID() {
-	m.moral_alignment = nil
-	m.clearedFields[servant.FieldMoralAlignmentID] = struct{}{}
-}
-
-// MoralAlignmentIDCleared returns if the "moral_alignment_id" field was cleared in this mutation.
-func (m *ServantMutation) MoralAlignmentIDCleared() bool {
-	_, ok := m.clearedFields[servant.FieldMoralAlignmentID]
-	return ok
-}
-
-// ResetMoralAlignmentID resets all changes to the "moral_alignment_id" field.
-func (m *ServantMutation) ResetMoralAlignmentID() {
-	m.moral_alignment = nil
-	delete(m.clearedFields, servant.FieldMoralAlignmentID)
-}
-
 // ClearClass clears the "class" edge to the Class entity.
 func (m *ServantMutation) ClearClass() {
 	m.clearedclass = true
@@ -3001,87 +3804,6 @@ func (m *ServantMutation) ClassIDs() (ids []int) {
 func (m *ServantMutation) ResetClass() {
 	m.class = nil
 	m.clearedclass = false
-}
-
-// ClearAttribute clears the "attribute" edge to the Attribute entity.
-func (m *ServantMutation) ClearAttribute() {
-	m.clearedattribute = true
-	m.clearedFields[servant.FieldAttributeID] = struct{}{}
-}
-
-// AttributeCleared reports if the "attribute" edge to the Attribute entity was cleared.
-func (m *ServantMutation) AttributeCleared() bool {
-	return m.clearedattribute
-}
-
-// AttributeIDs returns the "attribute" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// AttributeID instead. It exists only for internal usage by the builders.
-func (m *ServantMutation) AttributeIDs() (ids []int) {
-	if id := m.attribute; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetAttribute resets all changes to the "attribute" edge.
-func (m *ServantMutation) ResetAttribute() {
-	m.attribute = nil
-	m.clearedattribute = false
-}
-
-// ClearOrderAlignment clears the "order_alignment" edge to the OrderAlignment entity.
-func (m *ServantMutation) ClearOrderAlignment() {
-	m.clearedorder_alignment = true
-	m.clearedFields[servant.FieldOrderAlignmentID] = struct{}{}
-}
-
-// OrderAlignmentCleared reports if the "order_alignment" edge to the OrderAlignment entity was cleared.
-func (m *ServantMutation) OrderAlignmentCleared() bool {
-	return m.OrderAlignmentIDCleared() || m.clearedorder_alignment
-}
-
-// OrderAlignmentIDs returns the "order_alignment" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// OrderAlignmentID instead. It exists only for internal usage by the builders.
-func (m *ServantMutation) OrderAlignmentIDs() (ids []int) {
-	if id := m.order_alignment; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetOrderAlignment resets all changes to the "order_alignment" edge.
-func (m *ServantMutation) ResetOrderAlignment() {
-	m.order_alignment = nil
-	m.clearedorder_alignment = false
-}
-
-// ClearMoralAlignment clears the "moral_alignment" edge to the MoralAlignment entity.
-func (m *ServantMutation) ClearMoralAlignment() {
-	m.clearedmoral_alignment = true
-	m.clearedFields[servant.FieldMoralAlignmentID] = struct{}{}
-}
-
-// MoralAlignmentCleared reports if the "moral_alignment" edge to the MoralAlignment entity was cleared.
-func (m *ServantMutation) MoralAlignmentCleared() bool {
-	return m.MoralAlignmentIDCleared() || m.clearedmoral_alignment
-}
-
-// MoralAlignmentIDs returns the "moral_alignment" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// MoralAlignmentID instead. It exists only for internal usage by the builders.
-func (m *ServantMutation) MoralAlignmentIDs() (ids []int) {
-	if id := m.moral_alignment; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetMoralAlignment resets all changes to the "moral_alignment" edge.
-func (m *ServantMutation) ResetMoralAlignment() {
-	m.moral_alignment = nil
-	m.clearedmoral_alignment = false
 }
 
 // AddTraitIDs adds the "traits" edge to the Trait entity by ids.
@@ -3138,6 +3860,60 @@ func (m *ServantMutation) ResetTraits() {
 	m.removedtraits = nil
 }
 
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by ids.
+func (m *ServantMutation) AddAscensionIDs(ids ...int) {
+	if m.ascensions == nil {
+		m.ascensions = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.ascensions[ids[i]] = struct{}{}
+	}
+}
+
+// ClearAscensions clears the "ascensions" edge to the Ascension entity.
+func (m *ServantMutation) ClearAscensions() {
+	m.clearedascensions = true
+}
+
+// AscensionsCleared reports if the "ascensions" edge to the Ascension entity was cleared.
+func (m *ServantMutation) AscensionsCleared() bool {
+	return m.clearedascensions
+}
+
+// RemoveAscensionIDs removes the "ascensions" edge to the Ascension entity by IDs.
+func (m *ServantMutation) RemoveAscensionIDs(ids ...int) {
+	if m.removedascensions == nil {
+		m.removedascensions = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.ascensions, ids[i])
+		m.removedascensions[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedAscensions returns the removed IDs of the "ascensions" edge to the Ascension entity.
+func (m *ServantMutation) RemovedAscensionsIDs() (ids []int) {
+	for id := range m.removedascensions {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// AscensionsIDs returns the "ascensions" edge IDs in the mutation.
+func (m *ServantMutation) AscensionsIDs() (ids []int) {
+	for id := range m.ascensions {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetAscensions resets all changes to the "ascensions" edge.
+func (m *ServantMutation) ResetAscensions() {
+	m.ascensions = nil
+	m.clearedascensions = false
+	m.removedascensions = nil
+}
+
 // Where appends a list predicates to the ServantMutation builder.
 func (m *ServantMutation) Where(ps ...predicate.Servant) {
 	m.predicates = append(m.predicates, ps...)
@@ -3172,7 +3948,7 @@ func (m *ServantMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServantMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 6)
 	if m.created_at != nil {
 		fields = append(fields, servant.FieldCreatedAt)
 	}
@@ -3190,15 +3966,6 @@ func (m *ServantMutation) Fields() []string {
 	}
 	if m.class != nil {
 		fields = append(fields, servant.FieldClassID)
-	}
-	if m.attribute != nil {
-		fields = append(fields, servant.FieldAttributeID)
-	}
-	if m.order_alignment != nil {
-		fields = append(fields, servant.FieldOrderAlignmentID)
-	}
-	if m.moral_alignment != nil {
-		fields = append(fields, servant.FieldMoralAlignmentID)
 	}
 	return fields
 }
@@ -3220,12 +3987,6 @@ func (m *ServantMutation) Field(name string) (ent.Value, bool) {
 		return m.Face()
 	case servant.FieldClassID:
 		return m.ClassID()
-	case servant.FieldAttributeID:
-		return m.AttributeID()
-	case servant.FieldOrderAlignmentID:
-		return m.OrderAlignmentID()
-	case servant.FieldMoralAlignmentID:
-		return m.MoralAlignmentID()
 	}
 	return nil, false
 }
@@ -3247,12 +4008,6 @@ func (m *ServantMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldFace(ctx)
 	case servant.FieldClassID:
 		return m.OldClassID(ctx)
-	case servant.FieldAttributeID:
-		return m.OldAttributeID(ctx)
-	case servant.FieldOrderAlignmentID:
-		return m.OldOrderAlignmentID(ctx)
-	case servant.FieldMoralAlignmentID:
-		return m.OldMoralAlignmentID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Servant field %s", name)
 }
@@ -3304,27 +4059,6 @@ func (m *ServantMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetClassID(v)
 		return nil
-	case servant.FieldAttributeID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAttributeID(v)
-		return nil
-	case servant.FieldOrderAlignmentID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOrderAlignmentID(v)
-		return nil
-	case servant.FieldMoralAlignmentID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetMoralAlignmentID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Servant field %s", name)
 }
@@ -3369,14 +4103,7 @@ func (m *ServantMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ServantMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(servant.FieldOrderAlignmentID) {
-		fields = append(fields, servant.FieldOrderAlignmentID)
-	}
-	if m.FieldCleared(servant.FieldMoralAlignmentID) {
-		fields = append(fields, servant.FieldMoralAlignmentID)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -3389,14 +4116,6 @@ func (m *ServantMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ServantMutation) ClearField(name string) error {
-	switch name {
-	case servant.FieldOrderAlignmentID:
-		m.ClearOrderAlignmentID()
-		return nil
-	case servant.FieldMoralAlignmentID:
-		m.ClearMoralAlignmentID()
-		return nil
-	}
 	return fmt.Errorf("unknown Servant nullable field %s", name)
 }
 
@@ -3422,36 +4141,21 @@ func (m *ServantMutation) ResetField(name string) error {
 	case servant.FieldClassID:
 		m.ResetClassID()
 		return nil
-	case servant.FieldAttributeID:
-		m.ResetAttributeID()
-		return nil
-	case servant.FieldOrderAlignmentID:
-		m.ResetOrderAlignmentID()
-		return nil
-	case servant.FieldMoralAlignmentID:
-		m.ResetMoralAlignmentID()
-		return nil
 	}
 	return fmt.Errorf("unknown Servant field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ServantMutation) AddedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 3)
 	if m.class != nil {
 		edges = append(edges, servant.EdgeClass)
 	}
-	if m.attribute != nil {
-		edges = append(edges, servant.EdgeAttribute)
-	}
-	if m.order_alignment != nil {
-		edges = append(edges, servant.EdgeOrderAlignment)
-	}
-	if m.moral_alignment != nil {
-		edges = append(edges, servant.EdgeMoralAlignment)
-	}
 	if m.traits != nil {
 		edges = append(edges, servant.EdgeTraits)
+	}
+	if m.ascensions != nil {
+		edges = append(edges, servant.EdgeAscensions)
 	}
 	return edges
 }
@@ -3464,21 +4168,15 @@ func (m *ServantMutation) AddedIDs(name string) []ent.Value {
 		if id := m.class; id != nil {
 			return []ent.Value{*id}
 		}
-	case servant.EdgeAttribute:
-		if id := m.attribute; id != nil {
-			return []ent.Value{*id}
-		}
-	case servant.EdgeOrderAlignment:
-		if id := m.order_alignment; id != nil {
-			return []ent.Value{*id}
-		}
-	case servant.EdgeMoralAlignment:
-		if id := m.moral_alignment; id != nil {
-			return []ent.Value{*id}
-		}
 	case servant.EdgeTraits:
 		ids := make([]ent.Value, 0, len(m.traits))
 		for id := range m.traits {
+			ids = append(ids, id)
+		}
+		return ids
+	case servant.EdgeAscensions:
+		ids := make([]ent.Value, 0, len(m.ascensions))
+		for id := range m.ascensions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -3488,9 +4186,12 @@ func (m *ServantMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ServantMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 3)
 	if m.removedtraits != nil {
 		edges = append(edges, servant.EdgeTraits)
+	}
+	if m.removedascensions != nil {
+		edges = append(edges, servant.EdgeAscensions)
 	}
 	return edges
 }
@@ -3505,27 +4206,27 @@ func (m *ServantMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case servant.EdgeAscensions:
+		ids := make([]ent.Value, 0, len(m.removedascensions))
+		for id := range m.removedascensions {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ServantMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 3)
 	if m.clearedclass {
 		edges = append(edges, servant.EdgeClass)
 	}
-	if m.clearedattribute {
-		edges = append(edges, servant.EdgeAttribute)
-	}
-	if m.clearedorder_alignment {
-		edges = append(edges, servant.EdgeOrderAlignment)
-	}
-	if m.clearedmoral_alignment {
-		edges = append(edges, servant.EdgeMoralAlignment)
-	}
 	if m.clearedtraits {
 		edges = append(edges, servant.EdgeTraits)
+	}
+	if m.clearedascensions {
+		edges = append(edges, servant.EdgeAscensions)
 	}
 	return edges
 }
@@ -3536,14 +4237,10 @@ func (m *ServantMutation) EdgeCleared(name string) bool {
 	switch name {
 	case servant.EdgeClass:
 		return m.clearedclass
-	case servant.EdgeAttribute:
-		return m.clearedattribute
-	case servant.EdgeOrderAlignment:
-		return m.clearedorder_alignment
-	case servant.EdgeMoralAlignment:
-		return m.clearedmoral_alignment
 	case servant.EdgeTraits:
 		return m.clearedtraits
+	case servant.EdgeAscensions:
+		return m.clearedascensions
 	}
 	return false
 }
@@ -3554,15 +4251,6 @@ func (m *ServantMutation) ClearEdge(name string) error {
 	switch name {
 	case servant.EdgeClass:
 		m.ClearClass()
-		return nil
-	case servant.EdgeAttribute:
-		m.ClearAttribute()
-		return nil
-	case servant.EdgeOrderAlignment:
-		m.ClearOrderAlignment()
-		return nil
-	case servant.EdgeMoralAlignment:
-		m.ClearMoralAlignment()
 		return nil
 	}
 	return fmt.Errorf("unknown Servant unique edge %s", name)
@@ -3575,17 +4263,11 @@ func (m *ServantMutation) ResetEdge(name string) error {
 	case servant.EdgeClass:
 		m.ResetClass()
 		return nil
-	case servant.EdgeAttribute:
-		m.ResetAttribute()
-		return nil
-	case servant.EdgeOrderAlignment:
-		m.ResetOrderAlignment()
-		return nil
-	case servant.EdgeMoralAlignment:
-		m.ResetMoralAlignment()
-		return nil
 	case servant.EdgeTraits:
 		m.ResetTraits()
+		return nil
+	case servant.EdgeAscensions:
+		m.ResetAscensions()
 		return nil
 	}
 	return fmt.Errorf("unknown Servant edge %s", name)
