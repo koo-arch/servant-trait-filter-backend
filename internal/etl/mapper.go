@@ -30,50 +30,46 @@ func (s *SyncAtlas) extractClass(atlasData []atlas.Servant) []model.Class {
 	return classes
 }
 
-func (s *SyncAtlas) extractPlayableServants(atlasData []atlas.Servant) []model.Servant {
+func (s *SyncAtlas) extractPlayable(atlasData []atlas.Servant) ([]model.Servant, []model.Ascension) {
 	servants := make([]model.Servant, 0)
+	ascensions := make([]model.Ascension, 0)
 	for _, servant := range atlasData {
 		if servant.Type != EnemyCollectionDetail {
-			servants = append(servants, s.toModelServant(servant))
+			svt, asc := s.buildServantAndAsc(servant)
+			servants = append(servants, svt)
+			ascensions = append(ascensions, asc)
 		}
 	}
 
 	sort.Slice(servants, func(i, j int) bool {
 		return servants[i].ID < servants[j].ID
 	})
-	return servants
+	sort.Slice(ascensions, func(i, j int) bool {
+		return ascensions[i].ServantID < ascensions[j].ServantID
+	})
+	return servants, ascensions
 }
 
-func (s *SyncAtlas) toModelServant(servant atlas.Servant) model.Servant {
-	var orderID, moralID, attrID int
-	traitIDs := make([]int, 0)
-	for _, trait := range servant.Traits {
-		if trait.ID == 0 || trait.Name == UnknownTrait {
-			continue
-		}
-		switch classifyTrait(trait.ID) {
-		case TraitAttribute:
-			attrID = trait.ID
-		case TraitOrderAlign:
-			orderID = trait.ID
-		case TraitMoralAlign:
-			moralID = trait.ID
-		default:
-			traitIDs = append(traitIDs, trait.ID)
-		}
+func (s *SyncAtlas) buildServantAndAsc(servant atlas.Servant) (model.Servant, model.Ascension) {
+	p := parseTraits(servant.Traits)
+
+	svt := model.Servant{
+		ID:           servant.ID,
+		CollectionNo: servant.CollectionNo,
+		Name:         servant.Name,
+		Face:         servant.Face,
+		ClassID:      servant.ClassID,
+		Traits:       p.others,
 	}
 
-	return model.Servant{
-		ID:               servant.ID,
-		CollectionNo:     servant.CollectionNo,
-		Name:             servant.Name,
-		Face:             servant.Face,
-		ClassID:          servant.ClassID,
-		OrderAlignmentID: orderID,
-		MoralAlignmentID: moralID,
-		AttributeID:      attrID,
-		Traits:           traitIDs,
+	asc := model.Ascension{
+		ServantID: 		  servant.ID,
+		Stage:	          1,
+		AttributeID:      p.attr,
+		MoralAlignmentID: p.moral,
+		OrderAlignmentID: p.order,
 	}
+	return svt, asc
 }
 
 func (s *SyncAtlas) extractMetaFromTraits(traits []model.Trait) ([]model.Attribute, []model.OrderAlignment, []model.MoralAlignment) {
