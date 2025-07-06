@@ -10,6 +10,7 @@ import (
 )
 
 type ServantRepository interface {
+	Get(ctx context.Context, id int) (*ent.Servant, error)
 	ListAll(ctx context.Context) ([]*ent.Servant, error)
 	UpsertBulk(ctx context.Context, servants []model.Servant) error
 	WithTx(tx *ent.Tx) ServantRepository
@@ -29,6 +30,13 @@ func (r *ServantRepositoryImpl) WithTx(tx *ent.Tx) ServantRepository {
 	return &ServantRepositoryImpl{
 		client: tx.Client(),
 	}
+}
+
+func (r *ServantRepositoryImpl) Get(ctx context.Context, id int) (*ent.Servant, error) {
+	return r.client.Servant.Query().
+		Where(servant.ID(id)).
+		WithTraits().
+		Only(ctx)
 }
 
 func (r *ServantRepositoryImpl) ListAll(ctx context.Context) ([]*ent.Servant, error) {
@@ -55,14 +63,7 @@ func (r *ServantRepositoryImpl) UpsertBulk(ctx context.Context, servants []model
 				SetName(svt.Name).
 				SetCollectionNo(svt.CollectionNo).
 				SetFace(svt.Face).
-				SetClassID(svt.ClassID).
-				SetAttributeID(svt.AttributeID)
-			if svt.MoralAlignmentID > 0 {
-				builder.SetMoralAlignmentID(svt.MoralAlignmentID)
-			}
-			if svt.OrderAlignmentID > 0 {
-				builder.SetOrderAlignmentID(svt.OrderAlignmentID)
-			}
+				SetClassID(svt.ClassID)
 			builders = append(builders, builder)
 			}
 		if len(builders) == 0 {
