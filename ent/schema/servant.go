@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/edge"
 
@@ -21,9 +22,6 @@ func (Servant) Fields() []ent.Field {
 		field.String("name").NotEmpty(),
 		field.String("face").NotEmpty(),
 		field.Int("class_id").Positive(),
-		field.Int("attribute_id").Positive(),
-		field.Int("order_alignment_id").Positive().Optional(),
-		field.Int("moral_alignment_id").Positive().Optional(),
 	}
 }
 
@@ -35,20 +33,9 @@ func (Servant) Edges() []ent.Edge {
 			Field("class_id").
 			Unique().
 			Required(),
-		edge.From("attribute", Attribute.Type).
-			Ref("servants").
-			Field("attribute_id").
-			Unique().
-			Required(),
-		edge.From("order_alignment", OrderAlignment.Type).
-			Ref("servants").
-			Field("order_alignment_id").
-			Unique(),
-		edge.From("moral_alignment", MoralAlignment.Type).
-			Ref("servants").
-			Field("moral_alignment_id").
-			Unique(),
 		edge.From("traits", Trait.Type).Ref("servants"),
+		edge.To("ascensions", Ascension.Type).
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

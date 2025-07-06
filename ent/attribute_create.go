@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // AttributeCreate is the builder for creating a Attribute entity.
@@ -63,25 +63,33 @@ func (ac *AttributeCreate) SetNameJa(s string) *AttributeCreate {
 	return ac
 }
 
+// SetNillableNameJa sets the "name_ja" field if the given value is not nil.
+func (ac *AttributeCreate) SetNillableNameJa(s *string) *AttributeCreate {
+	if s != nil {
+		ac.SetNameJa(*s)
+	}
+	return ac
+}
+
 // SetID sets the "id" field.
 func (ac *AttributeCreate) SetID(i int) *AttributeCreate {
 	ac.mutation.SetID(i)
 	return ac
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (ac *AttributeCreate) AddServantIDs(ids ...int) *AttributeCreate {
-	ac.mutation.AddServantIDs(ids...)
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (ac *AttributeCreate) AddAscensionIDs(ids ...int) *AttributeCreate {
+	ac.mutation.AddAscensionIDs(ids...)
 	return ac
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (ac *AttributeCreate) AddServants(s ...*Servant) *AttributeCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (ac *AttributeCreate) AddAscensions(a ...*Ascension) *AttributeCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return ac.AddServantIDs(ids...)
+	return ac.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the AttributeMutation object of the builder.
@@ -145,9 +153,6 @@ func (ac *AttributeCreate) check() error {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "Attribute.name_en": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.NameJa(); !ok {
-		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "Attribute.name_ja"`)}
-	}
 	if v, ok := ac.mutation.ID(); ok {
 		if err := attribute.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Attribute.id": %w`, err)}
@@ -202,15 +207,15 @@ func (ac *AttributeCreate) createSpec() (*Attribute, *sqlgraph.CreateSpec) {
 		_spec.SetField(attribute.FieldNameJa, field.TypeString, value)
 		_node.NameJa = value
 	}
-	if nodes := ac.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := ac.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   attribute.ServantsTable,
-			Columns: []string{attribute.ServantsColumn},
+			Table:   attribute.AscensionsTable,
+			Columns: []string{attribute.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -306,6 +311,12 @@ func (u *AttributeUpsert) UpdateNameJa() *AttributeUpsert {
 	return u
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *AttributeUpsert) ClearNameJa() *AttributeUpsert {
+	u.SetNull(attribute.FieldNameJa)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -396,6 +407,13 @@ func (u *AttributeUpsertOne) SetNameJa(v string) *AttributeUpsertOne {
 func (u *AttributeUpsertOne) UpdateNameJa() *AttributeUpsertOne {
 	return u.Update(func(s *AttributeUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *AttributeUpsertOne) ClearNameJa() *AttributeUpsertOne {
+	return u.Update(func(s *AttributeUpsert) {
+		s.ClearNameJa()
 	})
 }
 
@@ -655,6 +673,13 @@ func (u *AttributeUpsertBulk) SetNameJa(v string) *AttributeUpsertBulk {
 func (u *AttributeUpsertBulk) UpdateNameJa() *AttributeUpsertBulk {
 	return u.Update(func(s *AttributeUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *AttributeUpsertBulk) ClearNameJa() *AttributeUpsertBulk {
+	return u.Update(func(s *AttributeUpsert) {
+		s.ClearNameJa()
 	})
 }
 

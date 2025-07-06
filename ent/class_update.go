@@ -63,6 +63,12 @@ func (cu *ClassUpdate) SetNillableNameJa(s *string) *ClassUpdate {
 	return cu
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (cu *ClassUpdate) ClearNameJa() *ClassUpdate {
+	cu.mutation.ClearNameJa()
+	return cu
+}
+
 // AddServantIDs adds the "servants" edge to the Servant entity by IDs.
 func (cu *ClassUpdate) AddServantIDs(ids ...int) *ClassUpdate {
 	cu.mutation.AddServantIDs(ids...)
@@ -171,6 +177,9 @@ func (cu *ClassUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.NameJa(); ok {
 		_spec.SetField(class.FieldNameJa, field.TypeString, value)
 	}
+	if cu.mutation.NameJaCleared() {
+		_spec.ClearField(class.FieldNameJa, field.TypeString)
+	}
 	if cu.mutation.ServantsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -267,6 +276,12 @@ func (cuo *ClassUpdateOne) SetNillableNameJa(s *string) *ClassUpdateOne {
 	if s != nil {
 		cuo.SetNameJa(*s)
 	}
+	return cuo
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (cuo *ClassUpdateOne) ClearNameJa() *ClassUpdateOne {
+	cuo.mutation.ClearNameJa()
 	return cuo
 }
 
@@ -407,6 +422,9 @@ func (cuo *ClassUpdateOne) sqlSave(ctx context.Context) (_node *Class, err error
 	}
 	if value, ok := cuo.mutation.NameJa(); ok {
 		_spec.SetField(class.FieldNameJa, field.TypeString, value)
+	}
+	if cuo.mutation.NameJaCleared() {
+		_spec.ClearField(class.FieldNameJa, field.TypeString)
 	}
 	if cuo.mutation.ServantsCleared() {
 		edge := &sqlgraph.EdgeSpec{

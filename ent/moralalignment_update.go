@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/predicate"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // MoralAlignmentUpdate is the builder for updating MoralAlignment entities.
@@ -63,19 +63,25 @@ func (mau *MoralAlignmentUpdate) SetNillableNameJa(s *string) *MoralAlignmentUpd
 	return mau
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (mau *MoralAlignmentUpdate) AddServantIDs(ids ...int) *MoralAlignmentUpdate {
-	mau.mutation.AddServantIDs(ids...)
+// ClearNameJa clears the value of the "name_ja" field.
+func (mau *MoralAlignmentUpdate) ClearNameJa() *MoralAlignmentUpdate {
+	mau.mutation.ClearNameJa()
 	return mau
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (mau *MoralAlignmentUpdate) AddServants(s ...*Servant) *MoralAlignmentUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (mau *MoralAlignmentUpdate) AddAscensionIDs(ids ...int) *MoralAlignmentUpdate {
+	mau.mutation.AddAscensionIDs(ids...)
+	return mau
+}
+
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (mau *MoralAlignmentUpdate) AddAscensions(a ...*Ascension) *MoralAlignmentUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return mau.AddServantIDs(ids...)
+	return mau.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the MoralAlignmentMutation object of the builder.
@@ -83,25 +89,25 @@ func (mau *MoralAlignmentUpdate) Mutation() *MoralAlignmentMutation {
 	return mau.mutation
 }
 
-// ClearServants clears all "servants" edges to the Servant entity.
-func (mau *MoralAlignmentUpdate) ClearServants() *MoralAlignmentUpdate {
-	mau.mutation.ClearServants()
+// ClearAscensions clears all "ascensions" edges to the Ascension entity.
+func (mau *MoralAlignmentUpdate) ClearAscensions() *MoralAlignmentUpdate {
+	mau.mutation.ClearAscensions()
 	return mau
 }
 
-// RemoveServantIDs removes the "servants" edge to Servant entities by IDs.
-func (mau *MoralAlignmentUpdate) RemoveServantIDs(ids ...int) *MoralAlignmentUpdate {
-	mau.mutation.RemoveServantIDs(ids...)
+// RemoveAscensionIDs removes the "ascensions" edge to Ascension entities by IDs.
+func (mau *MoralAlignmentUpdate) RemoveAscensionIDs(ids ...int) *MoralAlignmentUpdate {
+	mau.mutation.RemoveAscensionIDs(ids...)
 	return mau
 }
 
-// RemoveServants removes "servants" edges to Servant entities.
-func (mau *MoralAlignmentUpdate) RemoveServants(s ...*Servant) *MoralAlignmentUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveAscensions removes "ascensions" edges to Ascension entities.
+func (mau *MoralAlignmentUpdate) RemoveAscensions(a ...*Ascension) *MoralAlignmentUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return mau.RemoveServantIDs(ids...)
+	return mau.RemoveAscensionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -171,28 +177,31 @@ func (mau *MoralAlignmentUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if value, ok := mau.mutation.NameJa(); ok {
 		_spec.SetField(moralalignment.FieldNameJa, field.TypeString, value)
 	}
-	if mau.mutation.ServantsCleared() {
+	if mau.mutation.NameJaCleared() {
+		_spec.ClearField(moralalignment.FieldNameJa, field.TypeString)
+	}
+	if mau.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   moralalignment.ServantsTable,
-			Columns: []string{moralalignment.ServantsColumn},
+			Table:   moralalignment.AscensionsTable,
+			Columns: []string{moralalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mau.mutation.RemovedServantsIDs(); len(nodes) > 0 && !mau.mutation.ServantsCleared() {
+	if nodes := mau.mutation.RemovedAscensionsIDs(); len(nodes) > 0 && !mau.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   moralalignment.ServantsTable,
-			Columns: []string{moralalignment.ServantsColumn},
+			Table:   moralalignment.AscensionsTable,
+			Columns: []string{moralalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -200,15 +209,15 @@ func (mau *MoralAlignmentUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mau.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := mau.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   moralalignment.ServantsTable,
-			Columns: []string{moralalignment.ServantsColumn},
+			Table:   moralalignment.AscensionsTable,
+			Columns: []string{moralalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -270,19 +279,25 @@ func (mauo *MoralAlignmentUpdateOne) SetNillableNameJa(s *string) *MoralAlignmen
 	return mauo
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (mauo *MoralAlignmentUpdateOne) AddServantIDs(ids ...int) *MoralAlignmentUpdateOne {
-	mauo.mutation.AddServantIDs(ids...)
+// ClearNameJa clears the value of the "name_ja" field.
+func (mauo *MoralAlignmentUpdateOne) ClearNameJa() *MoralAlignmentUpdateOne {
+	mauo.mutation.ClearNameJa()
 	return mauo
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (mauo *MoralAlignmentUpdateOne) AddServants(s ...*Servant) *MoralAlignmentUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (mauo *MoralAlignmentUpdateOne) AddAscensionIDs(ids ...int) *MoralAlignmentUpdateOne {
+	mauo.mutation.AddAscensionIDs(ids...)
+	return mauo
+}
+
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (mauo *MoralAlignmentUpdateOne) AddAscensions(a ...*Ascension) *MoralAlignmentUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return mauo.AddServantIDs(ids...)
+	return mauo.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the MoralAlignmentMutation object of the builder.
@@ -290,25 +305,25 @@ func (mauo *MoralAlignmentUpdateOne) Mutation() *MoralAlignmentMutation {
 	return mauo.mutation
 }
 
-// ClearServants clears all "servants" edges to the Servant entity.
-func (mauo *MoralAlignmentUpdateOne) ClearServants() *MoralAlignmentUpdateOne {
-	mauo.mutation.ClearServants()
+// ClearAscensions clears all "ascensions" edges to the Ascension entity.
+func (mauo *MoralAlignmentUpdateOne) ClearAscensions() *MoralAlignmentUpdateOne {
+	mauo.mutation.ClearAscensions()
 	return mauo
 }
 
-// RemoveServantIDs removes the "servants" edge to Servant entities by IDs.
-func (mauo *MoralAlignmentUpdateOne) RemoveServantIDs(ids ...int) *MoralAlignmentUpdateOne {
-	mauo.mutation.RemoveServantIDs(ids...)
+// RemoveAscensionIDs removes the "ascensions" edge to Ascension entities by IDs.
+func (mauo *MoralAlignmentUpdateOne) RemoveAscensionIDs(ids ...int) *MoralAlignmentUpdateOne {
+	mauo.mutation.RemoveAscensionIDs(ids...)
 	return mauo
 }
 
-// RemoveServants removes "servants" edges to Servant entities.
-func (mauo *MoralAlignmentUpdateOne) RemoveServants(s ...*Servant) *MoralAlignmentUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveAscensions removes "ascensions" edges to Ascension entities.
+func (mauo *MoralAlignmentUpdateOne) RemoveAscensions(a ...*Ascension) *MoralAlignmentUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return mauo.RemoveServantIDs(ids...)
+	return mauo.RemoveAscensionIDs(ids...)
 }
 
 // Where appends a list predicates to the MoralAlignmentUpdate builder.
@@ -408,28 +423,31 @@ func (mauo *MoralAlignmentUpdateOne) sqlSave(ctx context.Context) (_node *MoralA
 	if value, ok := mauo.mutation.NameJa(); ok {
 		_spec.SetField(moralalignment.FieldNameJa, field.TypeString, value)
 	}
-	if mauo.mutation.ServantsCleared() {
+	if mauo.mutation.NameJaCleared() {
+		_spec.ClearField(moralalignment.FieldNameJa, field.TypeString)
+	}
+	if mauo.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   moralalignment.ServantsTable,
-			Columns: []string{moralalignment.ServantsColumn},
+			Table:   moralalignment.AscensionsTable,
+			Columns: []string{moralalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mauo.mutation.RemovedServantsIDs(); len(nodes) > 0 && !mauo.mutation.ServantsCleared() {
+	if nodes := mauo.mutation.RemovedAscensionsIDs(); len(nodes) > 0 && !mauo.mutation.AscensionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   moralalignment.ServantsTable,
-			Columns: []string{moralalignment.ServantsColumn},
+			Table:   moralalignment.AscensionsTable,
+			Columns: []string{moralalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -437,15 +455,15 @@ func (mauo *MoralAlignmentUpdateOne) sqlSave(ctx context.Context) (_node *MoralA
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mauo.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := mauo.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   moralalignment.ServantsTable,
-			Columns: []string{moralalignment.ServantsColumn},
+			Table:   moralalignment.AscensionsTable,
+			Columns: []string{moralalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

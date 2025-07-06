@@ -8,13 +8,63 @@ import (
 )
 
 var (
+	// AscensionsColumns holds the columns for the "ascensions" table.
+	AscensionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "stage", Type: field.TypeInt},
+		{Name: "attribute_id", Type: field.TypeInt, Nullable: true},
+		{Name: "moral_alignment_id", Type: field.TypeInt, Nullable: true},
+		{Name: "order_alignment_id", Type: field.TypeInt, Nullable: true},
+		{Name: "servant_id", Type: field.TypeInt},
+	}
+	// AscensionsTable holds the schema information for the "ascensions" table.
+	AscensionsTable = &schema.Table{
+		Name:       "ascensions",
+		Columns:    AscensionsColumns,
+		PrimaryKey: []*schema.Column{AscensionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "ascensions_attributes_ascensions",
+				Columns:    []*schema.Column{AscensionsColumns[4]},
+				RefColumns: []*schema.Column{AttributesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "ascensions_moral_alignments_ascensions",
+				Columns:    []*schema.Column{AscensionsColumns[5]},
+				RefColumns: []*schema.Column{MoralAlignmentsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "ascensions_order_alignments_ascensions",
+				Columns:    []*schema.Column{AscensionsColumns[6]},
+				RefColumns: []*schema.Column{OrderAlignmentsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "ascensions_servants_ascensions",
+				Columns:    []*schema.Column{AscensionsColumns[7]},
+				RefColumns: []*schema.Column{ServantsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "ascension_servant_id_stage",
+				Unique:  true,
+				Columns: []*schema.Column{AscensionsColumns[7], AscensionsColumns[3]},
+			},
+		},
+	}
 	// AttributesColumns holds the columns for the "attributes" table.
 	AttributesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// AttributesTable holds the schema information for the "attributes" table.
 	AttributesTable = &schema.Table{
@@ -28,7 +78,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// ClassesTable holds the schema information for the "classes" table.
 	ClassesTable = &schema.Table{
@@ -42,7 +92,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// MoralAlignmentsTable holds the schema information for the "moral_alignments" table.
 	MoralAlignmentsTable = &schema.Table{
@@ -56,7 +106,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// OrderAlignmentsTable holds the schema information for the "order_alignments" table.
 	OrderAlignmentsTable = &schema.Table{
@@ -72,10 +122,7 @@ var (
 		{Name: "collection_no", Type: field.TypeInt, Unique: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "face", Type: field.TypeString},
-		{Name: "attribute_id", Type: field.TypeInt},
 		{Name: "class_id", Type: field.TypeInt},
-		{Name: "moral_alignment_id", Type: field.TypeInt, Nullable: true},
-		{Name: "order_alignment_id", Type: field.TypeInt, Nullable: true},
 	}
 	// ServantsTable holds the schema information for the "servants" table.
 	ServantsTable = &schema.Table{
@@ -84,27 +131,9 @@ var (
 		PrimaryKey: []*schema.Column{ServantsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "servants_attributes_servants",
-				Columns:    []*schema.Column{ServantsColumns[6]},
-				RefColumns: []*schema.Column{AttributesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
 				Symbol:     "servants_classes_servants",
-				Columns:    []*schema.Column{ServantsColumns[7]},
+				Columns:    []*schema.Column{ServantsColumns[6]},
 				RefColumns: []*schema.Column{ClassesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "servants_moral_alignments_servants",
-				Columns:    []*schema.Column{ServantsColumns[8]},
-				RefColumns: []*schema.Column{MoralAlignmentsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "servants_order_alignments_servants",
-				Columns:    []*schema.Column{ServantsColumns[9]},
-				RefColumns: []*schema.Column{OrderAlignmentsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
@@ -115,7 +144,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name_en", Type: field.TypeString},
-		{Name: "name_ja", Type: field.TypeString},
+		{Name: "name_ja", Type: field.TypeString, Nullable: true},
 	}
 	// TraitsTable holds the schema information for the "traits" table.
 	TraitsTable = &schema.Table{
@@ -150,6 +179,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AscensionsTable,
 		AttributesTable,
 		ClassesTable,
 		MoralAlignmentsTable,
@@ -161,10 +191,11 @@ var (
 )
 
 func init() {
-	ServantsTable.ForeignKeys[0].RefTable = AttributesTable
-	ServantsTable.ForeignKeys[1].RefTable = ClassesTable
-	ServantsTable.ForeignKeys[2].RefTable = MoralAlignmentsTable
-	ServantsTable.ForeignKeys[3].RefTable = OrderAlignmentsTable
+	AscensionsTable.ForeignKeys[0].RefTable = AttributesTable
+	AscensionsTable.ForeignKeys[1].RefTable = MoralAlignmentsTable
+	AscensionsTable.ForeignKeys[2].RefTable = OrderAlignmentsTable
+	AscensionsTable.ForeignKeys[3].RefTable = ServantsTable
+	ServantsTable.ForeignKeys[0].RefTable = ClassesTable
 	TraitServantsTable.ForeignKeys[0].RefTable = TraitsTable
 	TraitServantsTable.ForeignKeys[1].RefTable = ServantsTable
 }

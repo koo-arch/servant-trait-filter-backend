@@ -22,17 +22,17 @@ const (
 	FieldNameEn = "name_en"
 	// FieldNameJa holds the string denoting the name_ja field in the database.
 	FieldNameJa = "name_ja"
-	// EdgeServants holds the string denoting the servants edge name in mutations.
-	EdgeServants = "servants"
+	// EdgeAscensions holds the string denoting the ascensions edge name in mutations.
+	EdgeAscensions = "ascensions"
 	// Table holds the table name of the orderalignment in the database.
 	Table = "order_alignments"
-	// ServantsTable is the table that holds the servants relation/edge.
-	ServantsTable = "servants"
-	// ServantsInverseTable is the table name for the Servant entity.
-	// It exists in this package in order to avoid circular dependency with the "servant" package.
-	ServantsInverseTable = "servants"
-	// ServantsColumn is the table column denoting the servants relation/edge.
-	ServantsColumn = "order_alignment_id"
+	// AscensionsTable is the table that holds the ascensions relation/edge.
+	AscensionsTable = "ascensions"
+	// AscensionsInverseTable is the table name for the Ascension entity.
+	// It exists in this package in order to avoid circular dependency with the "ascension" package.
+	AscensionsInverseTable = "ascensions"
+	// AscensionsColumn is the table column denoting the ascensions relation/edge.
+	AscensionsColumn = "order_alignment_id"
 )
 
 // Columns holds all SQL columns for orderalignment fields.
@@ -95,23 +95,23 @@ func ByNameJa(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNameJa, opts...).ToFunc()
 }
 
-// ByServantsCount orders the results by servants count.
-func ByServantsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByAscensionsCount orders the results by ascensions count.
+func ByAscensionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newServantsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newAscensionsStep(), opts...)
 	}
 }
 
-// ByServants orders the results by servants terms.
-func ByServants(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByAscensions orders the results by ascensions terms.
+func ByAscensions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newServantsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newAscensionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newServantsStep() *sqlgraph.Step {
+func newAscensionsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ServantsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, ServantsTable, ServantsColumn),
+		sqlgraph.To(AscensionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AscensionsTable, AscensionsColumn),
 	)
 }

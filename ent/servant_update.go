@@ -11,10 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/class"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/predicate"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/trait"
@@ -102,78 +100,9 @@ func (su *ServantUpdate) SetNillableClassID(i *int) *ServantUpdate {
 	return su
 }
 
-// SetAttributeID sets the "attribute_id" field.
-func (su *ServantUpdate) SetAttributeID(i int) *ServantUpdate {
-	su.mutation.SetAttributeID(i)
-	return su
-}
-
-// SetNillableAttributeID sets the "attribute_id" field if the given value is not nil.
-func (su *ServantUpdate) SetNillableAttributeID(i *int) *ServantUpdate {
-	if i != nil {
-		su.SetAttributeID(*i)
-	}
-	return su
-}
-
-// SetOrderAlignmentID sets the "order_alignment_id" field.
-func (su *ServantUpdate) SetOrderAlignmentID(i int) *ServantUpdate {
-	su.mutation.SetOrderAlignmentID(i)
-	return su
-}
-
-// SetNillableOrderAlignmentID sets the "order_alignment_id" field if the given value is not nil.
-func (su *ServantUpdate) SetNillableOrderAlignmentID(i *int) *ServantUpdate {
-	if i != nil {
-		su.SetOrderAlignmentID(*i)
-	}
-	return su
-}
-
-// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
-func (su *ServantUpdate) ClearOrderAlignmentID() *ServantUpdate {
-	su.mutation.ClearOrderAlignmentID()
-	return su
-}
-
-// SetMoralAlignmentID sets the "moral_alignment_id" field.
-func (su *ServantUpdate) SetMoralAlignmentID(i int) *ServantUpdate {
-	su.mutation.SetMoralAlignmentID(i)
-	return su
-}
-
-// SetNillableMoralAlignmentID sets the "moral_alignment_id" field if the given value is not nil.
-func (su *ServantUpdate) SetNillableMoralAlignmentID(i *int) *ServantUpdate {
-	if i != nil {
-		su.SetMoralAlignmentID(*i)
-	}
-	return su
-}
-
-// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
-func (su *ServantUpdate) ClearMoralAlignmentID() *ServantUpdate {
-	su.mutation.ClearMoralAlignmentID()
-	return su
-}
-
 // SetClass sets the "class" edge to the Class entity.
 func (su *ServantUpdate) SetClass(c *Class) *ServantUpdate {
 	return su.SetClassID(c.ID)
-}
-
-// SetAttribute sets the "attribute" edge to the Attribute entity.
-func (su *ServantUpdate) SetAttribute(a *Attribute) *ServantUpdate {
-	return su.SetAttributeID(a.ID)
-}
-
-// SetOrderAlignment sets the "order_alignment" edge to the OrderAlignment entity.
-func (su *ServantUpdate) SetOrderAlignment(o *OrderAlignment) *ServantUpdate {
-	return su.SetOrderAlignmentID(o.ID)
-}
-
-// SetMoralAlignment sets the "moral_alignment" edge to the MoralAlignment entity.
-func (su *ServantUpdate) SetMoralAlignment(m *MoralAlignment) *ServantUpdate {
-	return su.SetMoralAlignmentID(m.ID)
 }
 
 // AddTraitIDs adds the "traits" edge to the Trait entity by IDs.
@@ -191,6 +120,21 @@ func (su *ServantUpdate) AddTraits(t ...*Trait) *ServantUpdate {
 	return su.AddTraitIDs(ids...)
 }
 
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (su *ServantUpdate) AddAscensionIDs(ids ...int) *ServantUpdate {
+	su.mutation.AddAscensionIDs(ids...)
+	return su
+}
+
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (su *ServantUpdate) AddAscensions(a ...*Ascension) *ServantUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return su.AddAscensionIDs(ids...)
+}
+
 // Mutation returns the ServantMutation object of the builder.
 func (su *ServantUpdate) Mutation() *ServantMutation {
 	return su.mutation
@@ -199,24 +143,6 @@ func (su *ServantUpdate) Mutation() *ServantMutation {
 // ClearClass clears the "class" edge to the Class entity.
 func (su *ServantUpdate) ClearClass() *ServantUpdate {
 	su.mutation.ClearClass()
-	return su
-}
-
-// ClearAttribute clears the "attribute" edge to the Attribute entity.
-func (su *ServantUpdate) ClearAttribute() *ServantUpdate {
-	su.mutation.ClearAttribute()
-	return su
-}
-
-// ClearOrderAlignment clears the "order_alignment" edge to the OrderAlignment entity.
-func (su *ServantUpdate) ClearOrderAlignment() *ServantUpdate {
-	su.mutation.ClearOrderAlignment()
-	return su
-}
-
-// ClearMoralAlignment clears the "moral_alignment" edge to the MoralAlignment entity.
-func (su *ServantUpdate) ClearMoralAlignment() *ServantUpdate {
-	su.mutation.ClearMoralAlignment()
 	return su
 }
 
@@ -239,6 +165,27 @@ func (su *ServantUpdate) RemoveTraits(t ...*Trait) *ServantUpdate {
 		ids[i] = t[i].ID
 	}
 	return su.RemoveTraitIDs(ids...)
+}
+
+// ClearAscensions clears all "ascensions" edges to the Ascension entity.
+func (su *ServantUpdate) ClearAscensions() *ServantUpdate {
+	su.mutation.ClearAscensions()
+	return su
+}
+
+// RemoveAscensionIDs removes the "ascensions" edge to Ascension entities by IDs.
+func (su *ServantUpdate) RemoveAscensionIDs(ids ...int) *ServantUpdate {
+	su.mutation.RemoveAscensionIDs(ids...)
+	return su
+}
+
+// RemoveAscensions removes "ascensions" edges to Ascension entities.
+func (su *ServantUpdate) RemoveAscensions(a ...*Ascension) *ServantUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return su.RemoveAscensionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -279,6 +226,11 @@ func (su *ServantUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (su *ServantUpdate) check() error {
+	if v, ok := su.mutation.CollectionNo(); ok {
+		if err := servant.CollectionNoValidator(v); err != nil {
+			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
+		}
+	}
 	if v, ok := su.mutation.Name(); ok {
 		if err := servant.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
@@ -294,26 +246,8 @@ func (su *ServantUpdate) check() error {
 			return &ValidationError{Name: "class_id", err: fmt.Errorf(`ent: validator failed for field "Servant.class_id": %w`, err)}
 		}
 	}
-	if v, ok := su.mutation.AttributeID(); ok {
-		if err := servant.AttributeIDValidator(v); err != nil {
-			return &ValidationError{Name: "attribute_id", err: fmt.Errorf(`ent: validator failed for field "Servant.attribute_id": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.OrderAlignmentID(); ok {
-		if err := servant.OrderAlignmentIDValidator(v); err != nil {
-			return &ValidationError{Name: "order_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.order_alignment_id": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.MoralAlignmentID(); ok {
-		if err := servant.MoralAlignmentIDValidator(v); err != nil {
-			return &ValidationError{Name: "moral_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.moral_alignment_id": %w`, err)}
-		}
-	}
 	if su.mutation.ClassCleared() && len(su.mutation.ClassIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Servant.class"`)
-	}
-	if su.mutation.AttributeCleared() && len(su.mutation.AttributeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Servant.attribute"`)
 	}
 	return nil
 }
@@ -374,93 +308,6 @@ func (su *ServantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if su.mutation.AttributeCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.AttributeTable,
-			Columns: []string{servant.AttributeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(attribute.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.AttributeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.AttributeTable,
-			Columns: []string{servant.AttributeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(attribute.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if su.mutation.OrderAlignmentCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.OrderAlignmentTable,
-			Columns: []string{servant.OrderAlignmentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(orderalignment.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.OrderAlignmentIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.OrderAlignmentTable,
-			Columns: []string{servant.OrderAlignmentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(orderalignment.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if su.mutation.MoralAlignmentCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.MoralAlignmentTable,
-			Columns: []string{servant.MoralAlignmentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(moralalignment.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.MoralAlignmentIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.MoralAlignmentTable,
-			Columns: []string{servant.MoralAlignmentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(moralalignment.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if su.mutation.TraitsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -499,6 +346,51 @@ func (su *ServantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.AscensionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servant.AscensionsTable,
+			Columns: []string{servant.AscensionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedAscensionsIDs(); len(nodes) > 0 && !su.mutation.AscensionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servant.AscensionsTable,
+			Columns: []string{servant.AscensionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.AscensionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servant.AscensionsTable,
+			Columns: []string{servant.AscensionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -595,78 +487,9 @@ func (suo *ServantUpdateOne) SetNillableClassID(i *int) *ServantUpdateOne {
 	return suo
 }
 
-// SetAttributeID sets the "attribute_id" field.
-func (suo *ServantUpdateOne) SetAttributeID(i int) *ServantUpdateOne {
-	suo.mutation.SetAttributeID(i)
-	return suo
-}
-
-// SetNillableAttributeID sets the "attribute_id" field if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableAttributeID(i *int) *ServantUpdateOne {
-	if i != nil {
-		suo.SetAttributeID(*i)
-	}
-	return suo
-}
-
-// SetOrderAlignmentID sets the "order_alignment_id" field.
-func (suo *ServantUpdateOne) SetOrderAlignmentID(i int) *ServantUpdateOne {
-	suo.mutation.SetOrderAlignmentID(i)
-	return suo
-}
-
-// SetNillableOrderAlignmentID sets the "order_alignment_id" field if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableOrderAlignmentID(i *int) *ServantUpdateOne {
-	if i != nil {
-		suo.SetOrderAlignmentID(*i)
-	}
-	return suo
-}
-
-// ClearOrderAlignmentID clears the value of the "order_alignment_id" field.
-func (suo *ServantUpdateOne) ClearOrderAlignmentID() *ServantUpdateOne {
-	suo.mutation.ClearOrderAlignmentID()
-	return suo
-}
-
-// SetMoralAlignmentID sets the "moral_alignment_id" field.
-func (suo *ServantUpdateOne) SetMoralAlignmentID(i int) *ServantUpdateOne {
-	suo.mutation.SetMoralAlignmentID(i)
-	return suo
-}
-
-// SetNillableMoralAlignmentID sets the "moral_alignment_id" field if the given value is not nil.
-func (suo *ServantUpdateOne) SetNillableMoralAlignmentID(i *int) *ServantUpdateOne {
-	if i != nil {
-		suo.SetMoralAlignmentID(*i)
-	}
-	return suo
-}
-
-// ClearMoralAlignmentID clears the value of the "moral_alignment_id" field.
-func (suo *ServantUpdateOne) ClearMoralAlignmentID() *ServantUpdateOne {
-	suo.mutation.ClearMoralAlignmentID()
-	return suo
-}
-
 // SetClass sets the "class" edge to the Class entity.
 func (suo *ServantUpdateOne) SetClass(c *Class) *ServantUpdateOne {
 	return suo.SetClassID(c.ID)
-}
-
-// SetAttribute sets the "attribute" edge to the Attribute entity.
-func (suo *ServantUpdateOne) SetAttribute(a *Attribute) *ServantUpdateOne {
-	return suo.SetAttributeID(a.ID)
-}
-
-// SetOrderAlignment sets the "order_alignment" edge to the OrderAlignment entity.
-func (suo *ServantUpdateOne) SetOrderAlignment(o *OrderAlignment) *ServantUpdateOne {
-	return suo.SetOrderAlignmentID(o.ID)
-}
-
-// SetMoralAlignment sets the "moral_alignment" edge to the MoralAlignment entity.
-func (suo *ServantUpdateOne) SetMoralAlignment(m *MoralAlignment) *ServantUpdateOne {
-	return suo.SetMoralAlignmentID(m.ID)
 }
 
 // AddTraitIDs adds the "traits" edge to the Trait entity by IDs.
@@ -684,6 +507,21 @@ func (suo *ServantUpdateOne) AddTraits(t ...*Trait) *ServantUpdateOne {
 	return suo.AddTraitIDs(ids...)
 }
 
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (suo *ServantUpdateOne) AddAscensionIDs(ids ...int) *ServantUpdateOne {
+	suo.mutation.AddAscensionIDs(ids...)
+	return suo
+}
+
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (suo *ServantUpdateOne) AddAscensions(a ...*Ascension) *ServantUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return suo.AddAscensionIDs(ids...)
+}
+
 // Mutation returns the ServantMutation object of the builder.
 func (suo *ServantUpdateOne) Mutation() *ServantMutation {
 	return suo.mutation
@@ -692,24 +530,6 @@ func (suo *ServantUpdateOne) Mutation() *ServantMutation {
 // ClearClass clears the "class" edge to the Class entity.
 func (suo *ServantUpdateOne) ClearClass() *ServantUpdateOne {
 	suo.mutation.ClearClass()
-	return suo
-}
-
-// ClearAttribute clears the "attribute" edge to the Attribute entity.
-func (suo *ServantUpdateOne) ClearAttribute() *ServantUpdateOne {
-	suo.mutation.ClearAttribute()
-	return suo
-}
-
-// ClearOrderAlignment clears the "order_alignment" edge to the OrderAlignment entity.
-func (suo *ServantUpdateOne) ClearOrderAlignment() *ServantUpdateOne {
-	suo.mutation.ClearOrderAlignment()
-	return suo
-}
-
-// ClearMoralAlignment clears the "moral_alignment" edge to the MoralAlignment entity.
-func (suo *ServantUpdateOne) ClearMoralAlignment() *ServantUpdateOne {
-	suo.mutation.ClearMoralAlignment()
 	return suo
 }
 
@@ -732,6 +552,27 @@ func (suo *ServantUpdateOne) RemoveTraits(t ...*Trait) *ServantUpdateOne {
 		ids[i] = t[i].ID
 	}
 	return suo.RemoveTraitIDs(ids...)
+}
+
+// ClearAscensions clears all "ascensions" edges to the Ascension entity.
+func (suo *ServantUpdateOne) ClearAscensions() *ServantUpdateOne {
+	suo.mutation.ClearAscensions()
+	return suo
+}
+
+// RemoveAscensionIDs removes the "ascensions" edge to Ascension entities by IDs.
+func (suo *ServantUpdateOne) RemoveAscensionIDs(ids ...int) *ServantUpdateOne {
+	suo.mutation.RemoveAscensionIDs(ids...)
+	return suo
+}
+
+// RemoveAscensions removes "ascensions" edges to Ascension entities.
+func (suo *ServantUpdateOne) RemoveAscensions(a ...*Ascension) *ServantUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return suo.RemoveAscensionIDs(ids...)
 }
 
 // Where appends a list predicates to the ServantUpdate builder.
@@ -785,6 +626,11 @@ func (suo *ServantUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (suo *ServantUpdateOne) check() error {
+	if v, ok := suo.mutation.CollectionNo(); ok {
+		if err := servant.CollectionNoValidator(v); err != nil {
+			return &ValidationError{Name: "collection_no", err: fmt.Errorf(`ent: validator failed for field "Servant.collection_no": %w`, err)}
+		}
+	}
 	if v, ok := suo.mutation.Name(); ok {
 		if err := servant.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Servant.name": %w`, err)}
@@ -800,26 +646,8 @@ func (suo *ServantUpdateOne) check() error {
 			return &ValidationError{Name: "class_id", err: fmt.Errorf(`ent: validator failed for field "Servant.class_id": %w`, err)}
 		}
 	}
-	if v, ok := suo.mutation.AttributeID(); ok {
-		if err := servant.AttributeIDValidator(v); err != nil {
-			return &ValidationError{Name: "attribute_id", err: fmt.Errorf(`ent: validator failed for field "Servant.attribute_id": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.OrderAlignmentID(); ok {
-		if err := servant.OrderAlignmentIDValidator(v); err != nil {
-			return &ValidationError{Name: "order_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.order_alignment_id": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.MoralAlignmentID(); ok {
-		if err := servant.MoralAlignmentIDValidator(v); err != nil {
-			return &ValidationError{Name: "moral_alignment_id", err: fmt.Errorf(`ent: validator failed for field "Servant.moral_alignment_id": %w`, err)}
-		}
-	}
 	if suo.mutation.ClassCleared() && len(suo.mutation.ClassIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Servant.class"`)
-	}
-	if suo.mutation.AttributeCleared() && len(suo.mutation.AttributeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Servant.attribute"`)
 	}
 	return nil
 }
@@ -897,93 +725,6 @@ func (suo *ServantUpdateOne) sqlSave(ctx context.Context) (_node *Servant, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if suo.mutation.AttributeCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.AttributeTable,
-			Columns: []string{servant.AttributeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(attribute.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.AttributeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.AttributeTable,
-			Columns: []string{servant.AttributeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(attribute.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if suo.mutation.OrderAlignmentCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.OrderAlignmentTable,
-			Columns: []string{servant.OrderAlignmentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(orderalignment.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.OrderAlignmentIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.OrderAlignmentTable,
-			Columns: []string{servant.OrderAlignmentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(orderalignment.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if suo.mutation.MoralAlignmentCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.MoralAlignmentTable,
-			Columns: []string{servant.MoralAlignmentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(moralalignment.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.MoralAlignmentIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   servant.MoralAlignmentTable,
-			Columns: []string{servant.MoralAlignmentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(moralalignment.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if suo.mutation.TraitsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -1022,6 +763,51 @@ func (suo *ServantUpdateOne) sqlSave(ctx context.Context) (_node *Servant, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.AscensionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servant.AscensionsTable,
+			Columns: []string{servant.AscensionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedAscensionsIDs(); len(nodes) > 0 && !suo.mutation.AscensionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servant.AscensionsTable,
+			Columns: []string{servant.AscensionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.AscensionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servant.AscensionsTable,
+			Columns: []string{servant.AscensionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

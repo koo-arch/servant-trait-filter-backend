@@ -26,22 +26,12 @@ const (
 	FieldFace = "face"
 	// FieldClassID holds the string denoting the class_id field in the database.
 	FieldClassID = "class_id"
-	// FieldAttributeID holds the string denoting the attribute_id field in the database.
-	FieldAttributeID = "attribute_id"
-	// FieldOrderAlignmentID holds the string denoting the order_alignment_id field in the database.
-	FieldOrderAlignmentID = "order_alignment_id"
-	// FieldMoralAlignmentID holds the string denoting the moral_alignment_id field in the database.
-	FieldMoralAlignmentID = "moral_alignment_id"
 	// EdgeClass holds the string denoting the class edge name in mutations.
 	EdgeClass = "class"
-	// EdgeAttribute holds the string denoting the attribute edge name in mutations.
-	EdgeAttribute = "attribute"
-	// EdgeOrderAlignment holds the string denoting the order_alignment edge name in mutations.
-	EdgeOrderAlignment = "order_alignment"
-	// EdgeMoralAlignment holds the string denoting the moral_alignment edge name in mutations.
-	EdgeMoralAlignment = "moral_alignment"
 	// EdgeTraits holds the string denoting the traits edge name in mutations.
 	EdgeTraits = "traits"
+	// EdgeAscensions holds the string denoting the ascensions edge name in mutations.
+	EdgeAscensions = "ascensions"
 	// Table holds the table name of the servant in the database.
 	Table = "servants"
 	// ClassTable is the table that holds the class relation/edge.
@@ -51,32 +41,18 @@ const (
 	ClassInverseTable = "classes"
 	// ClassColumn is the table column denoting the class relation/edge.
 	ClassColumn = "class_id"
-	// AttributeTable is the table that holds the attribute relation/edge.
-	AttributeTable = "servants"
-	// AttributeInverseTable is the table name for the Attribute entity.
-	// It exists in this package in order to avoid circular dependency with the "attribute" package.
-	AttributeInverseTable = "attributes"
-	// AttributeColumn is the table column denoting the attribute relation/edge.
-	AttributeColumn = "attribute_id"
-	// OrderAlignmentTable is the table that holds the order_alignment relation/edge.
-	OrderAlignmentTable = "servants"
-	// OrderAlignmentInverseTable is the table name for the OrderAlignment entity.
-	// It exists in this package in order to avoid circular dependency with the "orderalignment" package.
-	OrderAlignmentInverseTable = "order_alignments"
-	// OrderAlignmentColumn is the table column denoting the order_alignment relation/edge.
-	OrderAlignmentColumn = "order_alignment_id"
-	// MoralAlignmentTable is the table that holds the moral_alignment relation/edge.
-	MoralAlignmentTable = "servants"
-	// MoralAlignmentInverseTable is the table name for the MoralAlignment entity.
-	// It exists in this package in order to avoid circular dependency with the "moralalignment" package.
-	MoralAlignmentInverseTable = "moral_alignments"
-	// MoralAlignmentColumn is the table column denoting the moral_alignment relation/edge.
-	MoralAlignmentColumn = "moral_alignment_id"
 	// TraitsTable is the table that holds the traits relation/edge. The primary key declared below.
 	TraitsTable = "trait_servants"
 	// TraitsInverseTable is the table name for the Trait entity.
 	// It exists in this package in order to avoid circular dependency with the "trait" package.
 	TraitsInverseTable = "traits"
+	// AscensionsTable is the table that holds the ascensions relation/edge.
+	AscensionsTable = "ascensions"
+	// AscensionsInverseTable is the table name for the Ascension entity.
+	// It exists in this package in order to avoid circular dependency with the "ascension" package.
+	AscensionsInverseTable = "ascensions"
+	// AscensionsColumn is the table column denoting the ascensions relation/edge.
+	AscensionsColumn = "servant_id"
 )
 
 // Columns holds all SQL columns for servant fields.
@@ -88,9 +64,6 @@ var Columns = []string{
 	FieldName,
 	FieldFace,
 	FieldClassID,
-	FieldAttributeID,
-	FieldOrderAlignmentID,
-	FieldMoralAlignmentID,
 }
 
 var (
@@ -116,18 +89,14 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// CollectionNoValidator is a validator for the "collection_no" field. It is called by the builders before save.
+	CollectionNoValidator func(int) error
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// FaceValidator is a validator for the "face" field. It is called by the builders before save.
 	FaceValidator func(string) error
 	// ClassIDValidator is a validator for the "class_id" field. It is called by the builders before save.
 	ClassIDValidator func(int) error
-	// AttributeIDValidator is a validator for the "attribute_id" field. It is called by the builders before save.
-	AttributeIDValidator func(int) error
-	// OrderAlignmentIDValidator is a validator for the "order_alignment_id" field. It is called by the builders before save.
-	OrderAlignmentIDValidator func(int) error
-	// MoralAlignmentIDValidator is a validator for the "moral_alignment_id" field. It is called by the builders before save.
-	MoralAlignmentIDValidator func(int) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(int) error
 )
@@ -170,46 +139,10 @@ func ByClassID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldClassID, opts...).ToFunc()
 }
 
-// ByAttributeID orders the results by the attribute_id field.
-func ByAttributeID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAttributeID, opts...).ToFunc()
-}
-
-// ByOrderAlignmentID orders the results by the order_alignment_id field.
-func ByOrderAlignmentID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrderAlignmentID, opts...).ToFunc()
-}
-
-// ByMoralAlignmentID orders the results by the moral_alignment_id field.
-func ByMoralAlignmentID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMoralAlignmentID, opts...).ToFunc()
-}
-
 // ByClassField orders the results by class field.
 func ByClassField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newClassStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByAttributeField orders the results by attribute field.
-func ByAttributeField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newAttributeStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByOrderAlignmentField orders the results by order_alignment field.
-func ByOrderAlignmentField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOrderAlignmentStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByMoralAlignmentField orders the results by moral_alignment field.
-func ByMoralAlignmentField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMoralAlignmentStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -226,6 +159,20 @@ func ByTraits(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTraitsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByAscensionsCount orders the results by ascensions count.
+func ByAscensionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAscensionsStep(), opts...)
+	}
+}
+
+// ByAscensions orders the results by ascensions terms.
+func ByAscensions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAscensionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newClassStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -233,31 +180,17 @@ func newClassStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, ClassTable, ClassColumn),
 	)
 }
-func newAttributeStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(AttributeInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, AttributeTable, AttributeColumn),
-	)
-}
-func newOrderAlignmentStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OrderAlignmentInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, OrderAlignmentTable, OrderAlignmentColumn),
-	)
-}
-func newMoralAlignmentStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MoralAlignmentInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, MoralAlignmentTable, MoralAlignmentColumn),
-	)
-}
 func newTraitsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TraitsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, TraitsTable, TraitsPrimaryKey...),
+	)
+}
+func newAscensionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AscensionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AscensionsTable, AscensionsColumn),
 	)
 }

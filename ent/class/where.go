@@ -275,6 +275,16 @@ func NameJaHasSuffix(v string) predicate.Class {
 	return predicate.Class(sql.FieldHasSuffix(FieldNameJa, v))
 }
 
+// NameJaIsNil applies the IsNil predicate on the "name_ja" field.
+func NameJaIsNil() predicate.Class {
+	return predicate.Class(sql.FieldIsNull(FieldNameJa))
+}
+
+// NameJaNotNil applies the NotNil predicate on the "name_ja" field.
+func NameJaNotNil() predicate.Class {
+	return predicate.Class(sql.FieldNotNull(FieldNameJa))
+}
+
 // NameJaEqualFold applies the EqualFold predicate on the "name_ja" field.
 func NameJaEqualFold(v string) predicate.Class {
 	return predicate.Class(sql.FieldEqualFold(FieldNameJa, v))

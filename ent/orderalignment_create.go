@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
 // OrderAlignmentCreate is the builder for creating a OrderAlignment entity.
@@ -63,25 +63,33 @@ func (oac *OrderAlignmentCreate) SetNameJa(s string) *OrderAlignmentCreate {
 	return oac
 }
 
+// SetNillableNameJa sets the "name_ja" field if the given value is not nil.
+func (oac *OrderAlignmentCreate) SetNillableNameJa(s *string) *OrderAlignmentCreate {
+	if s != nil {
+		oac.SetNameJa(*s)
+	}
+	return oac
+}
+
 // SetID sets the "id" field.
 func (oac *OrderAlignmentCreate) SetID(i int) *OrderAlignmentCreate {
 	oac.mutation.SetID(i)
 	return oac
 }
 
-// AddServantIDs adds the "servants" edge to the Servant entity by IDs.
-func (oac *OrderAlignmentCreate) AddServantIDs(ids ...int) *OrderAlignmentCreate {
-	oac.mutation.AddServantIDs(ids...)
+// AddAscensionIDs adds the "ascensions" edge to the Ascension entity by IDs.
+func (oac *OrderAlignmentCreate) AddAscensionIDs(ids ...int) *OrderAlignmentCreate {
+	oac.mutation.AddAscensionIDs(ids...)
 	return oac
 }
 
-// AddServants adds the "servants" edges to the Servant entity.
-func (oac *OrderAlignmentCreate) AddServants(s ...*Servant) *OrderAlignmentCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddAscensions adds the "ascensions" edges to the Ascension entity.
+func (oac *OrderAlignmentCreate) AddAscensions(a ...*Ascension) *OrderAlignmentCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return oac.AddServantIDs(ids...)
+	return oac.AddAscensionIDs(ids...)
 }
 
 // Mutation returns the OrderAlignmentMutation object of the builder.
@@ -145,9 +153,6 @@ func (oac *OrderAlignmentCreate) check() error {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "OrderAlignment.name_en": %w`, err)}
 		}
 	}
-	if _, ok := oac.mutation.NameJa(); !ok {
-		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "OrderAlignment.name_ja"`)}
-	}
 	if v, ok := oac.mutation.ID(); ok {
 		if err := orderalignment.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "OrderAlignment.id": %w`, err)}
@@ -202,15 +207,15 @@ func (oac *OrderAlignmentCreate) createSpec() (*OrderAlignment, *sqlgraph.Create
 		_spec.SetField(orderalignment.FieldNameJa, field.TypeString, value)
 		_node.NameJa = value
 	}
-	if nodes := oac.mutation.ServantsIDs(); len(nodes) > 0 {
+	if nodes := oac.mutation.AscensionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   orderalignment.ServantsTable,
-			Columns: []string{orderalignment.ServantsColumn},
+			Table:   orderalignment.AscensionsTable,
+			Columns: []string{orderalignment.AscensionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(servant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ascension.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -306,6 +311,12 @@ func (u *OrderAlignmentUpsert) UpdateNameJa() *OrderAlignmentUpsert {
 	return u
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *OrderAlignmentUpsert) ClearNameJa() *OrderAlignmentUpsert {
+	u.SetNull(orderalignment.FieldNameJa)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -396,6 +407,13 @@ func (u *OrderAlignmentUpsertOne) SetNameJa(v string) *OrderAlignmentUpsertOne {
 func (u *OrderAlignmentUpsertOne) UpdateNameJa() *OrderAlignmentUpsertOne {
 	return u.Update(func(s *OrderAlignmentUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *OrderAlignmentUpsertOne) ClearNameJa() *OrderAlignmentUpsertOne {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.ClearNameJa()
 	})
 }
 
@@ -655,6 +673,13 @@ func (u *OrderAlignmentUpsertBulk) SetNameJa(v string) *OrderAlignmentUpsertBulk
 func (u *OrderAlignmentUpsertBulk) UpdateNameJa() *OrderAlignmentUpsertBulk {
 	return u.Update(func(s *OrderAlignmentUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *OrderAlignmentUpsertBulk) ClearNameJa() *OrderAlignmentUpsertBulk {
+	return u.Update(func(s *OrderAlignmentUpsert) {
+		s.ClearNameJa()
 	})
 }
 

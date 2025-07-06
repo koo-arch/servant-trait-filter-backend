@@ -12,10 +12,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/class"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/predicate"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/trait"
@@ -24,15 +22,13 @@ import (
 // ServantQuery is the builder for querying Servant entities.
 type ServantQuery struct {
 	config
-	ctx                *QueryContext
-	order              []servant.OrderOption
-	inters             []Interceptor
-	predicates         []predicate.Servant
-	withClass          *ClassQuery
-	withAttribute      *AttributeQuery
-	withOrderAlignment *OrderAlignmentQuery
-	withMoralAlignment *MoralAlignmentQuery
-	withTraits         *TraitQuery
+	ctx            *QueryContext
+	order          []servant.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.Servant
+	withClass      *ClassQuery
+	withTraits     *TraitQuery
+	withAscensions *AscensionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -91,72 +87,6 @@ func (sq *ServantQuery) QueryClass() *ClassQuery {
 	return query
 }
 
-// QueryAttribute chains the current query on the "attribute" edge.
-func (sq *ServantQuery) QueryAttribute() *AttributeQuery {
-	query := (&AttributeClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(servant.Table, servant.FieldID, selector),
-			sqlgraph.To(attribute.Table, attribute.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, servant.AttributeTable, servant.AttributeColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryOrderAlignment chains the current query on the "order_alignment" edge.
-func (sq *ServantQuery) QueryOrderAlignment() *OrderAlignmentQuery {
-	query := (&OrderAlignmentClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(servant.Table, servant.FieldID, selector),
-			sqlgraph.To(orderalignment.Table, orderalignment.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, servant.OrderAlignmentTable, servant.OrderAlignmentColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryMoralAlignment chains the current query on the "moral_alignment" edge.
-func (sq *ServantQuery) QueryMoralAlignment() *MoralAlignmentQuery {
-	query := (&MoralAlignmentClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(servant.Table, servant.FieldID, selector),
-			sqlgraph.To(moralalignment.Table, moralalignment.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, servant.MoralAlignmentTable, servant.MoralAlignmentColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QueryTraits chains the current query on the "traits" edge.
 func (sq *ServantQuery) QueryTraits() *TraitQuery {
 	query := (&TraitClient{config: sq.config}).Query()
@@ -172,6 +102,28 @@ func (sq *ServantQuery) QueryTraits() *TraitQuery {
 			sqlgraph.From(servant.Table, servant.FieldID, selector),
 			sqlgraph.To(trait.Table, trait.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, servant.TraitsTable, servant.TraitsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAscensions chains the current query on the "ascensions" edge.
+func (sq *ServantQuery) QueryAscensions() *AscensionQuery {
+	query := (&AscensionClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(servant.Table, servant.FieldID, selector),
+			sqlgraph.To(ascension.Table, ascension.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, servant.AscensionsTable, servant.AscensionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -366,16 +318,14 @@ func (sq *ServantQuery) Clone() *ServantQuery {
 		return nil
 	}
 	return &ServantQuery{
-		config:             sq.config,
-		ctx:                sq.ctx.Clone(),
-		order:              append([]servant.OrderOption{}, sq.order...),
-		inters:             append([]Interceptor{}, sq.inters...),
-		predicates:         append([]predicate.Servant{}, sq.predicates...),
-		withClass:          sq.withClass.Clone(),
-		withAttribute:      sq.withAttribute.Clone(),
-		withOrderAlignment: sq.withOrderAlignment.Clone(),
-		withMoralAlignment: sq.withMoralAlignment.Clone(),
-		withTraits:         sq.withTraits.Clone(),
+		config:         sq.config,
+		ctx:            sq.ctx.Clone(),
+		order:          append([]servant.OrderOption{}, sq.order...),
+		inters:         append([]Interceptor{}, sq.inters...),
+		predicates:     append([]predicate.Servant{}, sq.predicates...),
+		withClass:      sq.withClass.Clone(),
+		withTraits:     sq.withTraits.Clone(),
+		withAscensions: sq.withAscensions.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
@@ -393,39 +343,6 @@ func (sq *ServantQuery) WithClass(opts ...func(*ClassQuery)) *ServantQuery {
 	return sq
 }
 
-// WithAttribute tells the query-builder to eager-load the nodes that are connected to
-// the "attribute" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *ServantQuery) WithAttribute(opts ...func(*AttributeQuery)) *ServantQuery {
-	query := (&AttributeClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withAttribute = query
-	return sq
-}
-
-// WithOrderAlignment tells the query-builder to eager-load the nodes that are connected to
-// the "order_alignment" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *ServantQuery) WithOrderAlignment(opts ...func(*OrderAlignmentQuery)) *ServantQuery {
-	query := (&OrderAlignmentClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withOrderAlignment = query
-	return sq
-}
-
-// WithMoralAlignment tells the query-builder to eager-load the nodes that are connected to
-// the "moral_alignment" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *ServantQuery) WithMoralAlignment(opts ...func(*MoralAlignmentQuery)) *ServantQuery {
-	query := (&MoralAlignmentClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withMoralAlignment = query
-	return sq
-}
-
 // WithTraits tells the query-builder to eager-load the nodes that are connected to
 // the "traits" edge. The optional arguments are used to configure the query builder of the edge.
 func (sq *ServantQuery) WithTraits(opts ...func(*TraitQuery)) *ServantQuery {
@@ -434,6 +351,17 @@ func (sq *ServantQuery) WithTraits(opts ...func(*TraitQuery)) *ServantQuery {
 		opt(query)
 	}
 	sq.withTraits = query
+	return sq
+}
+
+// WithAscensions tells the query-builder to eager-load the nodes that are connected to
+// the "ascensions" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *ServantQuery) WithAscensions(opts ...func(*AscensionQuery)) *ServantQuery {
+	query := (&AscensionClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withAscensions = query
 	return sq
 }
 
@@ -515,12 +443,10 @@ func (sq *ServantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Serv
 	var (
 		nodes       = []*Servant{}
 		_spec       = sq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [3]bool{
 			sq.withClass != nil,
-			sq.withAttribute != nil,
-			sq.withOrderAlignment != nil,
-			sq.withMoralAlignment != nil,
 			sq.withTraits != nil,
+			sq.withAscensions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -547,28 +473,17 @@ func (sq *ServantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Serv
 			return nil, err
 		}
 	}
-	if query := sq.withAttribute; query != nil {
-		if err := sq.loadAttribute(ctx, query, nodes, nil,
-			func(n *Servant, e *Attribute) { n.Edges.Attribute = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := sq.withOrderAlignment; query != nil {
-		if err := sq.loadOrderAlignment(ctx, query, nodes, nil,
-			func(n *Servant, e *OrderAlignment) { n.Edges.OrderAlignment = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := sq.withMoralAlignment; query != nil {
-		if err := sq.loadMoralAlignment(ctx, query, nodes, nil,
-			func(n *Servant, e *MoralAlignment) { n.Edges.MoralAlignment = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := sq.withTraits; query != nil {
 		if err := sq.loadTraits(ctx, query, nodes,
 			func(n *Servant) { n.Edges.Traits = []*Trait{} },
 			func(n *Servant, e *Trait) { n.Edges.Traits = append(n.Edges.Traits, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withAscensions; query != nil {
+		if err := sq.loadAscensions(ctx, query, nodes,
+			func(n *Servant) { n.Edges.Ascensions = []*Ascension{} },
+			func(n *Servant, e *Ascension) { n.Edges.Ascensions = append(n.Edges.Ascensions, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -597,93 +512,6 @@ func (sq *ServantQuery) loadClass(ctx context.Context, query *ClassQuery, nodes 
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "class_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (sq *ServantQuery) loadAttribute(ctx context.Context, query *AttributeQuery, nodes []*Servant, init func(*Servant), assign func(*Servant, *Attribute)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Servant)
-	for i := range nodes {
-		fk := nodes[i].AttributeID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(attribute.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "attribute_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (sq *ServantQuery) loadOrderAlignment(ctx context.Context, query *OrderAlignmentQuery, nodes []*Servant, init func(*Servant), assign func(*Servant, *OrderAlignment)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Servant)
-	for i := range nodes {
-		fk := nodes[i].OrderAlignmentID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(orderalignment.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "order_alignment_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (sq *ServantQuery) loadMoralAlignment(ctx context.Context, query *MoralAlignmentQuery, nodes []*Servant, init func(*Servant), assign func(*Servant, *MoralAlignment)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Servant)
-	for i := range nodes {
-		fk := nodes[i].MoralAlignmentID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(moralalignment.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "moral_alignment_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -752,6 +580,36 @@ func (sq *ServantQuery) loadTraits(ctx context.Context, query *TraitQuery, nodes
 	}
 	return nil
 }
+func (sq *ServantQuery) loadAscensions(ctx context.Context, query *AscensionQuery, nodes []*Servant, init func(*Servant), assign func(*Servant, *Ascension)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Servant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(ascension.FieldServantID)
+	}
+	query.Where(predicate.Ascension(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(servant.AscensionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ServantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "servant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (sq *ServantQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := sq.querySpec()
@@ -780,15 +638,6 @@ func (sq *ServantQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if sq.withClass != nil {
 			_spec.Node.AddColumnOnce(servant.FieldClassID)
-		}
-		if sq.withAttribute != nil {
-			_spec.Node.AddColumnOnce(servant.FieldAttributeID)
-		}
-		if sq.withOrderAlignment != nil {
-			_spec.Node.AddColumnOnce(servant.FieldOrderAlignmentID)
-		}
-		if sq.withMoralAlignment != nil {
-			_spec.Node.AddColumnOnce(servant.FieldMoralAlignmentID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

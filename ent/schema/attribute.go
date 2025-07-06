@@ -25,7 +25,7 @@ func (Attribute) Fields() []ent.Field {
 // Edges of the Attribute.
 func (Attribute) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("servants", Servant.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
+		edge.To("ascensions", Ascension.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

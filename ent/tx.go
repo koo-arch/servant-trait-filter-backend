@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Ascension is the client for interacting with the Ascension builders.
+	Ascension *AscensionClient
 	// Attribute is the client for interacting with the Attribute builders.
 	Attribute *AttributeClient
 	// Class is the client for interacting with the Class builders.
@@ -155,6 +157,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Ascension = NewAscensionClient(tx.config)
 	tx.Attribute = NewAttributeClient(tx.config)
 	tx.Class = NewClassClient(tx.config)
 	tx.MoralAlignment = NewMoralAlignmentClient(tx.config)
@@ -170,7 +173,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Attribute.QueryXXX(), the query will be executed
+// applies a query, for example: Ascension.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

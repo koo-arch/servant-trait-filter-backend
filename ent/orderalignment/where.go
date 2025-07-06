@@ -275,6 +275,16 @@ func NameJaHasSuffix(v string) predicate.OrderAlignment {
 	return predicate.OrderAlignment(sql.FieldHasSuffix(FieldNameJa, v))
 }
 
+// NameJaIsNil applies the IsNil predicate on the "name_ja" field.
+func NameJaIsNil() predicate.OrderAlignment {
+	return predicate.OrderAlignment(sql.FieldIsNull(FieldNameJa))
+}
+
+// NameJaNotNil applies the NotNil predicate on the "name_ja" field.
+func NameJaNotNil() predicate.OrderAlignment {
+	return predicate.OrderAlignment(sql.FieldNotNull(FieldNameJa))
+}
+
 // NameJaEqualFold applies the EqualFold predicate on the "name_ja" field.
 func NameJaEqualFold(v string) predicate.OrderAlignment {
 	return predicate.OrderAlignment(sql.FieldEqualFold(FieldNameJa, v))
@@ -285,21 +295,21 @@ func NameJaContainsFold(v string) predicate.OrderAlignment {
 	return predicate.OrderAlignment(sql.FieldContainsFold(FieldNameJa, v))
 }
 
-// HasServants applies the HasEdge predicate on the "servants" edge.
-func HasServants() predicate.OrderAlignment {
+// HasAscensions applies the HasEdge predicate on the "ascensions" edge.
+func HasAscensions() predicate.OrderAlignment {
 	return predicate.OrderAlignment(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ServantsTable, ServantsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, AscensionsTable, AscensionsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasServantsWith applies the HasEdge predicate on the "servants" edge with a given conditions (other predicates).
-func HasServantsWith(preds ...predicate.Servant) predicate.OrderAlignment {
+// HasAscensionsWith applies the HasEdge predicate on the "ascensions" edge with a given conditions (other predicates).
+func HasAscensionsWith(preds ...predicate.Ascension) predicate.OrderAlignment {
 	return predicate.OrderAlignment(func(s *sql.Selector) {
-		step := newServantsStep()
+		step := newAscensionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -6,10 +6,15 @@ type Servant struct {
 	Name             string  `json:"name"`
 	Face             string  `json:"face"`
 	ClassID          int     `json:"classId"`
-	AttributeID      int     `json:"attributeId"`
-	MoralAlignmentID int     `json:"moralAlignmentId,omitempty"`
-	OrderAlignmentID int     `json:"orderAlignmentId,omitempty"`
 	Traits           []int   `json:"traits"`
+}
+
+type Ascension struct {
+	ServantID        int    `json:"servantId"`
+	Stage            int    `json:"stage"`
+	AttributeID      int    `json:"attributeId"`
+	MoralAlignmentID int    `json:"moralAlignmentId,omitempty"`
+	OrderAlignmentID int    `json:"orderAlignmentId,omitempty"`
 }
 
 type Trait struct {

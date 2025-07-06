@@ -33,20 +33,20 @@ type OrderAlignment struct {
 
 // OrderAlignmentEdges holds the relations/edges for other nodes in the graph.
 type OrderAlignmentEdges struct {
-	// Servants holds the value of the servants edge.
-	Servants []*Servant `json:"servants,omitempty"`
+	// Ascensions holds the value of the ascensions edge.
+	Ascensions []*Ascension `json:"ascensions,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// ServantsOrErr returns the Servants value or an error if the edge
+// AscensionsOrErr returns the Ascensions value or an error if the edge
 // was not loaded in eager-loading.
-func (e OrderAlignmentEdges) ServantsOrErr() ([]*Servant, error) {
+func (e OrderAlignmentEdges) AscensionsOrErr() ([]*Ascension, error) {
 	if e.loadedTypes[0] {
-		return e.Servants, nil
+		return e.Ascensions, nil
 	}
-	return nil, &NotLoadedError{edge: "servants"}
+	return nil, &NotLoadedError{edge: "ascensions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -118,9 +118,9 @@ func (oa *OrderAlignment) Value(name string) (ent.Value, error) {
 	return oa.selectValues.Get(name)
 }
 
-// QueryServants queries the "servants" edge of the OrderAlignment entity.
-func (oa *OrderAlignment) QueryServants() *ServantQuery {
-	return NewOrderAlignmentClient(oa.config).QueryServants(oa)
+// QueryAscensions queries the "ascensions" edge of the OrderAlignment entity.
+func (oa *OrderAlignment) QueryAscensions() *AscensionQuery {
+	return NewOrderAlignmentClient(oa.config).QueryAscensions(oa)
 }
 
 // Update returns a builder for updating this OrderAlignment.

@@ -19,6 +19,7 @@ type SyncAtlas struct {
 	OrderRepo repository.OrderAlignmentRepository
 	SvtRepo repository.ServantRepository
 	TraitRepo repository.TraitRepository
+	AscRepo repository.AscensionRepository
 }
 
 func NewSyncAtlas(
@@ -30,6 +31,7 @@ func NewSyncAtlas(
 	orderRepo repository.OrderAlignmentRepository,
 	svtRepo repository.ServantRepository,
 	traitRepo repository.TraitRepository,
+	ascRepo repository.AscensionRepository,
 ) *SyncAtlas {
 	return &SyncAtlas{
 		DB: db,
@@ -40,6 +42,7 @@ func NewSyncAtlas(
 		OrderRepo: orderRepo,
 		SvtRepo: svtRepo,
 		TraitRepo: traitRepo,
+		AscRepo: ascRepo,
 	}
 }
 
@@ -58,7 +61,7 @@ func (s *SyncAtlas) Sync(ctx context.Context) error {
 	if len(servants) == 0 && len(traits) == 0 {
 		return nil // No data to sync
 	}
-	
+
 	// トランザクションを開始
 	tx, err := s.DB.Tx(ctx)
 	if err != nil {
@@ -74,7 +77,7 @@ func (s *SyncAtlas) Sync(ctx context.Context) error {
 	orderRepo := s.OrderRepo.WithTx(tx)
 	svtRepo := s.SvtRepo.WithTx(tx)
 	traitRepo := s.TraitRepo.WithTx(tx)
-
+	ascRepo := s.AscRepo.WithTx(tx)
 
 	// データをリポジトリにアップサート
 	if err := traitRepo.UpsertBulk(ctx, traits); err != nil {
@@ -100,10 +103,13 @@ func (s *SyncAtlas) Sync(ctx context.Context) error {
 	}
 	
 	// プレイアブルサーヴァントを抽出
-	playableServants := s.extractPlayableServants(servants)
-	if err := svtRepo.UpsertBulk(ctx, playableServants); err != nil {
+	playable, ascs := s.extractPlayable(servants)
+	if err := svtRepo.UpsertBulk(ctx, playable); err != nil {
 		return fmt.Errorf("failed to upsert servants: %w", err)
 	}
-	
+	if err := ascRepo.UpsertBulk(ctx, ascs); err != nil {
+		return fmt.Errorf("failed to upsert ascensions: %w", err)
+	}
+
 	return nil
 }

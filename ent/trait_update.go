@@ -63,6 +63,12 @@ func (tu *TraitUpdate) SetNillableNameJa(s *string) *TraitUpdate {
 	return tu
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (tu *TraitUpdate) ClearNameJa() *TraitUpdate {
+	tu.mutation.ClearNameJa()
+	return tu
+}
+
 // AddServantIDs adds the "servants" edge to the Servant entity by IDs.
 func (tu *TraitUpdate) AddServantIDs(ids ...int) *TraitUpdate {
 	tu.mutation.AddServantIDs(ids...)
@@ -171,6 +177,9 @@ func (tu *TraitUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tu.mutation.NameJa(); ok {
 		_spec.SetField(trait.FieldNameJa, field.TypeString, value)
 	}
+	if tu.mutation.NameJaCleared() {
+		_spec.ClearField(trait.FieldNameJa, field.TypeString)
+	}
 	if tu.mutation.ServantsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -267,6 +276,12 @@ func (tuo *TraitUpdateOne) SetNillableNameJa(s *string) *TraitUpdateOne {
 	if s != nil {
 		tuo.SetNameJa(*s)
 	}
+	return tuo
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (tuo *TraitUpdateOne) ClearNameJa() *TraitUpdateOne {
+	tuo.mutation.ClearNameJa()
 	return tuo
 }
 
@@ -407,6 +422,9 @@ func (tuo *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error
 	}
 	if value, ok := tuo.mutation.NameJa(); ok {
 		_spec.SetField(trait.FieldNameJa, field.TypeString, value)
+	}
+	if tuo.mutation.NameJaCleared() {
+		_spec.ClearField(trait.FieldNameJa, field.TypeString)
 	}
 	if tuo.mutation.ServantsCleared() {
 		edge := &sqlgraph.EdgeSpec{

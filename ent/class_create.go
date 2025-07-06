@@ -63,6 +63,14 @@ func (cc *ClassCreate) SetNameJa(s string) *ClassCreate {
 	return cc
 }
 
+// SetNillableNameJa sets the "name_ja" field if the given value is not nil.
+func (cc *ClassCreate) SetNillableNameJa(s *string) *ClassCreate {
+	if s != nil {
+		cc.SetNameJa(*s)
+	}
+	return cc
+}
+
 // SetID sets the "id" field.
 func (cc *ClassCreate) SetID(i int) *ClassCreate {
 	cc.mutation.SetID(i)
@@ -144,9 +152,6 @@ func (cc *ClassCreate) check() error {
 		if err := class.NameEnValidator(v); err != nil {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "Class.name_en": %w`, err)}
 		}
-	}
-	if _, ok := cc.mutation.NameJa(); !ok {
-		return &ValidationError{Name: "name_ja", err: errors.New(`ent: missing required field "Class.name_ja"`)}
 	}
 	if v, ok := cc.mutation.ID(); ok {
 		if err := class.IDValidator(v); err != nil {
@@ -306,6 +311,12 @@ func (u *ClassUpsert) UpdateNameJa() *ClassUpsert {
 	return u
 }
 
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *ClassUpsert) ClearNameJa() *ClassUpsert {
+	u.SetNull(class.FieldNameJa)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -396,6 +407,13 @@ func (u *ClassUpsertOne) SetNameJa(v string) *ClassUpsertOne {
 func (u *ClassUpsertOne) UpdateNameJa() *ClassUpsertOne {
 	return u.Update(func(s *ClassUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *ClassUpsertOne) ClearNameJa() *ClassUpsertOne {
+	return u.Update(func(s *ClassUpsert) {
+		s.ClearNameJa()
 	})
 }
 
@@ -655,6 +673,13 @@ func (u *ClassUpsertBulk) SetNameJa(v string) *ClassUpsertBulk {
 func (u *ClassUpsertBulk) UpdateNameJa() *ClassUpsertBulk {
 	return u.Update(func(s *ClassUpsert) {
 		s.UpdateNameJa()
+	})
+}
+
+// ClearNameJa clears the value of the "name_ja" field.
+func (u *ClassUpsertBulk) ClearNameJa() *ClassUpsertBulk {
+	return u.Update(func(s *ClassUpsert) {
+		s.ClearNameJa()
 	})
 }
 

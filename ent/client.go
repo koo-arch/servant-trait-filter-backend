@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/koo-arch/servant-trait-filter-backend/ent/ascension"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/class"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
@@ -28,6 +29,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Ascension is the client for interacting with the Ascension builders.
+	Ascension *AscensionClient
 	// Attribute is the client for interacting with the Attribute builders.
 	Attribute *AttributeClient
 	// Class is the client for interacting with the Class builders.
@@ -51,6 +54,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Ascension = NewAscensionClient(c.config)
 	c.Attribute = NewAttributeClient(c.config)
 	c.Class = NewClassClient(c.config)
 	c.MoralAlignment = NewMoralAlignmentClient(c.config)
@@ -149,6 +153,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:            ctx,
 		config:         cfg,
+		Ascension:      NewAscensionClient(cfg),
 		Attribute:      NewAttributeClient(cfg),
 		Class:          NewClassClient(cfg),
 		MoralAlignment: NewMoralAlignmentClient(cfg),
@@ -174,6 +179,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:            ctx,
 		config:         cfg,
+		Ascension:      NewAscensionClient(cfg),
 		Attribute:      NewAttributeClient(cfg),
 		Class:          NewClassClient(cfg),
 		MoralAlignment: NewMoralAlignmentClient(cfg),
@@ -186,7 +192,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Attribute.
+//		Ascension.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -209,7 +215,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Attribute, c.Class, c.MoralAlignment, c.OrderAlignment, c.Servant, c.Trait,
+		c.Ascension, c.Attribute, c.Class, c.MoralAlignment, c.OrderAlignment,
+		c.Servant, c.Trait,
 	} {
 		n.Use(hooks...)
 	}
@@ -219,7 +226,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Attribute, c.Class, c.MoralAlignment, c.OrderAlignment, c.Servant, c.Trait,
+		c.Ascension, c.Attribute, c.Class, c.MoralAlignment, c.OrderAlignment,
+		c.Servant, c.Trait,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -228,6 +236,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *AscensionMutation:
+		return c.Ascension.mutate(ctx, m)
 	case *AttributeMutation:
 		return c.Attribute.mutate(ctx, m)
 	case *ClassMutation:
@@ -242,6 +252,203 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Trait.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// AscensionClient is a client for the Ascension schema.
+type AscensionClient struct {
+	config
+}
+
+// NewAscensionClient returns a client for the Ascension from the given config.
+func NewAscensionClient(c config) *AscensionClient {
+	return &AscensionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `ascension.Hooks(f(g(h())))`.
+func (c *AscensionClient) Use(hooks ...Hook) {
+	c.hooks.Ascension = append(c.hooks.Ascension, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `ascension.Intercept(f(g(h())))`.
+func (c *AscensionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Ascension = append(c.inters.Ascension, interceptors...)
+}
+
+// Create returns a builder for creating a Ascension entity.
+func (c *AscensionClient) Create() *AscensionCreate {
+	mutation := newAscensionMutation(c.config, OpCreate)
+	return &AscensionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Ascension entities.
+func (c *AscensionClient) CreateBulk(builders ...*AscensionCreate) *AscensionCreateBulk {
+	return &AscensionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AscensionClient) MapCreateBulk(slice any, setFunc func(*AscensionCreate, int)) *AscensionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AscensionCreateBulk{err: fmt.Errorf("calling to AscensionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AscensionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AscensionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Ascension.
+func (c *AscensionClient) Update() *AscensionUpdate {
+	mutation := newAscensionMutation(c.config, OpUpdate)
+	return &AscensionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AscensionClient) UpdateOne(a *Ascension) *AscensionUpdateOne {
+	mutation := newAscensionMutation(c.config, OpUpdateOne, withAscension(a))
+	return &AscensionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AscensionClient) UpdateOneID(id int) *AscensionUpdateOne {
+	mutation := newAscensionMutation(c.config, OpUpdateOne, withAscensionID(id))
+	return &AscensionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Ascension.
+func (c *AscensionClient) Delete() *AscensionDelete {
+	mutation := newAscensionMutation(c.config, OpDelete)
+	return &AscensionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AscensionClient) DeleteOne(a *Ascension) *AscensionDeleteOne {
+	return c.DeleteOneID(a.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AscensionClient) DeleteOneID(id int) *AscensionDeleteOne {
+	builder := c.Delete().Where(ascension.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AscensionDeleteOne{builder}
+}
+
+// Query returns a query builder for Ascension.
+func (c *AscensionClient) Query() *AscensionQuery {
+	return &AscensionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAscension},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Ascension entity by its id.
+func (c *AscensionClient) Get(ctx context.Context, id int) (*Ascension, error) {
+	return c.Query().Where(ascension.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AscensionClient) GetX(ctx context.Context, id int) *Ascension {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryServant queries the servant edge of a Ascension.
+func (c *AscensionClient) QueryServant(a *Ascension) *ServantQuery {
+	query := (&ServantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(ascension.Table, ascension.FieldID, id),
+			sqlgraph.To(servant.Table, servant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ascension.ServantTable, ascension.ServantColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAttribute queries the attribute edge of a Ascension.
+func (c *AscensionClient) QueryAttribute(a *Ascension) *AttributeQuery {
+	query := (&AttributeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(ascension.Table, ascension.FieldID, id),
+			sqlgraph.To(attribute.Table, attribute.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ascension.AttributeTable, ascension.AttributeColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryOrderAlignment queries the order_alignment edge of a Ascension.
+func (c *AscensionClient) QueryOrderAlignment(a *Ascension) *OrderAlignmentQuery {
+	query := (&OrderAlignmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(ascension.Table, ascension.FieldID, id),
+			sqlgraph.To(orderalignment.Table, orderalignment.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ascension.OrderAlignmentTable, ascension.OrderAlignmentColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMoralAlignment queries the moral_alignment edge of a Ascension.
+func (c *AscensionClient) QueryMoralAlignment(a *Ascension) *MoralAlignmentQuery {
+	query := (&MoralAlignmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(ascension.Table, ascension.FieldID, id),
+			sqlgraph.To(moralalignment.Table, moralalignment.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ascension.MoralAlignmentTable, ascension.MoralAlignmentColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AscensionClient) Hooks() []Hook {
+	return c.hooks.Ascension
+}
+
+// Interceptors returns the client interceptors.
+func (c *AscensionClient) Interceptors() []Interceptor {
+	return c.inters.Ascension
+}
+
+func (c *AscensionClient) mutate(ctx context.Context, m *AscensionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AscensionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AscensionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AscensionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AscensionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Ascension mutation op: %q", m.Op())
 	}
 }
 
@@ -353,15 +560,15 @@ func (c *AttributeClient) GetX(ctx context.Context, id int) *Attribute {
 	return obj
 }
 
-// QueryServants queries the servants edge of a Attribute.
-func (c *AttributeClient) QueryServants(a *Attribute) *ServantQuery {
-	query := (&ServantClient{config: c.config}).Query()
+// QueryAscensions queries the ascensions edge of a Attribute.
+func (c *AttributeClient) QueryAscensions(a *Attribute) *AscensionQuery {
+	query := (&AscensionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(attribute.Table, attribute.FieldID, id),
-			sqlgraph.To(servant.Table, servant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, attribute.ServantsTable, attribute.ServantsColumn),
+			sqlgraph.To(ascension.Table, ascension.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, attribute.AscensionsTable, attribute.AscensionsColumn),
 		)
 		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
 		return fromV, nil
@@ -651,15 +858,15 @@ func (c *MoralAlignmentClient) GetX(ctx context.Context, id int) *MoralAlignment
 	return obj
 }
 
-// QueryServants queries the servants edge of a MoralAlignment.
-func (c *MoralAlignmentClient) QueryServants(ma *MoralAlignment) *ServantQuery {
-	query := (&ServantClient{config: c.config}).Query()
+// QueryAscensions queries the ascensions edge of a MoralAlignment.
+func (c *MoralAlignmentClient) QueryAscensions(ma *MoralAlignment) *AscensionQuery {
+	query := (&AscensionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := ma.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(moralalignment.Table, moralalignment.FieldID, id),
-			sqlgraph.To(servant.Table, servant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, moralalignment.ServantsTable, moralalignment.ServantsColumn),
+			sqlgraph.To(ascension.Table, ascension.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, moralalignment.AscensionsTable, moralalignment.AscensionsColumn),
 		)
 		fromV = sqlgraph.Neighbors(ma.driver.Dialect(), step)
 		return fromV, nil
@@ -800,15 +1007,15 @@ func (c *OrderAlignmentClient) GetX(ctx context.Context, id int) *OrderAlignment
 	return obj
 }
 
-// QueryServants queries the servants edge of a OrderAlignment.
-func (c *OrderAlignmentClient) QueryServants(oa *OrderAlignment) *ServantQuery {
-	query := (&ServantClient{config: c.config}).Query()
+// QueryAscensions queries the ascensions edge of a OrderAlignment.
+func (c *OrderAlignmentClient) QueryAscensions(oa *OrderAlignment) *AscensionQuery {
+	query := (&AscensionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := oa.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(orderalignment.Table, orderalignment.FieldID, id),
-			sqlgraph.To(servant.Table, servant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, orderalignment.ServantsTable, orderalignment.ServantsColumn),
+			sqlgraph.To(ascension.Table, ascension.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, orderalignment.AscensionsTable, orderalignment.AscensionsColumn),
 		)
 		fromV = sqlgraph.Neighbors(oa.driver.Dialect(), step)
 		return fromV, nil
@@ -965,54 +1172,6 @@ func (c *ServantClient) QueryClass(s *Servant) *ClassQuery {
 	return query
 }
 
-// QueryAttribute queries the attribute edge of a Servant.
-func (c *ServantClient) QueryAttribute(s *Servant) *AttributeQuery {
-	query := (&AttributeClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(servant.Table, servant.FieldID, id),
-			sqlgraph.To(attribute.Table, attribute.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, servant.AttributeTable, servant.AttributeColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryOrderAlignment queries the order_alignment edge of a Servant.
-func (c *ServantClient) QueryOrderAlignment(s *Servant) *OrderAlignmentQuery {
-	query := (&OrderAlignmentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(servant.Table, servant.FieldID, id),
-			sqlgraph.To(orderalignment.Table, orderalignment.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, servant.OrderAlignmentTable, servant.OrderAlignmentColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryMoralAlignment queries the moral_alignment edge of a Servant.
-func (c *ServantClient) QueryMoralAlignment(s *Servant) *MoralAlignmentQuery {
-	query := (&MoralAlignmentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(servant.Table, servant.FieldID, id),
-			sqlgraph.To(moralalignment.Table, moralalignment.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, servant.MoralAlignmentTable, servant.MoralAlignmentColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryTraits queries the traits edge of a Servant.
 func (c *ServantClient) QueryTraits(s *Servant) *TraitQuery {
 	query := (&TraitClient{config: c.config}).Query()
@@ -1022,6 +1181,22 @@ func (c *ServantClient) QueryTraits(s *Servant) *TraitQuery {
 			sqlgraph.From(servant.Table, servant.FieldID, id),
 			sqlgraph.To(trait.Table, trait.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, servant.TraitsTable, servant.TraitsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAscensions queries the ascensions edge of a Servant.
+func (c *ServantClient) QueryAscensions(s *Servant) *AscensionQuery {
+	query := (&AscensionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(servant.Table, servant.FieldID, id),
+			sqlgraph.To(ascension.Table, ascension.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, servant.AscensionsTable, servant.AscensionsColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -1206,10 +1381,11 @@ func (c *TraitClient) mutate(ctx context.Context, m *TraitMutation) (Value, erro
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Attribute, Class, MoralAlignment, OrderAlignment, Servant, Trait []ent.Hook
+		Ascension, Attribute, Class, MoralAlignment, OrderAlignment, Servant,
+		Trait []ent.Hook
 	}
 	inters struct {
-		Attribute, Class, MoralAlignment, OrderAlignment, Servant,
+		Ascension, Attribute, Class, MoralAlignment, OrderAlignment, Servant,
 		Trait []ent.Interceptor
 	}
 )

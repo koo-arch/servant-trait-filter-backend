@@ -17,7 +17,7 @@ func TestServantRepository_UpsertBulk(t *testing.T) {
 	ctx := context.Background()
 	client := enttest.Open(t, "sqlite3", "file:memdb?mode=memory&_fk=1")
 	defer client.Close()
-	
+
 	err := client.Schema.Create(ctx)
   	require.NoError(t, err)
 
@@ -29,9 +29,9 @@ func TestServantRepository_UpsertBulk(t *testing.T) {
 
 	// テストデータを準備
 	in := []model.Servant{
-		{ID: 1, Name: "アルトリア・ペンドラゴン", CollectionNo: 1, Face: "face1.png", ClassID: 1, OrderAlignmentID: 1, MoralAlignmentID: 1, AttributeID: 1, Traits: []int{1, 2}},
-		{ID: 2, Name: "ギルガメッシュ", CollectionNo: 2, Face: "face2.png", ClassID: 2, OrderAlignmentID: 2, MoralAlignmentID: 2, AttributeID: 2, Traits: []int{2, 3, 4}},
-		{ID: 3, Name: "エミヤ", CollectionNo: 3, Face: "face3.png", ClassID: 3, OrderAlignmentID: 3, MoralAlignmentID: 3, AttributeID: 3, Traits: []int{1, 4}},
+		{ID: 1, Name: "アルトリア・ペンドラゴン", CollectionNo: 1, Face: "face1.png", ClassID: 1, Traits: []int{1, 2}},
+		{ID: 2, Name: "ギルガメッシュ", CollectionNo: 2, Face: "face2.png", ClassID: 2, Traits: []int{2, 3, 4}},
+		{ID: 3, Name: "エミヤ", CollectionNo: 3, Face: "face3.png", ClassID: 3, Traits: []int{1, 4}},
 	}
 	
 
@@ -48,9 +48,6 @@ func TestServantRepository_UpsertBulk(t *testing.T) {
 		assert.Equal(t, svt.CollectionNo, servants[i].CollectionNo)
 		assert.Equal(t, svt.Face, servants[i].Face)
 		assert.Equal(t, svt.ClassID, servants[i].ClassID)
-		assert.Equal(t, svt.OrderAlignmentID, servants[i].OrderAlignmentID)
-		assert.Equal(t, svt.MoralAlignmentID, servants[i].MoralAlignmentID)
-		assert.Equal(t, svt.AttributeID, servants[i].AttributeID)
 	}
 
 	// ２回目のアップサートで更新されるか確認
@@ -66,9 +63,6 @@ func TestServantRepository_UpsertBulk(t *testing.T) {
 		assert.Equal(t, svt.CollectionNo, servants[i].CollectionNo)
 		assert.Equal(t, svt.Face, servants[i].Face)
 		assert.Equal(t, svt.ClassID, servants[i].ClassID)
-		assert.Equal(t, svt.OrderAlignmentID, servants[i].OrderAlignmentID)
-		assert.Equal(t, svt.MoralAlignmentID, servants[i].MoralAlignmentID)
-		assert.Equal(t, svt.AttributeID, servants[i].AttributeID)
 	}
 	
 	// 件数が同じまま
@@ -86,14 +80,11 @@ func TestServantRepository_UpsertBulk(t *testing.T) {
 		assert.Equal(t, svt.CollectionNo, servants[i].CollectionNo)
 		assert.Equal(t, svt.Face, servants[i].Face)
 		assert.Equal(t, svt.ClassID, servants[i].ClassID)
-		assert.Equal(t, svt.OrderAlignmentID, servants[i].OrderAlignmentID)
-		assert.Equal(t, svt.MoralAlignmentID, servants[i].MoralAlignmentID)
-		assert.Equal(t, svt.AttributeID, servants[i].AttributeID)
 	}
 
 	// 3回目のアップサートで新しいデータを追加
 	in = append(in, model.Servant{
-		ID: 4, Name: "クー・フーリン", CollectionNo: 4, Face: "face4.png", ClassID: 4, OrderAlignmentID: 3, MoralAlignmentID: 3, AttributeID: 4, Traits: []int{5, 6},
+		ID: 4, Name: "クー・フーリン", CollectionNo: 4, Face: "face4.png", ClassID: 4, Traits: []int{5, 6},
 	})
 	err = repo.UpsertBulk(ctx, in)
 	assert.NoError(t, err)
@@ -108,9 +99,6 @@ func TestServantRepository_UpsertBulk(t *testing.T) {
 		assert.Equal(t, svt.CollectionNo, servants[i].CollectionNo)
 		assert.Equal(t, svt.Face, servants[i].Face)
 		assert.Equal(t, svt.ClassID, servants[i].ClassID)
-		assert.Equal(t, svt.OrderAlignmentID, servants[i].OrderAlignmentID)
-		assert.Equal(t, svt.MoralAlignmentID, servants[i].MoralAlignmentID)
-		assert.Equal(t, svt.AttributeID, servants[i].AttributeID)
 	}
 
 	// Traitsに更新がある場合

@@ -9,10 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/attribute"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/class"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/moralalignment"
-	"github.com/koo-arch/servant-trait-filter-backend/ent/orderalignment"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 )
 
@@ -33,12 +30,6 @@ type Servant struct {
 	Face string `json:"face,omitempty"`
 	// ClassID holds the value of the "class_id" field.
 	ClassID int `json:"class_id,omitempty"`
-	// AttributeID holds the value of the "attribute_id" field.
-	AttributeID int `json:"attribute_id,omitempty"`
-	// OrderAlignmentID holds the value of the "order_alignment_id" field.
-	OrderAlignmentID int `json:"order_alignment_id,omitempty"`
-	// MoralAlignmentID holds the value of the "moral_alignment_id" field.
-	MoralAlignmentID int `json:"moral_alignment_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ServantQuery when eager-loading is set.
 	Edges        ServantEdges `json:"edges"`
@@ -49,17 +40,13 @@ type Servant struct {
 type ServantEdges struct {
 	// Class holds the value of the class edge.
 	Class *Class `json:"class,omitempty"`
-	// Attribute holds the value of the attribute edge.
-	Attribute *Attribute `json:"attribute,omitempty"`
-	// OrderAlignment holds the value of the order_alignment edge.
-	OrderAlignment *OrderAlignment `json:"order_alignment,omitempty"`
-	// MoralAlignment holds the value of the moral_alignment edge.
-	MoralAlignment *MoralAlignment `json:"moral_alignment,omitempty"`
 	// Traits holds the value of the traits edge.
 	Traits []*Trait `json:"traits,omitempty"`
+	// Ascensions holds the value of the ascensions edge.
+	Ascensions []*Ascension `json:"ascensions,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [3]bool
 }
 
 // ClassOrErr returns the Class value or an error if the edge
@@ -73,46 +60,22 @@ func (e ServantEdges) ClassOrErr() (*Class, error) {
 	return nil, &NotLoadedError{edge: "class"}
 }
 
-// AttributeOrErr returns the Attribute value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e ServantEdges) AttributeOrErr() (*Attribute, error) {
-	if e.Attribute != nil {
-		return e.Attribute, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: attribute.Label}
-	}
-	return nil, &NotLoadedError{edge: "attribute"}
-}
-
-// OrderAlignmentOrErr returns the OrderAlignment value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e ServantEdges) OrderAlignmentOrErr() (*OrderAlignment, error) {
-	if e.OrderAlignment != nil {
-		return e.OrderAlignment, nil
-	} else if e.loadedTypes[2] {
-		return nil, &NotFoundError{label: orderalignment.Label}
-	}
-	return nil, &NotLoadedError{edge: "order_alignment"}
-}
-
-// MoralAlignmentOrErr returns the MoralAlignment value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e ServantEdges) MoralAlignmentOrErr() (*MoralAlignment, error) {
-	if e.MoralAlignment != nil {
-		return e.MoralAlignment, nil
-	} else if e.loadedTypes[3] {
-		return nil, &NotFoundError{label: moralalignment.Label}
-	}
-	return nil, &NotLoadedError{edge: "moral_alignment"}
-}
-
 // TraitsOrErr returns the Traits value or an error if the edge
 // was not loaded in eager-loading.
 func (e ServantEdges) TraitsOrErr() ([]*Trait, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[1] {
 		return e.Traits, nil
 	}
 	return nil, &NotLoadedError{edge: "traits"}
+}
+
+// AscensionsOrErr returns the Ascensions value or an error if the edge
+// was not loaded in eager-loading.
+func (e ServantEdges) AscensionsOrErr() ([]*Ascension, error) {
+	if e.loadedTypes[2] {
+		return e.Ascensions, nil
+	}
+	return nil, &NotLoadedError{edge: "ascensions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -120,7 +83,7 @@ func (*Servant) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case servant.FieldID, servant.FieldCollectionNo, servant.FieldClassID, servant.FieldAttributeID, servant.FieldOrderAlignmentID, servant.FieldMoralAlignmentID:
+		case servant.FieldID, servant.FieldCollectionNo, servant.FieldClassID:
 			values[i] = new(sql.NullInt64)
 		case servant.FieldName, servant.FieldFace:
 			values[i] = new(sql.NullString)
@@ -183,24 +146,6 @@ func (s *Servant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.ClassID = int(value.Int64)
 			}
-		case servant.FieldAttributeID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field attribute_id", values[i])
-			} else if value.Valid {
-				s.AttributeID = int(value.Int64)
-			}
-		case servant.FieldOrderAlignmentID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field order_alignment_id", values[i])
-			} else if value.Valid {
-				s.OrderAlignmentID = int(value.Int64)
-			}
-		case servant.FieldMoralAlignmentID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field moral_alignment_id", values[i])
-			} else if value.Valid {
-				s.MoralAlignmentID = int(value.Int64)
-			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
 		}
@@ -219,24 +164,14 @@ func (s *Servant) QueryClass() *ClassQuery {
 	return NewServantClient(s.config).QueryClass(s)
 }
 
-// QueryAttribute queries the "attribute" edge of the Servant entity.
-func (s *Servant) QueryAttribute() *AttributeQuery {
-	return NewServantClient(s.config).QueryAttribute(s)
-}
-
-// QueryOrderAlignment queries the "order_alignment" edge of the Servant entity.
-func (s *Servant) QueryOrderAlignment() *OrderAlignmentQuery {
-	return NewServantClient(s.config).QueryOrderAlignment(s)
-}
-
-// QueryMoralAlignment queries the "moral_alignment" edge of the Servant entity.
-func (s *Servant) QueryMoralAlignment() *MoralAlignmentQuery {
-	return NewServantClient(s.config).QueryMoralAlignment(s)
-}
-
 // QueryTraits queries the "traits" edge of the Servant entity.
 func (s *Servant) QueryTraits() *TraitQuery {
 	return NewServantClient(s.config).QueryTraits(s)
+}
+
+// QueryAscensions queries the "ascensions" edge of the Servant entity.
+func (s *Servant) QueryAscensions() *AscensionQuery {
+	return NewServantClient(s.config).QueryAscensions(s)
 }
 
 // Update returns a builder for updating this Servant.
@@ -279,15 +214,6 @@ func (s *Servant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("class_id=")
 	builder.WriteString(fmt.Sprintf("%v", s.ClassID))
-	builder.WriteString(", ")
-	builder.WriteString("attribute_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.AttributeID))
-	builder.WriteString(", ")
-	builder.WriteString("order_alignment_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.OrderAlignmentID))
-	builder.WriteString(", ")
-	builder.WriteString("moral_alignment_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.MoralAlignmentID))
 	builder.WriteByte(')')
 	return builder.String()
 }

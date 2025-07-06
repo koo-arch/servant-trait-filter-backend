@@ -85,21 +85,6 @@ func ClassID(v int) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldClassID, v))
 }
 
-// AttributeID applies equality check predicate on the "attribute_id" field. It's identical to AttributeIDEQ.
-func AttributeID(v int) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldAttributeID, v))
-}
-
-// OrderAlignmentID applies equality check predicate on the "order_alignment_id" field. It's identical to OrderAlignmentIDEQ.
-func OrderAlignmentID(v int) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldOrderAlignmentID, v))
-}
-
-// MoralAlignmentID applies equality check predicate on the "moral_alignment_id" field. It's identical to MoralAlignmentIDEQ.
-func MoralAlignmentID(v int) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldMoralAlignmentID, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Servant {
 	return predicate.Servant(sql.FieldEQ(FieldCreatedAt, v))
@@ -370,86 +355,6 @@ func ClassIDNotIn(vs ...int) predicate.Servant {
 	return predicate.Servant(sql.FieldNotIn(FieldClassID, vs...))
 }
 
-// AttributeIDEQ applies the EQ predicate on the "attribute_id" field.
-func AttributeIDEQ(v int) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldAttributeID, v))
-}
-
-// AttributeIDNEQ applies the NEQ predicate on the "attribute_id" field.
-func AttributeIDNEQ(v int) predicate.Servant {
-	return predicate.Servant(sql.FieldNEQ(FieldAttributeID, v))
-}
-
-// AttributeIDIn applies the In predicate on the "attribute_id" field.
-func AttributeIDIn(vs ...int) predicate.Servant {
-	return predicate.Servant(sql.FieldIn(FieldAttributeID, vs...))
-}
-
-// AttributeIDNotIn applies the NotIn predicate on the "attribute_id" field.
-func AttributeIDNotIn(vs ...int) predicate.Servant {
-	return predicate.Servant(sql.FieldNotIn(FieldAttributeID, vs...))
-}
-
-// OrderAlignmentIDEQ applies the EQ predicate on the "order_alignment_id" field.
-func OrderAlignmentIDEQ(v int) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldOrderAlignmentID, v))
-}
-
-// OrderAlignmentIDNEQ applies the NEQ predicate on the "order_alignment_id" field.
-func OrderAlignmentIDNEQ(v int) predicate.Servant {
-	return predicate.Servant(sql.FieldNEQ(FieldOrderAlignmentID, v))
-}
-
-// OrderAlignmentIDIn applies the In predicate on the "order_alignment_id" field.
-func OrderAlignmentIDIn(vs ...int) predicate.Servant {
-	return predicate.Servant(sql.FieldIn(FieldOrderAlignmentID, vs...))
-}
-
-// OrderAlignmentIDNotIn applies the NotIn predicate on the "order_alignment_id" field.
-func OrderAlignmentIDNotIn(vs ...int) predicate.Servant {
-	return predicate.Servant(sql.FieldNotIn(FieldOrderAlignmentID, vs...))
-}
-
-// OrderAlignmentIDIsNil applies the IsNil predicate on the "order_alignment_id" field.
-func OrderAlignmentIDIsNil() predicate.Servant {
-	return predicate.Servant(sql.FieldIsNull(FieldOrderAlignmentID))
-}
-
-// OrderAlignmentIDNotNil applies the NotNil predicate on the "order_alignment_id" field.
-func OrderAlignmentIDNotNil() predicate.Servant {
-	return predicate.Servant(sql.FieldNotNull(FieldOrderAlignmentID))
-}
-
-// MoralAlignmentIDEQ applies the EQ predicate on the "moral_alignment_id" field.
-func MoralAlignmentIDEQ(v int) predicate.Servant {
-	return predicate.Servant(sql.FieldEQ(FieldMoralAlignmentID, v))
-}
-
-// MoralAlignmentIDNEQ applies the NEQ predicate on the "moral_alignment_id" field.
-func MoralAlignmentIDNEQ(v int) predicate.Servant {
-	return predicate.Servant(sql.FieldNEQ(FieldMoralAlignmentID, v))
-}
-
-// MoralAlignmentIDIn applies the In predicate on the "moral_alignment_id" field.
-func MoralAlignmentIDIn(vs ...int) predicate.Servant {
-	return predicate.Servant(sql.FieldIn(FieldMoralAlignmentID, vs...))
-}
-
-// MoralAlignmentIDNotIn applies the NotIn predicate on the "moral_alignment_id" field.
-func MoralAlignmentIDNotIn(vs ...int) predicate.Servant {
-	return predicate.Servant(sql.FieldNotIn(FieldMoralAlignmentID, vs...))
-}
-
-// MoralAlignmentIDIsNil applies the IsNil predicate on the "moral_alignment_id" field.
-func MoralAlignmentIDIsNil() predicate.Servant {
-	return predicate.Servant(sql.FieldIsNull(FieldMoralAlignmentID))
-}
-
-// MoralAlignmentIDNotNil applies the NotNil predicate on the "moral_alignment_id" field.
-func MoralAlignmentIDNotNil() predicate.Servant {
-	return predicate.Servant(sql.FieldNotNull(FieldMoralAlignmentID))
-}
-
 // HasClass applies the HasEdge predicate on the "class" edge.
 func HasClass() predicate.Servant {
 	return predicate.Servant(func(s *sql.Selector) {
@@ -473,75 +378,6 @@ func HasClassWith(preds ...predicate.Class) predicate.Servant {
 	})
 }
 
-// HasAttribute applies the HasEdge predicate on the "attribute" edge.
-func HasAttribute() predicate.Servant {
-	return predicate.Servant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, AttributeTable, AttributeColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasAttributeWith applies the HasEdge predicate on the "attribute" edge with a given conditions (other predicates).
-func HasAttributeWith(preds ...predicate.Attribute) predicate.Servant {
-	return predicate.Servant(func(s *sql.Selector) {
-		step := newAttributeStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasOrderAlignment applies the HasEdge predicate on the "order_alignment" edge.
-func HasOrderAlignment() predicate.Servant {
-	return predicate.Servant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, OrderAlignmentTable, OrderAlignmentColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasOrderAlignmentWith applies the HasEdge predicate on the "order_alignment" edge with a given conditions (other predicates).
-func HasOrderAlignmentWith(preds ...predicate.OrderAlignment) predicate.Servant {
-	return predicate.Servant(func(s *sql.Selector) {
-		step := newOrderAlignmentStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasMoralAlignment applies the HasEdge predicate on the "moral_alignment" edge.
-func HasMoralAlignment() predicate.Servant {
-	return predicate.Servant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, MoralAlignmentTable, MoralAlignmentColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasMoralAlignmentWith applies the HasEdge predicate on the "moral_alignment" edge with a given conditions (other predicates).
-func HasMoralAlignmentWith(preds ...predicate.MoralAlignment) predicate.Servant {
-	return predicate.Servant(func(s *sql.Selector) {
-		step := newMoralAlignmentStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasTraits applies the HasEdge predicate on the "traits" edge.
 func HasTraits() predicate.Servant {
 	return predicate.Servant(func(s *sql.Selector) {
@@ -557,6 +393,29 @@ func HasTraits() predicate.Servant {
 func HasTraitsWith(preds ...predicate.Trait) predicate.Servant {
 	return predicate.Servant(func(s *sql.Selector) {
 		step := newTraitsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAscensions applies the HasEdge predicate on the "ascensions" edge.
+func HasAscensions() predicate.Servant {
+	return predicate.Servant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AscensionsTable, AscensionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAscensionsWith applies the HasEdge predicate on the "ascensions" edge with a given conditions (other predicates).
+func HasAscensionsWith(preds ...predicate.Ascension) predicate.Servant {
+	return predicate.Servant(func(s *sql.Selector) {
+		step := newAscensionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
