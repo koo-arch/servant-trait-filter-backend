@@ -14,6 +14,7 @@ type ServantRepository interface {
 	ListAll(ctx context.Context) ([]*ent.Servant, error)
 	UpsertBulk(ctx context.Context, servants []model.Servant) error
 	WithTx(tx *ent.Tx) ServantRepository
+	Search(ctx context.Context, query ServantSearchQuery) ([]*ent.Servant, error)
 }
 
 type ServantRepositoryImpl struct {
