@@ -9,28 +9,15 @@ import (
 	"github.com/koo-arch/servant-trait-filter-backend/ent/predicate"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/trait"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/class"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/search"
 )
 
-type Expr struct {
-    And  []*Expr `json:"and,omitempty"`
-    Or   []*Expr `json:"or,omitempty"`
-    Not  *Expr   `json:"not,omitempty"`
-
-    // 原子条件
-    TraitID         *int     `json:"trait,omitempty"`
-    ClassID         *int     `json:"class,omitempty"`
-    AttributeID     *int     `json:"attribute,omitempty"`
-    OrderAlignID    *int     `json:"orderAlignment,omitempty"`
-    MoralAlignID    *int     `json:"moralAlignment,omitempty"`
+type SearchResult struct {
+	Servants []*ent.Servant
+	Total int
 }
 
-type ServantSearchQuery struct {
-	Root Expr
-	Limit int
-	Offset int
-}
-
-func (r *ServantRepositoryImpl) Search(ctx context.Context, req ServantSearchQuery) ([]*ent.Servant, error) {
+func (r *ServantRepositoryImpl) Search(ctx context.Context, req search.ServantSearchQuery) (SearchResult, error) {
 	query := r.client.Servant.Query().
 		WithTraits().
 		WithAscensions(func(q *ent.AscensionQuery) {
@@ -39,22 +26,36 @@ func (r *ServantRepositoryImpl) Search(ctx context.Context, req ServantSearchQue
 				WithMoralAlignment()
 		}).
 		WithClass()
-	
+
 	if p := r.buildPredicate(&req.Root); p != nil {
 		query = query.Where(p)
 	}
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		return SearchResult{},  err
+	}
+
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
 	}
 	if req.Offset > 0 {
 		query = query.Offset(req.Offset)
 	}
-	return query.Order(ent.Asc(servant.FieldID)).
-		All(ctx)
 
+	servants, err := query.
+		Order(ent.Asc(servant.FieldCollectionNo)).
+		All(ctx)
+	if err != nil {
+		return SearchResult{}, err
+	}
+	
+	return SearchResult{
+		Servants: servants,
+		Total: total,
+	}, nil
 }
 
-func (r *ServantRepositoryImpl) buildPredicate(expr *Expr) predicate.Servant {
+func (r *ServantRepositoryImpl) buildPredicate(expr *search.Expr) predicate.Servant {
 	if expr == nil {
 		return nil // nilの場合は無視
 	}

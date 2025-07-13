@@ -9,6 +9,7 @@ import (
 	"github.com/koo-arch/servant-trait-filter-backend/ent/enttest"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/repository"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/search"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -229,17 +230,17 @@ func TestServantRepository_Search(t *testing.T) {
 	require.NoError(t, err)
 
 	// 検索DTL
-	req := repository.ServantSearchQuery{
-		Root: repository.Expr{
-			Or: []*repository.Expr{
+	req := search.ServantSearchQuery{
+		Root: search.Expr{
+			Or: []*search.Expr{
 				{
-					And: []*repository.Expr{
+					And: []*search.Expr{
 						{ TraitID: ptr(1) }, // トレイト1
 						{ TraitID: ptr(2) }, // トレイト2
 					},
 				},
 				{
-					And: []*repository.Expr{
+					And: []*search.Expr{
 						{ ClassID: ptr(2) }, // クラス2 (アーチャー)
 						{ TraitID: ptr(3) }, // トレイト3
 					},
@@ -251,9 +252,9 @@ func TestServantRepository_Search(t *testing.T) {
 	}
 
 	// 検索実行
-	servants, err := repo.Search(ctx, req)
+	result, err := repo.Search(ctx, req)
 	require.NoError(t, err)
-	log.Printf("Found %d servants", len(servants))
+	log.Printf("Found %d servants", len(result.Servants))
 }
 
 func ptr(i int) *int {
