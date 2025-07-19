@@ -7,6 +7,7 @@ import (
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/servant"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/search"
 )
 
 type ServantRepository interface {
@@ -14,6 +15,7 @@ type ServantRepository interface {
 	ListAll(ctx context.Context) ([]*ent.Servant, error)
 	UpsertBulk(ctx context.Context, servants []model.Servant) error
 	WithTx(tx *ent.Tx) ServantRepository
+	Search(ctx context.Context, query search.ServantSearchQuery) (SearchResult, error)
 }
 
 type ServantRepositoryImpl struct {

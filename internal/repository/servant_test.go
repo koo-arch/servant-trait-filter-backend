@@ -2,15 +2,17 @@ package repository_test
 
 import (
 	"context"
+	"log"
 	"testing"
-	
+
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/enttest"
-	"github.com/koo-arch/servant-trait-filter-backend/internal/repository"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/repository"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/search"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func TestServantRepository_UpsertBulk(t *testing.T) {
@@ -202,4 +204,62 @@ func seedMaster(ctx context.Context, client *ent.Client) error {
 	}
 
 	return nil
+}
+
+func TestServantRepository_Search(t *testing.T) {
+	ctx := context.Background()
+	client := enttest.Open(t, "sqlite3", "file:memdb?mode=memory&_fk=1")
+	defer client.Close()
+
+	err := client.Schema.Create(ctx)
+	require.NoError(t, err)
+
+	// マスターデータをシード
+	err = seedMaster(ctx, client)
+	require.NoError(t, err)
+
+	repo := repository.NewServantRepository(client)
+
+	// テストデータを準備
+	in := []model.Servant{
+		{ID: 1, Name: "アルトリア・ペンドラゴン", CollectionNo: 1, Face: "face1.png", ClassID: 1, Traits: []int{1, 2}},
+		{ID: 2, Name: "ギルガメッシュ", CollectionNo: 2, Face: "face2.png", ClassID: 2, Traits: []int{2, 3, 4}},
+		{ID: 3, Name: "エミヤ", CollectionNo: 3, Face: "face3.png", ClassID: 3, Traits: []int{1, 4}},
+	}
+	err = repo.UpsertBulk(ctx, in)
+	require.NoError(t, err)
+
+	// 検索DTL
+	req := search.ServantSearchQuery{
+		Root: search.Expr{
+			Or: []*search.Expr{
+				{
+					And: []*search.Expr{
+						{ TraitID: ptr(1) }, // トレイト1
+						{ TraitID: ptr(2) }, // トレイト2
+					},
+				},
+				{
+					And: []*search.Expr{
+						{ ClassID: ptr(2) }, // クラス2 (アーチャー)
+						{ TraitID: ptr(3) }, // トレイト3
+					},
+				},
+			},
+		},
+		Limit: 10,
+		Offset: 0,
+	}
+
+	// 検索実行
+	result, err := repo.Search(ctx, req)
+	require.NoError(t, err)
+	log.Printf("Found %d servants", len(result.Servants))
+}
+
+func ptr(i int) *int {
+	if i < 0 {
+		return nil
+	}
+	return &i
 }
