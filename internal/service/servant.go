@@ -3,11 +3,14 @@ package service
 import (
 	"context"
 
+	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/repository"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/search"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/util"
 )
 
 type ServantService interface {
+	GetAllServants(ctx context.Context) ([]ServantDTO, error)
 	Search(ctx context.Context, query search.ServantSearchQuery) (SearchResponseDTO, error)
 }
 
@@ -23,6 +26,19 @@ func NewServantsServiceImpl(svtRepo repository.ServantRepository) ServantService
 	}
 }
 
+func (s *ServantServiceImpl) GetAllServants(ctx context.Context) ([]ServantDTO, error) {
+	// データベースからServantを取得
+	servants, err := s.svtRepo.ListAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// ServantをDTOに変換
+	dtos := util.ConvertSlice(servants, convertServantDTO)
+
+	return dtos, nil
+}
+
 func (s *ServantServiceImpl) Search(ctx context.Context, req search.ServantSearchQuery) (SearchResponseDTO, error) {
 	// データベースからServantを検索
 	servants, err := s.svtRepo.Search(ctx, req)
@@ -31,16 +47,7 @@ func (s *ServantServiceImpl) Search(ctx context.Context, req search.ServantSearc
 	}
 
 	// ServantをDTOに変換
-	dtos := make([]ServantDTO, 0, len(servants.Servants))
-	for _, svt := range servants.Servants {
-		dto := ServantDTO{
-			ID:              svt.ID,
-			Name:            svt.Name,
-			CollectionNo:    svt.CollectionNo,
-			Face:            svt.Face,
-		}
-		dtos = append(dtos, dto)}
-	
+	dtos := util.ConvertSlice(servants.Servants, convertServantDTO)
 
 	return SearchResponseDTO{
 		Total: servants.Total,
@@ -50,3 +57,11 @@ func (s *ServantServiceImpl) Search(ctx context.Context, req search.ServantSearc
 	}, nil
 }
 
+func convertServantDTO(svt *ent.Servant) ServantDTO {
+	return ServantDTO{
+		ID:           svt.ID,
+		CollectionNo: svt.CollectionNo,
+		Name:         svt.Name,
+		Face:         svt.Face,
+	}
+}
