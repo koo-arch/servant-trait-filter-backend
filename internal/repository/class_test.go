@@ -40,6 +40,7 @@ func TestClassRepository_UpsertBulk(t *testing.T) {
 	for i, cls := range in {
 		assert.Equal(t, cls.ID, classes[i].ID)
 		assert.Equal(t, cls.Name, classes[i].NameEn)
+		assert.Empty(t, classes[i].NameJa) // 日本語のデータは空であることを確認
 	}
 
 	// ２回目のアップサートで更新されるか確認
