@@ -19,8 +19,8 @@ type ServantServiceImpl struct {
 	svtRepo repository.ServantRepository
 }
 
-// NewServantsService creates a new ServantsService.
-func NewServantsServiceImpl(svtRepo repository.ServantRepository) ServantService {
+// NewServantService creates a new ServantsService.
+func NewServantServiceImpl(svtRepo repository.ServantRepository) ServantService {
 	return &ServantServiceImpl{
 		svtRepo: svtRepo,
 	}
