@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"context"
-
+	
 	"github.com/koo-arch/servant-trait-filter-backend/pkg/config"
 	_ "github.com/koo-arch/servant-trait-filter-backend/ent/runtime" // Import the generated ent runtime
 	_ "github.com/lib/pq" // PostgreSQL driver
