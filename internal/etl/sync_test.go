@@ -2,18 +2,19 @@ package etl_test
 
 import (
 	"context"
-	"testing"
 	"sort"
+	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/koo-arch/servant-trait-filter-backend/ent/enttest"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/atlas"
-	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/di"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/etl"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/repository"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/google/go-cmp/cmp"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func TestSyncServants(t *testing.T) {
@@ -33,19 +34,19 @@ func TestSyncServants(t *testing.T) {
 	traitRepo := repository.NewTraitRepository(client)
 	ascRepo := repository.NewAscensionRepository(client)
 
+	repos := &di.Repos{
+		Servant: svtRepo,
+		Class: classRepo,
+		Attribute: attrRepo,
+		Trait: traitRepo,
+		MoralAlign: moralRepo,
+		OrderAlign: orderRepo,
+		Ascension: ascRepo,
+	}
+
 	// Create a mock Atlas client
 	atlasClient := atlas.NewClient()
-	syncer := etl.NewSyncAtlas(
-		client,
-		atlasClient,
-		classRepo,
-		attrRepo,
-		moralRepo,
-		orderRepo,
-		svtRepo,
-		traitRepo,
-		ascRepo,
-	)
+	syncer := etl.NewSyncAtlas(client, atlasClient, repos)
 	err = syncer.Sync(ctx)
 	require.NoError(t, err)
 	

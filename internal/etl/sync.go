@@ -6,43 +6,25 @@ import (
 
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/atlas"
-	"github.com/koo-arch/servant-trait-filter-backend/internal/repository"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/di"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/transaction"
 )
 
 type SyncAtlas struct {
 	DB *ent.Client
 	Client atlas.Client
-	ClassRepo repository.ClassRepository
-	AttrRepo repository.AttributeRepository
-	MoralRepo repository.MoralAlignmentRepository
-	OrderRepo repository.OrderAlignmentRepository
-	SvtRepo repository.ServantRepository
-	TraitRepo repository.TraitRepository
-	AscRepo repository.AscensionRepository
+	Repos *di.Repos
 }
 
 func NewSyncAtlas(
 	db *ent.Client,
 	client atlas.Client,
-	classRepo repository.ClassRepository,
-	attrRepo repository.AttributeRepository,
-	moralRepo repository.MoralAlignmentRepository,
-	orderRepo repository.OrderAlignmentRepository,
-	svtRepo repository.ServantRepository,
-	traitRepo repository.TraitRepository,
-	ascRepo repository.AscensionRepository,
+	repos *di.Repos,
 ) *SyncAtlas {
 	return &SyncAtlas{
 		DB: db,
 		Client: client,
-		ClassRepo: classRepo,
-		AttrRepo: attrRepo,
-		MoralRepo: moralRepo,
-		OrderRepo: orderRepo,
-		SvtRepo: svtRepo,
-		TraitRepo: traitRepo,
-		AscRepo: ascRepo,
+		Repos: repos,
 	}
 }
 
@@ -71,45 +53,51 @@ func (s *SyncAtlas) Sync(ctx context.Context) error {
 	defer transaction.HandleTransaction(tx, &err)
 
 	// リポジトリをトランザクションに紐付け
-	classRepo := s.ClassRepo.WithTx(tx)
-	attrRepo := s.AttrRepo.WithTx(tx)
-	moralRepo := s.MoralRepo.WithTx(tx)
-	orderRepo := s.OrderRepo.WithTx(tx)
-	svtRepo := s.SvtRepo.WithTx(tx)
-	traitRepo := s.TraitRepo.WithTx(tx)
-	ascRepo := s.AscRepo.WithTx(tx)
+	repos := s.execWithTx(tx)
 
 	// データをリポジトリにアップサート
-	if err := traitRepo.UpsertBulk(ctx, traits); err != nil {
+	if err := repos.Trait.UpsertBulk(ctx, traits); err != nil {
 		return fmt.Errorf("failed to upsert traits: %w", err)
 	}
 
 	// クラスを抽出
 	class := s.extractClass(servants)
-	if err := classRepo.UpsertBulk(ctx, class); err != nil {
+	if err := repos.Class.UpsertBulk(ctx, class); err != nil {
 		return fmt.Errorf("failed to upsert classes: %w", err)
 	}
 
 	// 特性から属性とアライメントを抽出
 	attributes, orderAlign, moralAlign := s.extractMetaFromTraits(traits)
-	if err := attrRepo.UpsertBulk(ctx, attributes); err != nil {
+	if err := repos.Attribute.UpsertBulk(ctx, attributes); err != nil {
 		return fmt.Errorf("failed to upsert attributes: %w", err)
 	}
-	if err := orderRepo.UpsertBulk(ctx, orderAlign); err != nil {
+	if err := repos.OrderAlign.UpsertBulk(ctx, orderAlign); err != nil {
 		return fmt.Errorf("failed to upsert order alignments: %w", err)
 	}
-	if err := moralRepo.UpsertBulk(ctx, moralAlign); err != nil {
+	if err := repos.MoralAlign.UpsertBulk(ctx, moralAlign); err != nil {
 		return fmt.Errorf("failed to upsert moral alignments: %w", err)
 	}
 	
 	// プレイアブルサーヴァントを抽出
 	playable, ascs := s.extractPlayable(servants)
-	if err := svtRepo.UpsertBulk(ctx, playable); err != nil {
+	if err := repos.Servant.UpsertBulk(ctx, playable); err != nil {
 		return fmt.Errorf("failed to upsert servants: %w", err)
 	}
-	if err := ascRepo.UpsertBulk(ctx, ascs); err != nil {
+	if err := repos.Ascension.UpsertBulk(ctx, ascs); err != nil {
 		return fmt.Errorf("failed to upsert ascensions: %w", err)
 	}
 
 	return nil
+}
+
+func (s *SyncAtlas) execWithTx(tx *ent.Tx) *di.Repos {
+	return &di.Repos{
+		Servant: s.Repos.Servant.WithTx(tx),
+		Class: s.Repos.Class.WithTx(tx),
+		Attribute: s.Repos.Attribute.WithTx(tx),
+		Trait: s.Repos.Trait.WithTx(tx),
+		MoralAlign: s.Repos.MoralAlign.WithTx(tx),
+		OrderAlign: s.Repos.OrderAlign.WithTx(tx),
+		Ascension: s.Repos.Ascension.WithTx(tx),
+	}
 }
