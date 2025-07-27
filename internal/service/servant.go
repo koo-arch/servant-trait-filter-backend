@@ -6,12 +6,13 @@ import (
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/repository"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/search"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/util"
 )
 
 type ServantService interface {
-	GetAllServants(ctx context.Context) ([]ServantDTO, error)
-	Search(ctx context.Context, query search.ServantSearchQuery) (SearchResponseDTO, error)
+	GetAllServants(ctx context.Context) ([]model.ServantDTO, error)
+	Search(ctx context.Context, query search.ServantSearchQuery) (model.SearchResponseDTO, error)
 }
 
 // ServantService provides methods to interact with the Servant entity.
@@ -26,7 +27,7 @@ func NewServantServiceImpl(svtRepo repository.ServantRepository) ServantService 
 	}
 }
 
-func (s *ServantServiceImpl) GetAllServants(ctx context.Context) ([]ServantDTO, error) {
+func (s *ServantServiceImpl) GetAllServants(ctx context.Context) ([]model.ServantDTO, error) {
 	// データベースからServantを取得
 	servants, err := s.svtRepo.ListAll(ctx)
 	if err != nil {
@@ -39,17 +40,17 @@ func (s *ServantServiceImpl) GetAllServants(ctx context.Context) ([]ServantDTO, 
 	return dtos, nil
 }
 
-func (s *ServantServiceImpl) Search(ctx context.Context, req search.ServantSearchQuery) (SearchResponseDTO, error) {
+func (s *ServantServiceImpl) Search(ctx context.Context, req search.ServantSearchQuery) (model.SearchResponseDTO, error) {
 	// データベースからServantを検索
 	servants, err := s.svtRepo.Search(ctx, req)
 	if err != nil {
-		return SearchResponseDTO{}, err
+		return model.SearchResponseDTO{}, err
 	}
 
 	// ServantをDTOに変換
 	dtos := util.ConvertSlice(servants.Servants, convertServantDTO)
 
-	return SearchResponseDTO{
+	return model.SearchResponseDTO{
 		Total: servants.Total,
 		Offset: req.Offset,
 		Limit: req.Limit,
@@ -57,8 +58,8 @@ func (s *ServantServiceImpl) Search(ctx context.Context, req search.ServantSearc
 	}, nil
 }
 
-func convertServantDTO(svt *ent.Servant) ServantDTO {
-	return ServantDTO{
+func convertServantDTO(svt *ent.Servant) model.ServantDTO {
+	return model.ServantDTO{
 		ID:           svt.ID,
 		CollectionNo: svt.CollectionNo,
 		Name:         svt.Name,

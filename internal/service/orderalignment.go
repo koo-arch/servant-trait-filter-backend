@@ -5,11 +5,12 @@ import (
 
 	"github.com/koo-arch/servant-trait-filter-backend/ent"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/repository"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/model"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/util"
 )
 
 type OrderAlignmentService interface {
-	GetAllOrderAlignments(ctx context.Context) ([]OrderAlignmentDTO, error)
+	GetAllOrderAlignments(ctx context.Context) ([]model.OrderAlignmentDTO, error)
 }
 
 type OrderAlignmentServiceImpl struct {
@@ -22,7 +23,7 @@ func NewOrderAlignmentServiceImpl(orderAlignmentRepo repository.OrderAlignmentRe
 	}
 }
 
-func (s *OrderAlignmentServiceImpl) GetAllOrderAlignments(ctx context.Context) ([]OrderAlignmentDTO, error) {
+func (s *OrderAlignmentServiceImpl) GetAllOrderAlignments(ctx context.Context) ([]model.OrderAlignmentDTO, error) {
 	// データベースからOrderAlignmentを取得
 	orderAlignments, err := s.orderAlignmentRepo.ListAll(ctx)
 	if err != nil {
@@ -30,8 +31,8 @@ func (s *OrderAlignmentServiceImpl) GetAllOrderAlignments(ctx context.Context) (
 	}
 
 	// OrderAlignmentをDTOに変換
-	dtos := util.ConvertSlice(orderAlignments, func(oa *ent.OrderAlignment) OrderAlignmentDTO {
-		return OrderAlignmentDTO{
+	dtos := util.ConvertSlice(orderAlignments, func(oa *ent.OrderAlignment) model.OrderAlignmentDTO {
+		return model.OrderAlignmentDTO{
 			ID:   oa.ID,
 			Name: util.FallbackName(oa.NameJa, oa.NameEn),
 		}

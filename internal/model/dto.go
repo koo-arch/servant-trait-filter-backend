@@ -1,4 +1,8 @@
-package service
+package model
+
+import (
+	. "github.com/koo-arch/servant-trait-filter-backend/internal/search"
+)
 
 type ServantDTO struct {
 	ID               int      `json:"id"`
@@ -8,10 +12,16 @@ type ServantDTO struct {
 }
 
 type SearchResponseDTO struct {
-	Total    int          `json:"total"`
+	Total   int          `json:"total"`
 	Offset  int          `json:"offset"`
 	Limit   int          `json:"limit"`
-	Items []ServantDTO `json:"items"`
+	Items   []ServantDTO `json:"items"`
+}
+
+type SearchRequestDTO struct {
+	Root   Expr   `json:"root"`
+	Limit  int    `json:"limit"`
+	Offset int    `json:"offset"`
 }
 
 type ClassDTO struct {
