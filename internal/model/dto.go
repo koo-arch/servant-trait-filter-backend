@@ -19,7 +19,7 @@ type SearchResponseDTO struct {
 }
 
 type SearchRequestDTO struct {
-	Root   Expr   `json:"root"`
+	Root   Expr   `json:"root" binding:"required"`
 	Limit  int    `json:"limit"`
 	Offset int    `json:"offset"`
 }
