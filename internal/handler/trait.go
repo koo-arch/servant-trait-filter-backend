@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/httperr"
 )
 
 func (h *Handler) FetchListTraits(c *gin.Context) {
@@ -11,7 +12,7 @@ func (h *Handler) FetchListTraits(c *gin.Context) {
 
 	traits, err := h.Trait.GetAllTraits(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch traits"})
+		httperr.Write(c, err)
 		return
 	}
 

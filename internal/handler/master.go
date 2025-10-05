@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/koo-arch/servant-trait-filter-backend/internal/httperr"
 )
 
 func (h *Handler) FetchListClasses(c *gin.Context) {
@@ -11,7 +12,7 @@ func (h *Handler) FetchListClasses(c *gin.Context) {
 
 	classes, err := h.Class.GetAllClasses(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch classes"})
+		httperr.Write(c, err)
 		return
 	}
 
@@ -23,7 +24,7 @@ func (h *Handler) FetchListAttributes(c *gin.Context) {
 
 	attributes, err := h.Attribute.GetAllAttributes(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch attributes"})
+		httperr.Write(c, err)
 		return
 	}
 
@@ -35,7 +36,7 @@ func (h *Handler) FetchListOrderAlignments(c *gin.Context) {
 
 	orderAlignments, err := h.OrderAlign.GetAllOrderAlignments(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch order alignments"})
+		httperr.Write(c, err)
 		return
 	}
 
@@ -47,7 +48,7 @@ func (h *Handler) FetchListMoralAlignments(c *gin.Context) {
 
 	moralAlignments, err := h.MoralAlign.GetAllMoralAlignments(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch moral alignments"})
+		httperr.Write(c, err)
 		return
 	}
 
