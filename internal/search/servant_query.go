@@ -1,7 +1,7 @@
 package search
 
 type ServantSearchQuery struct {
-	Root Expr
-	Limit int
-	Offset int
+	Root Expr `json:"root"`
+	Limit int  `json:"limit"`
+	Offset int  `json:"offset"`
 }

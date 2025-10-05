@@ -5,7 +5,6 @@ import (
 
     "github.com/koo-arch/servant-trait-filter-backend/internal/httperr"
 	"github.com/koo-arch/servant-trait-filter-backend/internal/search"
-    "github.com/koo-arch/servant-trait-filter-backend/internal/model"
 )
 
 const (
@@ -18,7 +17,7 @@ type exprStats struct {
     total    int
 }
 
-func ValidateSearchRequest(req *model.SearchRequestDTO) error {
+func ValidateSearchRequest(req *search.ServantSearchQuery) error {
     // limit/offset は gin の binding が弾く
 
     var fields []httperr.FieldError
@@ -63,17 +62,14 @@ func validateExpr(e *search.Expr, path string, depth int, st *exprStats, out *[]
     // 原子（ID が1つでも指定されているか）
     atomCount := countAtoms(e)
 
-    // AND/OR は空配列禁止
-    if hasAnd && len(e.And) == 0 {
-        *out = append(*out, fe(path+".and", "must not be empty"))
-    }
-    if hasOr && len(e.Or) == 0 {
-        *out = append(*out, fe(path+".or", "must not be empty"))
+    // AND/OR はどちらか一方のみ許可
+    if hasAnd && hasOr {
+        *out = append(*out, fe(path, "must not have both 'and' and 'or'"))
     }
 
-    // ルートが完全に空（子も原子もなし）は NG
+    // ルートが完全に空（子も原子もなし）は 全ての概念を許容するのでOK
     if !hasAnd && !hasOr && !hasNot && atomCount == 0 {
-        *out = append(*out, fe(path, "empty expression"))
+        return
     }
 
     // Not は1つだけ（現在の設計では Not.* の下にさらに And/Or/Not/atoms を置けるが、NULL は不可）
