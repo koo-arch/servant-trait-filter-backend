@@ -64,5 +64,6 @@ func convertServantDTO(svt *ent.Servant) model.ServantDTO {
 		CollectionNo: svt.CollectionNo,
 		Name:         svt.Name,
 		Face:         svt.Face,
+		ClassID:      svt.ClassID,
 	}
 }

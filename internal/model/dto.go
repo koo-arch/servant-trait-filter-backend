@@ -9,6 +9,8 @@ type ServantDTO struct {
 	CollectionNo     int      `json:"collectionNo"`
 	Name             string   `json:"name"`
 	Face             string   `json:"face"`
+	ClassID          int      `json:"classId"`
+	Class            string   `json:"class"`
 }
 
 type SearchResponseDTO struct {
